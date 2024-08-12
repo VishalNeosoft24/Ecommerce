@@ -1,0 +1,666 @@
+{% extends "admin_panel/base.html" %}
+{% block title %} Add Product {% endblock %}
+{% block content %}
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>Add New Product</h1>
+        </div>
+      </div>
+    </div><!-- /.container-fluid -->
+  </section>
+
+  <!-- Main content -->
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card card-default">
+            <div class="card-body p-0">
+              <div class="bs-stepper">
+                <div class="bs-stepper-header" role="tablist">
+                  <!-- your steps here -->
+                  <div class="step" data-target="#logins-part">
+                    <button type="button" class="step-trigger" role="tab" aria-controls="logins-part" id="logins-part-trigger">
+                      <span class="bs-stepper-circle">1</span>
+                      <span class="bs-stepper-label">Add Product</span>
+                    </button>
+                  </div>
+                  <div class="line"></div>
+                  <div class="step" data-target="#information-part">
+                    <button type="button" class="step-trigger" role="tab" aria-controls="information-part" id="information-part-trigger">
+                      <span class="bs-stepper-circle">2</span>
+                      <span class="bs-stepper-label">Add images</span>
+                    </button>
+                  </div>
+                  <div class="line"></div>
+                  <div class="step" data-target="#attribute-part">
+                    <button type="button" class="step-trigger" role="tab" aria-controls="attribute-part" id="attribute-part-trigger">
+                      <span class="bs-stepper-circle">3</span>
+                      <span class="bs-stepper-label">Add Attribute</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="bs-stepper-content">
+                  <!-- your steps content here -->
+                  <div id="logins-part" class="content" role="tabpanel" aria-labelledby="logins-part-trigger">
+                    <form id="productForm" method="post" action="{% url 'add_product' %}">
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="product_name">Product Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="product_name" name="product_name" maxlength="100" required>
+                                        <div class="text-danger" id="product_name_error"></div> <!-- Error message container -->
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="category">Category <span class="text-danger">*</span></label>
+                                        <select class="form-control select2" id="category" name="category_parent" required>
+                                            <option value="">Select Parent Category</option>
+                                            {% for parent_category in categories %}
+                                                <option value="{{ parent_category.id }}">
+                                                    {{ parent_category.path }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="text-danger" id="category_error"></div> <!-- Error message container -->
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="price">Price <span class="text-danger">*</span></label>
+                                        <input type="number" step="0.01" class="form-control" id="price" name="price" required>
+                                        <div class="text-danger" id="price_error"></div> <!-- Error message container -->
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="short_description">Short Description <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="short_description" name="short_description" maxlength="100" required>
+                                        <div class="text-danger" id="short_description_error"></div> <!-- Error message container -->
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="stock_quantity">Stock Quantity <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="stock_quantity" name="stock_quantity" required>
+                                        <div class="text-danger" id="stock_quantity_error"></div> <!-- Error message container -->
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="long_description">Long Description <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="long_description" name="long_description" rows="5" required></textarea>
+                                        <div class="text-danger" id="long_description_error"></div> <!-- Error message container -->
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                    
+                        <div class="card-footer">
+                            <button type="button" id="addProduct" class="btn btn-primary">Add Product</button>
+                            <button type="button" id="Next" class="btn btn-primary" style="display:none;" onclick="stepper.next();">Next</button>
+                        </div>
+
+                        <input type="hidden" name="product_id" id="product_id">
+
+                    </form>
+                  </div>
+                  <div id="information-part" class="content" role="tabpanel" aria-labelledby="information-part-trigger">
+                    <div id="actions" class="row">
+                      <div class="col-lg-6">
+                        <div class="btn-group w-100">
+                          <span class="btn btn-success col fileinput-button">
+                            <i class="fas fa-plus"></i>
+                            <span>Add files</span>
+                          </span>
+                          <button type="submit" class="btn btn-primary col start">
+                            <i class="fas fa-upload"></i>
+                            <span>Start upload</span>
+                          </button>
+                          <button type="reset" class="btn btn-warning col cancel">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Cancel upload</span>
+                          </button>
+                        </div>
+                      </div>
+                      <div class="col-lg-6 d-flex align-items-center">
+                        <div class="fileupload-process w-100">
+                          <div id="total-progress" class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                            <div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="table table-striped files" id="previews">
+                      <div id="template" class="row mt-2">
+                        <div class="col-auto">
+                            <span class="preview"><img src="data:," alt="" data-dz-thumbnail /></span>
+                        </div>
+                        <div class="col d-flex align-items-center">
+                            <p class="mb-0">
+                              <span class="lead" data-dz-name></span>
+                              (<span data-dz-size></span>)
+                            </p>
+                            <strong class="error text-danger" data-dz-errormessage></strong>
+                        </div>
+                        <div class="col-4 d-flex align-items-center">
+                            <div class="progress progress-striped active w-100" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                              <div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>
+                            </div>
+                        </div>
+                        <div class="col-auto d-flex align-items-center">
+                          <div class="btn-group">
+                            <button class="btn btn-primary start" style="display: none;">
+                              <i class="fas fa-upload"></i>
+                              <span>Start</span>
+                            </button>
+                            <button data-dz-remove class="btn btn-warning cancel" style="display: none;">
+                              <i class="fas fa-times-circle"></i>
+                              <span>Cancel</span>
+                            </button>
+                            <button data-dz-remove class="btn btn-danger delete">
+                              <i class="fas fa-trash"></i>
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                      <button class="btn btn-primary" onclick="stepper.previous()">Previous</button>
+                      <button class="btn btn-primary" id="fileNext" style="display:none;">Next</button>
+                    </div>
+                  </div>
+
+
+                  <div id="attribute-part" class="content" role="tabpanel" aria-labelledby="attribute-part-trigger">
+                      <form id="attributeForm" method="post">
+                          {% csrf_token %}
+                          <div class="card-body">
+                            <div id="attributesContainer" class="mb-4">
+                                <!-- Initial Attribute Row -->
+                                <div class="row attribute-row mb-3 p-3 border rounded shadow-sm bg-light">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="attribute_name" class="font-weight-bold">Attribute Name</label>
+                                            <input type="text" class="form-control" name="attribute_name[]" placeholder="Enter name">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="attribute_value" class="font-weight-bold">Attribute Values</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control attribute-value-input" placeholder="Add value">
+                                                <div class="input-group-append">
+                                                    <button type="button" class="btn btn-primary add-value">+</button>
+                                                </div>
+                                            </div>
+                                            <div class="attribute-values-list mt-2">
+                                                <!-- Display added values here -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 d-flex align-items-center justify-content-end">
+                                        <button type="button" class="btn btn-danger remove-attribute">Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" id="addAttribute" class="btn btn-outline-secondary">+ Add Attribute</button>
+                          </div>
+
+                          
+                          <div class="card-footer">
+                              <button class="btn btn-primary" onclick="stepper.previous()">Previous</button>
+                              <button type="submit" class="btn btn-primary">Save Attributes</button>
+                          </div>
+                          <input type="hidden" name="product_id" id="attribute_product_id" value="{{ product_id }}">
+                      </form>
+                  </div>
+
+
+
+              </div>
+            </div>
+            <!-- /.card-body -->
+          <!-- /.card -->
+        </div>
+      </div>
+    </div>
+    <!-- /.container-fluid -->
+  </section>
+  <!-- /.content -->
+</div>
+
+
+<script>
+  var csrf_token1 = $("input[name=csrfmiddlewaretoken]").val();
+
+  $(".select2").select2({
+      theme: "bootstrap4",
+  });
+
+  // BS-Stepper Init
+  document.addEventListener("DOMContentLoaded", function () {
+      window.stepper = new Stepper(document.querySelector(".bs-stepper"));
+  });
+
+  // Initialize a flag to track if any file has been successfully uploaded
+  let fileUploaded = false;
+
+  // DropzoneJS Demo Code Start
+  Dropzone.autoDiscover = false;
+
+  // Get the template HTML and remove it from the document
+  var previewNode = document.querySelector("#template");
+  previewNode.id = "";
+  var previewTemplate = previewNode.parentNode.innerHTML;
+  previewNode.parentNode.removeChild(previewNode);
+
+  var myDropzone = new Dropzone(document.body, {
+    // Make the whole body a dropzone
+    url: "/admin-panel/file_upload_view/", // Set the url
+    thumbnailWidth: 80,
+    thumbnailHeight: 80,
+    parallelUploads: 20,
+    previewTemplate: previewTemplate,
+    autoQueue: false, // Make sure the files aren't queued until manually added
+    previewsContainer: "#previews", // Define the container to display the previews
+    clickable: ".fileinput-button", // Define the element that should be used as click trigger to select files.
+
+    // Add the CSRF token to the headers of each request
+    headers: {
+        "X-CSRFToken": csrf_token1,
+    },
+
+    // Use a function to dynamically get product_id
+    sending: function (file, xhr, formData) {
+        const productId = document.getElementById("product_id").value;
+        formData.append("product_id", productId);
+    },
+  });
+
+  myDropzone.on("addedfile", function (file) {
+    // Hookup the start button
+    file.previewElement.querySelector(".start").onclick = function () {
+        myDropzone.enqueueFile(file);
+    };
+  });
+
+  // Update the total progress bar
+  myDropzone.on("totaluploadprogress", function (progress) {
+    document.querySelector("#total-progress .progress-bar").style.width =
+      progress + "%";
+  });
+
+  myDropzone.on("sending", function (file) {
+    // Show the total progress bar when upload starts
+    document.querySelector("#total-progress").style.opacity = "1";
+    // And disable the start button
+    file.previewElement
+        .querySelector(".start")
+        .setAttribute("disabled", "disabled");
+  });
+
+  // Hide the total progress bar when nothing's uploading anymore
+  myDropzone.on("queuecomplete", function (progress) {
+    document.querySelector("#total-progress").style.opacity = "0";
+  });
+
+
+  // Handling the successful upload response
+  myDropzone.on("success", function (file, response) {
+    if (response.status === "success") {
+      toastr.success(response.msg);
+      // Add image_id as a data attribute to the image element
+      const imgElement = file.previewElement.querySelector(".preview img");
+      imgElement.src = response.file_url;
+      imgElement.dataset.imageId = response.image_id; // Store image_id in a data attribute
+
+      // Ensure that the thumbnail size is correctly applied
+      imgElement.style.width = "80px"; // Adjust width as needed
+      imgElement.style.height = "80px"; // Adjust height as needed
+      imgElement.style.objectFit = "cover"; // Ensures the image covers the thumbnail area
+
+      // Set the flag to true indicating a file was uploaded successfully
+      fileUploaded = true;
+      // Show the "fileNext" button
+      document.getElementById("fileNext").style.display = "inline-block";
+    }
+  });
+
+  // Update the "Next" button click handler in the file upload section
+  document.getElementById("fileNext").addEventListener("click", function (event) {
+    // Prevent moving to the next step if no files are uploaded
+    if (!fileUploaded) {
+        event.preventDefault();
+        toastr.error("Please upload at least one file before proceeding to the next step.");
+        return;
+    }
+    
+    // If files are uploaded, proceed to the next step
+    stepper.next();
+  });
+
+  // Setup the buttons for all transfers
+  // The "add files" button doesn't need to be setup because the config
+  // `clickable` has already been specified.
+  document.querySelector("#actions .start").onclick = function () {
+      myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED));
+  };
+  {% comment %}
+  document.querySelector("#actions .cancel").onclick = function () {
+      myDropzone.removeAllFiles(true);
+  };
+  {% endcomment %}
+  // DropzoneJS Demo Code End
+
+  // Handling the delete button click
+  myDropzone.on("addedfile", function (file) {
+    file.previewElement.querySelector(".delete").onclick = function () {
+      if (file.status === Dropzone.SUCCESS) {
+          const imageElement =
+            file.previewElement.querySelector(".preview img");
+          const imageId = imageElement ? imageElement.dataset.imageId : null;
+          if (imageId) {
+            // Make an AJAX call to delete the image from the server
+            $.ajax({
+              url: "/admin-panel/delete_file/",
+              type: "POST",
+              data: {
+                image_id: imageId,
+                csrfmiddlewaretoken: csrf_token1,
+              },
+              success: function (response) {
+                if (response.success) {
+                  myDropzone.removeFile(file);
+                  toastr.success("Image deleted successfully.");
+                  // Check if there are any successful uploads left
+                  fileUploaded = myDropzone.getAcceptedFiles().some(
+                    (file) => file.status === Dropzone.SUCCESS
+                  );
+
+                  if (!fileUploaded) {
+                    // Hide the "fileNext" button if no files are uploaded
+                    document.getElementById("fileNext").style.display = "none";
+                  }
+                } else {
+                  toastr.error("Failed to delete image.");
+                }
+              },
+              error: function (xhr, status, error) {
+                toastr.error(
+                  "An error occurred while deleting the image."
+                );
+              },
+            });
+          } else {
+            toastr.error(
+              "Image ID is missing, unable to delete the image."
+            );
+          }
+      } else {
+          // File was not uploaded, just remove it from the UI
+          myDropzone.removeFile(file);
+      }
+    };
+  });
+
+  // Handle cancel button click
+  document.querySelector("#actions .cancel").onclick = function () {
+      const files = myDropzone.getAcceptedFiles();
+      console.log("files: ", files);
+
+      // Check if there are any files at all
+      if (files.length > 0) {
+          // Check if all files are uploaded
+          const allFilesUploaded = files.every(
+              (file) => file.status === Dropzone.SUCCESS
+          );
+
+          if (allFilesUploaded) {
+              // If all files were uploaded, make an AJAX call to delete them from the server
+              $.ajax({
+                  url: "/admin-panel/delete_all_files/",
+                  type: "POST",
+                  data: {
+                      product_id: document.getElementById("product_id").value,
+                      csrfmiddlewaretoken: csrf_token1,
+                  },
+                  success: function (response) {
+                      if (response.success) {
+                          myDropzone.removeAllFiles(true);
+                          toastr.success("All files deleted successfully.");
+                          // Hide the "fileNext" button if no files are uploaded
+                          document.getElementById("fileNext").style.display = "none";
+                      } else {
+                          toastr.error("Failed to delete all files.");
+                      }
+                  },
+                  error: function (xhr, status, error) {
+                      toastr.error(
+                          "An error occurred while deleting all files."
+                      );
+                  },
+              });
+          } else {
+              // If not all files were uploaded, remove files from the UI
+              myDropzone.removeAllFiles(true);
+          }
+      } else {
+          // No files selected, just remove files from the UI
+          myDropzone.removeAllFiles(true);
+      }
+  };
+
+  // Validations and form submission.
+  document.addEventListener("DOMContentLoaded", function () {
+      const submitAndNextButton = document.getElementById("addProduct");
+      const form = document.getElementById("productForm");
+
+      submitAndNextButton.addEventListener("click", function () {
+          const validationResults = validateForm();
+
+          if (validationResults.isValid) {
+              $.ajax({
+                  url: form.action,
+                  type: "POST",
+                  data: $(form).serialize(), // Serialize form data
+                  success: function (response) {
+                      if (response.exists) {
+                          document.getElementById("product_id").value = productId;
+                          toastr.error(response.msg);
+                          stepper.next();
+                      } else {
+                          toastr.success(response.msg);
+                          productId = response.product_id; // Store the product ID
+                          document.getElementById("product_id").value = productId;
+                          // Show the "Next" button
+                          document.getElementById("Next").style.display =
+                              "inline-block";
+                          stepper.next();
+                      }
+                  },
+                  error: function (xhr, status, error) {
+                      toastr.error(xhr.responseJSON.msg);
+                  },
+              });
+          } else {
+              displayErrors(validationResults.errors);
+          }
+      });
+
+      function validateForm() {
+          let isValid = true;
+          let errors = {};
+          const requiredFields = form.querySelectorAll("[required]");
+
+          requiredFields.forEach((field) => {
+              const errorId = `${field.id}_error`;
+              if (!field.value.trim()) {
+                  isValid = false;
+                  errors[errorId] = `Please fill out the ${field.previousElementSibling.textContent.trim()}`;
+                  field.classList.add("is-invalid");
+              } else {
+                  field.classList.remove("is-invalid");
+                  errors[errorId] = "";
+              }
+          });
+
+          displayErrors(errors); // Display errors after validation
+
+          return { isValid, errors };
+      }
+
+      function displayErrors(errors) {
+          Object.keys(errors).forEach((errorId) => {
+              const errorElement = document.getElementById(errorId);
+              if (errorElement) {
+                  errorElement.innerHTML = errors[errorId];
+                  errorElement.style.display = "block";
+              }
+          });
+      }
+
+      // Function to create a card with a cross (X) icon
+      function createValueCard(value) {
+          const card = document.createElement('div');
+          card.className = 'value-card d-inline-block bg-light p-2 mr-2 mb-2 rounded';
+          card.innerHTML = `
+              <span>${value}</span>
+              <button type="button" class="btn btn-sm btn-danger ml-2 remove-value">X</button>
+          `;
+          return card;
+      }
+
+      // Function to add a new attribute row
+      function addAttributeRow() {
+        const attributeContainer = document.getElementById('attributesContainer');
+        const attributeRow = document.createElement('div');
+        attributeRow.className = 'row attribute-row mb-3 p-3 border rounded shadow-sm bg-light';
+        attributeRow.innerHTML = `
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="attribute_name" class="font-weight-bold">Attribute Name</label>
+                    <input type="text" class="form-control" name="attribute_name[]" placeholder="Enter name">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="attribute_value" class="font-weight-bold">Attribute Values</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control attribute-value-input" placeholder="Add value">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-primary add-value">+</button>
+                        </div>
+                    </div>
+                    <div class="attribute-values-list mt-2">
+                        <!-- Display added values here -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 d-flex align-items-center justify-content-end">
+                <button type="button" class="btn btn-danger remove-attribute">Remove</button>
+            </div>
+        `;
+        attributeContainer.appendChild(attributeRow);
+      }
+
+
+      // Add a new value to the list of values for an attribute
+      document.getElementById('attributesContainer').addEventListener('click', function(event) {
+          if (event.target.classList.contains('add-value')) {
+              const attributeRow = event.target.closest('.attribute-row');
+              const valueInput = attributeRow.querySelector('.attribute-value-input');
+              const value = valueInput.value.trim();
+
+              if (value) {
+                  const valuesList = attributeRow.querySelector('.attribute-values-list');
+                  const valueCard = createValueCard(value);
+
+                  valuesList.appendChild(valueCard);
+                  valueInput.value = ''; // Clear the input after adding
+              }
+          }
+
+          if (event.target.classList.contains('remove-value')) {
+              const valueCard = event.target.closest('.value-card');
+              valueCard.remove();
+          }
+      });
+
+      // Remove an attribute row
+      document.getElementById('attributesContainer').addEventListener('click', function(event) {
+          if (event.target.classList.contains('remove-attribute')) {
+              const attributeRow = event.target.closest('.attribute-row');
+              attributeRow.remove();
+          }
+      });
+
+      // Add a new attribute row
+      document.getElementById('addAttribute').addEventListener('click', function() {
+          addAttributeRow();
+      });
+
+      // Handle form submission
+      document.getElementById('attributeForm').addEventListener('submit', function(event) {
+          event.preventDefault(); // Prevent default form submission
+
+          const attributeRows = document.querySelectorAll('.attribute-row');
+          const attributesData = [];
+          const productId = document.getElementById('product_id').value;
+          console.log('productId: ', productId)
+
+
+          attributeRows.forEach(row => {
+              const attributeName = row.querySelector('input[name="attribute_name[]"]').value.trim();
+              const attributeValues = Array.from(row.querySelectorAll('.value-card span')).map(span => span.textContent);
+
+              if (attributeName && attributeValues.length > 0) {
+                  attributesData.push({ [attributeName]: attributeValues });
+              }
+          });
+
+          // Add CSRF token to data
+          const formData = new FormData();
+          formData.append('attributes_data', JSON.stringify(attributesData));
+          formData.append('product_id', productId);
+
+          // Submit the form data via AJAX
+          $.ajax({
+              url: '/admin-panel/handle-attributes/',
+              type: 'POST',
+              data: formData,
+              contentType: false,
+              processData: false,
+              headers: {
+                  'X-CSRFToken': getCsrfToken(),
+              },
+              success: function(data) {
+                toastr.success(data.msg);
+                window.location.href = "{% url 'all_products' %}";
+              },
+              error: function(error) {
+                  console.error('Error:', error);
+                  toastr.error('An error occurred while saving attributes.');
+              }
+          });
+      });
+
+      // Function to get CSRF token (if using Django)
+      function getCsrfToken() {
+          const csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+          return csrfToken;
+      }
+
+  });
+
+
+</script>
+
+  
+{% endblock %}

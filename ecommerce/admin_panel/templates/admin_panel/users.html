@@ -1,0 +1,546 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+{% block title %}User{% endblock %}
+
+{% block content %}
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Users</h1>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <!-- /.card-header -->
+              <div class="card-body">
+                <table id="user-data-table" class="table table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <th>Sr.No</th>
+                      <th>First Name</th>
+                      <th>Lasr Name</th>
+                      <th>Username</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Last Login</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for user in users %}
+                      <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ user.first_name }}</td>
+                        <td>{{ user.last_name }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                          {% for key, value in user.roles.items %}
+                          {{ value }}, <br>
+                          {% endfor %}
+                        </td>
+                        
+                        <td>{{ user.last_login }}</td>
+                        <td>
+                          <button {% if 'Admin' in user.roles %} class="btn btn-info" disabled {% else %}class="btn btn-info edit-btn" data-toggle="modal" data-target="#editModal" data-id="{{ user.id }}" data-firstname="{{ user.first_name }}" data-lastname="{{ user.last_name }}" data-username="{{ user.username }}" data-email="{{ user.email }}" data-group="{{ user.role_key }}" {% endif %}><i class="fa fa-edit"></i></button>
+                          <button {% if 'Admin' in user.roles %} class="btn btn-danger" disabled {% else %} class='btn btn-danger delete-btn' data-toggle="modal" data-target="#deleteUserModal"  data-id="{{ user.id }}" {% endif %}><i class="fa fa-trash" aria-hidden="true"></i></button>
+
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.card-body -->
+            </div>
+          </div>
+          <!-- /.col -->
+
+
+          <!-- User Delete Modal -->
+          <div class="modal fade" id="deleteUserModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                  <form id="deleteUserForm" method="POST" action="{% url "delete_user" %}">
+                    <div class="modal-header d-flex justify-content-center">
+                      <h3 class="modal-title d-flex align-items-center">
+                          <i class="bi bi-exclamation-triangle-fill mr-2"></i> Delete User
+                      </h3>
+                      <button type="button" class="close position-absolute" style="right: 15px;" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <p class="lead text-bold">Are you sure you want to delete this user?</p>
+                        <p class="text-muted">This action cannot be undone.</p>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal"><i class="bi bi-x-circle"></i> Close</button>
+                        <button type="button" class="btn btn-outline-danger" id="deleteUser"><i class="bi bi-trash"></i> Delete</button>
+                    </div>
+                    <input type="hidden" id="deleteUserId" name="user_id" />
+                  </form>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+          </div>
+          <!-- /.User Delete Modal -->
+
+          <!-- User Create Modal -->
+          <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <form id="createForm" method="post">
+                  {% csrf_token %}
+
+                  <div class="modal-header bg-warning">
+                    <h5 class="modal-title" id="createModalLabel">Create User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  </div>
+                  <div class="modal-body">
+                    
+                    <!-- First Row -->
+                    <div class="row">
+                      <div class="form-group col-md-6">
+                        <label for="firstName">First Name <span class="text-danger asterisk">*</span></label>
+                        <input type="text" class="form-control" id="create_firstName" name="first_name" />
+                        <div id="createFirstNameError" class="text-danger"></div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="lastName">Last Name <span class="text-danger asterisk">*</span></label>
+                        <input type="text" class="form-control" id="create_lastName" name="last_name" />
+                        <div id="createLastNameError" class="text-danger"></div>
+                      </div>
+                    </div>
+                    
+                    <!-- Second Row -->
+                    <div class="row">
+                      <div class="form-group col-md-6">
+                        <label for="email">Email <span class="text-danger asterisk">*</span></label>
+                        <input type="email" class="form-control" id="create_email" name="email" />
+                        <div id="createEmailError" class="text-danger"></div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="username">Username <span class="text-danger asterisk">*</span></label>
+                        <input type="text" class="form-control" id="create_username" name="username" />
+                        <div id="createUsernameError" class="text-danger"></div>
+                      </div>
+                    </div>
+                    
+                    <!-- Third Row -->
+                    <div class="row">
+                      <div class="form-group col-md-6">
+                        <label for="password">Password <span class="text-danger asterisk">*</span></label>
+                        <input type="password" class="form-control" id="create_password" name="password" />
+                        <div id="createPasswordError" class="text-danger"></div>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="confirm_password">Confirm Password <span class="text-danger asterisk">*</span></label>
+                        <input type="password" class="form-control" id="create_confirm_password" name="re_password" />
+                        <div id="createConfirmPasswordError" class="text-danger"></div>
+                      </div>
+                    </div>
+
+                    <!-- Select Group -->
+                    <div class="form-group">
+                      <label for="create_exampleSelect">Choose a Group <span class="text-danger asterisk">*</span></label>
+                      <select class="form-control select2" multiple="multiple" id="create_exampleSelect" name="group" data-placeholder="Select a Group" style="width: 100%;">
+                        {% for group_key, group_val in available_groups.items %}
+                          <option value="{{ group_key }}">{{ group_val }}</option>
+                        {% endfor %}
+                      </select>
+                      <div id="createGroupError" class="text-danger"></div>
+                    </div>
+                    
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="createUser">Create</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <!-- /User Create Modal -->
+
+          <!-- User Update Modal -->
+          <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <form id="editForm" method="post" action="{% url 'update_user' %}">
+                  <div class="modal-header bg-warning">
+                    <h5 class="modal-title" id="editModalLabel">Edit User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  </div>
+                  <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="form-group">
+                      <label for="firstName">First Name <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="firstName" name="first_name" />
+                      <div class="text-danger" id="firstNameError"></div>
+                    </div>
+                    <div class="form-group">
+                      <label for="lastName">Last Name <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="lastName" name="last_name" />
+                      <div class="text-danger" id="lastNameError"></div>
+                    </div>
+                    <div class="form-group">
+                      <label for="email">Email <span class="text-danger">*</span></label>
+                      <input type="email" class="form-control" id="email" name="email" />
+                      <div class="text-danger" id="emailError"></div>
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleSelect">Choose a group <span class="text-danger">*</span></label>
+                      <select class="form-control select2" multiple="multiple" id="exampleSelect" name="group" data-placeholder="Select a Group" style="width: 100%;">
+                        {% for group_key, group_val in available_groups.items %}
+                          <option value="{{ group_key }}">{{ group_val }}</option>
+                        {% endfor %}
+                      </select>
+                      <div class="text-danger" id="groupError"></div>
+                    </div>
+                    <input type="hidden" id="userId" name="user_id" />
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="saveChanges">Save changes</button>
+                  </div>
+                </form>
+                
+              </div>
+            </div>
+          </div>
+          <!-- /User Update Modal -->
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+
+  <script>
+    $(function () {
+      $('#user-data-table').DataTable({
+        paging: true,
+        lengthChange: false,
+        searching: true,
+        ordering: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        dom: 'Bfrtip',
+        buttons: [{
+          text: "Add User",
+          action: function (e, dt, node, config) {
+            if (!config.clicked){
+              $('#createModal').modal('show');
+            }
+          },
+        }],
+      })
+    })  
+
+   
+    
+    $(document).ready(function () {
+      $('.select2').select2({
+        theme:'bootstrap4'
+      })
+
+      $('.edit-btn').click(function () {
+        //function to clear select options
+        clear_multi_select('exampleSelect');
+
+        var userId = $(this).data('id')
+        var firstName = $(this).data('firstname')
+        var lastName = $(this).data('lastname')
+        var email = $(this).data('email')
+        var group = $(this).data('group'); 
+
+        role = group.replace("[", "").replace("]", "").replaceAll("'","").replaceAll(" ","").split(",")
+
+        $('#editModal #userId').val(userId)
+        $('#editModal #firstName').val(firstName)
+        $('#editModal #lastName').val(lastName)
+        $('#editModal #email').val(email)
+
+        for(var j=0; j<role.length; j++){
+          $('#editModal #exampleSelect option').filter(function(i, e) {
+            return $(e).val() == (role[j]).trim() }).prop("selected",true);
+        }
+        
+        $('#editModal #exampleSelect').trigger('change');
+
+        $('#editModal #firstName').removeClass('is-invalid');
+        $('#firstNameError').text('');
+        
+        $('#editModal #lastName').removeClass('is-invalid');
+        $('#lastNameError').text('');
+        
+        $('#editModal #email').removeClass('is-invalid');
+        $('#emailError').text('');
+        
+        $('#editModal #exampleSelect').removeClass('is-invalid');
+        $('#groupError').text('');
+        
+      })
+
+      $('.delete-btn').click(function () {
+        var userId = $(this).data('id')
+        console.log("====", userId);
+        $('#deleteUserModal #deleteUserId').val(userId)
+      })
+    
+      
+      $('#editForm').on('submit',function (e) {
+        e.preventDefault();
+        
+        var isValid = true;
+        var firstName = $('#editModal #firstName').val();
+        var lastName = $('#editModal #lastName').val();
+        var email = $('#editModal #email').val();
+        var group = $('#editModal #exampleSelect').val();
+
+        if (!firstName) {
+          isValid = false;
+          $('#editModal #firstName').addClass('is-invalid');
+          $('#firstNameError').text('First name is required.');
+        } else {
+          $('#editModal #firstName').removeClass('is-invalid');
+          $('#firstNameError').text('');
+        }
+    
+        if (!lastName) {
+          isValid = false;
+          $('#editModal #lastName').addClass('is-invalid');
+          $('#lastNameError').text('Last name is required.');
+        } else {
+          $('#editModal #lastName').removeClass('is-invalid');
+          $('#lastNameError').text('');
+        }
+    
+        if (!email) {
+          isValid = false;
+          $('#editModal #email').addClass('is-invalid');
+          $('#emailError').text('Email is required.');
+        } else {
+          $('#editModal #email').removeClass('is-invalid');
+          $('#emailError').text('');
+        }
+    
+        if (!group || group.length === 0) {
+          isValid = false;
+          $('#editModal #exampleSelect').addClass('is-invalid');
+          $('#groupError').text('At least one group must be selected.');
+        } else {
+          $('#editModal #exampleSelect').removeClass('is-invalid');
+          $('#groupError').text('');
+        }
+
+        if (isValid) {
+          $.ajax({
+            url: '{% url "update_user" %}',
+            type: 'POST',
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}'
+            },
+            data: $('#editForm').serialize(),
+            success: function (response) {
+              if (response.status === 'success') {
+                toastr.success(response.msg);
+                setTimeout(function () {
+                  location.reload();
+                }, 1000);
+              } else if (response.status === 'error') {
+                toastr.error(response.msg);
+                setTimeout(function () {
+                  location.reload();
+                }, 1000);
+              } else {
+                toastr.error('An error occurred while updating user information.');
+              }
+            },
+            error: function (error) {
+              toastr.error('An unexpected error occurred.');
+            }
+          });
+        } else {
+          toastr.error('Please fill out all required fields.');
+        }
+      });
+
+      // Function to clear form errors and reset form fields
+      function clearFormErrors() {
+        $('#createForm')[0].reset(); // Reset the form fields
+        $('.is-invalid').removeClass('is-invalid'); // Remove error classes
+        $('.text-danger').not('.asterisk').text(''); // Clear error messages, keeping asterisks
+        $('.select2').val(null).trigger('change'); // Reset select2 fields
+      }
+
+      // Event listener to clear form errors when the modal is shown
+      $('#createModal').on('shown.bs.modal', function () {
+        clearFormErrors();
+      });
+
+      // Event listener to clear form errors when the modal is hidden
+      $('#createModal').on('hidden.bs.modal', function () {
+        clearFormErrors();
+      });
+
+
+      $('#createUser').click(function (e) {
+        e.preventDefault();
+      
+        var isValid = true;
+        var firstName = $('#createModal #create_firstName').val();
+        var lastName = $('#createModal #create_lastName').val();
+        var email = $('#createModal #create_email').val();
+        var username = $('#createModal #create_username').val();
+        var password = $('#createModal #create_password').val();
+        var confirm_password = $('#createModal #create_confirm_password').val();
+        var group = $('#createModal #create_exampleSelect').val();
+
+        var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      
+        if (!firstName) {
+          isValid = false;
+          $('#createModal #create_firstName').addClass('is-invalid');
+          $('#createFirstNameError').text('First name is required.');
+        } else {
+          $('#createModal #create_firstName').removeClass('is-invalid');
+          $('#createFirstNameError').text('');
+        }
+      
+        if (!lastName) {
+          isValid = false;
+          $('#createModal #create_lastName').addClass('is-invalid');
+          $('#createLastNameError').text('Last name is required.');
+        } else {
+          $('#createModal #create_lastName').removeClass('is-invalid');
+          $('#createLastNameError').text('');
+        }
+      
+        if (!email) {
+          isValid = false;
+          $('#createModal #create_email').addClass('is-invalid');
+          $('#createEmailError').text('Email is required.');
+        } else if (!emailPattern.test(email)) {
+          isValid = false;
+          $('#createModal #create_email').addClass('is-invalid');
+          $('#createEmailError').text('Please enter a valid email address.');
+        } else {
+          $('#createModal #create_email').removeClass('is-invalid');
+          $('#createEmailError').text('');
+        }
+      
+        if (!username) {
+          isValid = false;
+          $('#createModal #create_username').addClass('is-invalid');
+          $('#createUsernameError').text('Username is required.');
+        } else {
+          $('#createModal #create_username').removeClass('is-invalid');
+          $('#createUsernameError').text('');
+        }
+      
+        if (!password) {
+          isValid = false;
+          $('#createModal #create_password').addClass('is-invalid');
+          $('#createPasswordError').text('Password is required.');
+        } else {
+          $('#createModal #create_password').removeClass('is-invalid');
+          $('#createPasswordError').text('');
+        }
+      
+        if (!confirm_password) {
+          isValid = false;
+          $('#createModal #create_confirm_password').addClass('is-invalid');
+          $('#createConfirmPasswordError').text('Confirm password is required.');
+        } else if (password !== confirm_password) {
+          isValid = false;
+          $('#createModal #create_confirm_password').addClass('is-invalid');
+          $('#createConfirmPasswordError').text('Passwords do not match.');
+        } else {
+          $('#createModal #create_confirm_password').removeClass('is-invalid');
+          $('#createConfirmPasswordError').text('');
+        }
+      
+        if (!group || group.length === 0) {
+          isValid = false;
+          $('#createModal #create_exampleSelect').addClass('is-invalid');
+          $('#createGroupError').text('At least one group must be selected.');
+        } else {
+          $('#createModal #create_exampleSelect').removeClass('is-invalid');
+          $('#createGroupError').text('');
+        }
+      
+        if (isValid) {
+          $.ajax({
+            url: '{% url "register" %}',
+            type: 'POST',
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}'
+            },
+            data: $('#createForm').serialize(),
+            success: function(response) {
+              if (response.status === 'success') {
+                toastr.success('User created successfully.');
+                setTimeout(function(){
+                  location.reload();
+                }, 1000);
+              } else {
+                toastr.error('An unexpected error occurred.');
+              }
+            },
+            error: function(error) {
+              toastr.error('An unexpected error occurred.');
+            }
+          });
+        } else {
+          toastr.error('Please fill out all required fields.');
+        }
+      });
+      
+
+      $('#deleteUser').click(function () {
+        $('#deleteUserForm').on('submit', function(){
+          e.preventDefault();
+        })
+        $.ajax({
+          url: '{% url "delete_user" %}',
+          type: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          data: $('#deleteUserForm').serialize(),
+          success: function(response) {
+            if (response.status === 'success') {
+              toastr.success(response.msg);
+              setTimeout(function(){
+                location.reload();
+              }, 1000);
+              
+            } else {
+              toastr.error('An error occurred while updating user information.');
+            }
+          },
+          error: function(error) {
+            toastr.error('An unexpected error occurred.');
+          }
+        });
+      });
+    })
+    
+  </script>
+{% endblock %}
