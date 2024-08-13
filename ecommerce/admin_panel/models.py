@@ -124,6 +124,15 @@ class Category(models.Model):
         "self", null=True, blank=True, related_name="children", on_delete=models.CASCADE
     )
     description = models.TextField()
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="category_created"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="category_updated"
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         full_path = [self.name]
@@ -139,7 +148,9 @@ class Product(models.Model):
     short_description = models.CharField(max_length=100)
     long_description = models.TextField()
     price = models.FloatField()
-    categories = models.ManyToManyField(Category, related_name="products")
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="category"
+    )
     quantity = models.IntegerField()
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(
@@ -167,7 +178,11 @@ class Product(models.Model):
 class ProductImage(models.Model):
     image = models.ImageField(upload_to="product_images/")
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, null=True, verbose_name="Product foreign key"
+        Product,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="product_images",
+        verbose_name="Product foreign key",
     )
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(
