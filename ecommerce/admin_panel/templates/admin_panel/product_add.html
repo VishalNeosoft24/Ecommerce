@@ -1,5 +1,5 @@
 {% extends "admin_panel/base.html" %}
-{% block title %} Add Product {% endblock %}
+{% block title %}{% if update_product %}Update {% else %} Add {% endif %} Product {% endblock %}
 {% block content %}
 
 <!-- Content Wrapper. Contains page content -->
@@ -9,7 +9,15 @@
     <div class="container-fluid">
       <div class="row mb-2">
         <div class="col-sm-6">
-          <h1>Add New Product</h1>
+          <h1> 
+            {% if update_product %}
+              Update
+            {% else %}
+              Add New
+            {% endif %}
+              Product
+          </h1>
+         
         </div>
       </div>
     </div><!-- /.container-fluid -->
@@ -28,35 +36,35 @@
                   <div class="step" data-target="#logins-part">
                     <button type="button" class="step-trigger" role="tab" aria-controls="logins-part" id="logins-part-trigger">
                       <span class="bs-stepper-circle">1</span>
-                      <span class="bs-stepper-label">Add Product</span>
+                      <span class="bs-stepper-label">{% if update_product %}Update {% else %} Add {% endif %} Product</span>
                     </button>
                   </div>
                   <div class="line"></div>
                   <div class="step" data-target="#information-part">
                     <button type="button" class="step-trigger" role="tab" aria-controls="information-part" id="information-part-trigger">
                       <span class="bs-stepper-circle">2</span>
-                      <span class="bs-stepper-label">Add images</span>
+                      <span class="bs-stepper-label">{% if update_product %}Update {% else %} Add {% endif %} images</span>
                     </button>
                   </div>
                   <div class="line"></div>
                   <div class="step" data-target="#attribute-part">
                     <button type="button" class="step-trigger" role="tab" aria-controls="attribute-part" id="attribute-part-trigger">
                       <span class="bs-stepper-circle">3</span>
-                      <span class="bs-stepper-label">Add Attribute</span>
+                      <span class="bs-stepper-label">{% if update_product %}Update {% else %} Add {% endif %} Attribute</span>
                     </button>
                   </div>
                 </div>
                 <div class="bs-stepper-content">
                   <!-- your steps content here -->
                   <div id="logins-part" class="content" role="tabpanel" aria-labelledby="logins-part-trigger">
-                    <form id="productForm" method="post" action="{% url 'add_product' %}">
+                    <form id="productForm" method="post" {% if update_product %}action="{% url 'update_product' update_product.id %}" {% else %} action="{% url 'add_product' %}" {% endif %}>
                         {% csrf_token %}
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="product_name">Product Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="product_name" name="product_name" maxlength="100" required>
+                                        <input type="text" class="form-control" value="{{ update_product.name }}" id="product_name" name="product_name" maxlength="100" required>
                                         <div class="text-danger" id="product_name_error"></div> <!-- Error message container -->
                                     </div>
                                     <div class="form-group">
@@ -64,7 +72,7 @@
                                         <select class="form-control select2" id="category" name="category_parent" required>
                                             <option value="">Select Parent Category</option>
                                             {% for parent_category in categories %}
-                                                <option value="{{ parent_category.id }}">
+                                                <option value="{{ parent_category.id }}" {% if parent_category.id == update_product.category.id %}selected{% endif %}>
                                                     {{ parent_category.path }}
                                                 </option>
                                             {% endfor %}
@@ -73,12 +81,12 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="price">Price <span class="text-danger">*</span></label>
-                                        <input type="number" step="0.01" class="form-control" id="price" name="price" required>
+                                        <input type="number" value="{{ update_product.price }}" step="0.01" class="form-control" id="price" name="price" required>
                                         <div class="text-danger" id="price_error"></div> <!-- Error message container -->
                                     </div>
                                     <div class="form-group">
                                         <label for="short_description">Short Description <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="short_description" name="short_description" maxlength="100" required>
+                                        <input type="text" class="form-control" value="{{ update_product.short_description }}" id="short_description" name="short_description" maxlength="100" required>
                                         <div class="text-danger" id="short_description_error"></div> <!-- Error message container -->
                                     </div>
                                 </div>
@@ -86,12 +94,12 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="stock_quantity">Stock Quantity <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="stock_quantity" name="stock_quantity" required>
+                                        <input type="number" class="form-control" value="{{ update_product.quantity }}" id="stock_quantity" name="stock_quantity" required>
                                         <div class="text-danger" id="stock_quantity_error"></div> <!-- Error message container -->
                                     </div>
                                     <div class="form-group">
                                         <label for="long_description">Long Description <span class="text-danger">*</span></label>
-                                        <textarea class="form-control" id="long_description" name="long_description" rows="5" required></textarea>
+                                        <textarea class="form-control" id="long_description" name="long_description" rows="5" required>{{ update_product.short_description }}</textarea>
                                         <div class="text-danger" id="long_description_error"></div> <!-- Error message container -->
                                     </div>
                                     
@@ -101,11 +109,11 @@
                         <!-- /.card-body -->
                     
                         <div class="card-footer">
-                            <button type="button" id="addProduct" class="btn btn-primary">Add Product</button>
-                            <button type="button" id="Next" class="btn btn-primary" style="display:none;" onclick="stepper.next();">Next</button>
+                            <button type="button" id="addProduct" class="btn btn-primary">{% if update_product %}Update {% else %}Add {% endif %}Product</button>
+                            <button type="button" id="Next" class="btn btn-primary" {% if update_product %}style="display:inline-block;" {% else %} style="display:none;" {% endif %} onclick="stepper.next();">Next</button>
                         </div>
 
-                        <input type="hidden" name="product_id" id="product_id">
+                        <input type="hidden" name="product_id" id="product_id" value="{{update_product.id}}">
 
                     </form>
                   </div>
@@ -135,10 +143,41 @@
                         </div>
                       </div>
                     </div>
+                    
+                    <!-- Section to Display Existing Images -->
+                    <div id="existing-images" class="table table-striped files">
+                        {% for image in images %}
+                          <div class="row mt-2 existing-image-preview">
+                              <div class="col-auto">
+                                  <span class="preview">
+                                      <img src="{{ image.image.url }}" alt="{{ product.name }}" class="img-thumbnail" data-dz-thumbnail />
+                                  </span>
+                              </div>
+                              <div class="col d-flex align-items-center">
+                                  <p class="mb-0">{{ image.image.name }}</p>
+                              </div>
+                              <div class="col-auto d-flex align-items-center">
+                                  <div class="btn-group">
+                                      <button data-image-id="{{ image.id }}" class="btn btn-danger delete delete-existing-image">
+                                          <i class="fas fa-trash"></i>
+                                          <span>Delete</span>
+                                      </button>
+                                  </div>
+                              </div>
+                          </div>
+                        {% endfor %}
+                    </div>
+
+
+
+
                     <div class="table table-striped files" id="previews">
                       <div id="template" class="row mt-2">
                         <div class="col-auto">
                             <span class="preview"><img src="data:," alt="" data-dz-thumbnail /></span>
+                             
+                            
+                              
                         </div>
                         <div class="col d-flex align-items-center">
                             <p class="mb-0">
@@ -176,10 +215,9 @@
                       <button class="btn btn-primary" id="fileNext" style="display:none;">Next</button>
                     </div>
                   </div>
-
-
                   <div id="attribute-part" class="content" role="tabpanel" aria-labelledby="attribute-part-trigger">
-                      <form id="attributeForm" method="post">
+                      <form id=
+                          "attributeForm" method="post">
                           {% csrf_token %}
                           <div class="card-body">
                             <div id="attributesContainer" class="mb-4">
@@ -188,7 +226,7 @@
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="attribute_name" class="font-weight-bold">Attribute Name</label>
-                                            <input type="text" class="form-control" name="attribute_name[]" placeholder="Enter name">
+                                            <input type="text" class="form-control attribute-name-input" name="attribute_name[]" placeholder="Enter name">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -212,18 +250,14 @@
                             </div>
                             <button type="button" id="addAttribute" class="btn btn-outline-secondary">+ Add Attribute</button>
                           </div>
-
                           
-                          <div class="card-footer">
-                              <button class="btn btn-primary" onclick="stepper.previous()">Previous</button>
-                              <button type="submit" class="btn btn-primary">Save Attributes</button>
-                          </div>
-                          <input type="hidden" name="product_id" id="attribute_product_id" value="{{ product_id }}">
-                      </form>
+                          <input type="hidden" name="product_id" id="attribute_product_id" value="{{ update_product.id }}">
+                        </form>
+                        <div class="card-footer">
+                            <button class="btn btn-primary" onclick="stepper.previous()">Previous</button>
+                            <button id="submitAttributeForm" class="btn btn-primary">Save Attributes</button>
+                        </div>
                   </div>
-
-
-
               </div>
             </div>
             <!-- /.card-body -->
@@ -413,7 +447,6 @@
   // Handle cancel button click
   document.querySelector("#actions .cancel").onclick = function () {
       const files = myDropzone.getAcceptedFiles();
-      console.log("files: ", files);
 
       // Check if there are any files at all
       if (files.length > 0) {
@@ -456,6 +489,38 @@
           myDropzone.removeAllFiles(true);
       }
   };
+
+  //Handle existing-image delete
+  document.addEventListener('DOMContentLoaded', function() {
+      $('.delete-existing-image').on('click', function() {
+          var imageId = $(this).data('image-id');
+          console.log('imageId: ', imageId);
+
+          $.ajax({
+              url: '/admin-panel/delete_file/',
+              method: 'POST',
+              data: {
+                  "image_id": imageId,
+                  csrfmiddlewaretoken: getCsrfToken(),  // Assuming you have a function to get the CSRF token
+              },
+              success: function(response) {
+                  console.log("response = ", response);
+                  if (response.success) {  // Assuming the response contains a 'success' field
+                      $(this).closest('.existing-image-preview').remove();  // Remove the image preview from the DOM
+                  } else {
+                      console.error('Failed to delete the image.');
+                  }
+              }.bind(this),  // Use .bind(this) to keep the context of `this`
+              error: function(xhr, status, error) {
+                  console.error('Failed to delete the image.', error);
+              }
+          });
+      });
+  });
+
+
+
+
 
   // Validations and form submission.
   document.addEventListener("DOMContentLoaded", function () {
@@ -546,7 +611,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     <label for="attribute_name" class="font-weight-bold">Attribute Name</label>
-                    <input type="text" class="form-control" name="attribute_name[]" placeholder="Enter name">
+                    <input type="text" class="form-control attribute-name-input" name="attribute_name[]" placeholder="Enter name">
                 </div>
             </div>
             <div class="col-md-6">
@@ -575,15 +640,21 @@
       document.getElementById('attributesContainer').addEventListener('click', function(event) {
           if (event.target.classList.contains('add-value')) {
               const attributeRow = event.target.closest('.attribute-row');
+
+              const nameInput = attributeRow.querySelector('.attribute-name-input');
+              const attributeNameValue = nameInput.value.trim();
+
               const valueInput = attributeRow.querySelector('.attribute-value-input');
               const value = valueInput.value.trim();
 
-              if (value) {
+              if (attributeNameValue && value) {
                   const valuesList = attributeRow.querySelector('.attribute-values-list');
                   const valueCard = createValueCard(value);
 
                   valuesList.appendChild(valueCard);
                   valueInput.value = ''; // Clear the input after adding
+              } else {
+                toastr.error('Both Fields are required')
               }
           }
 
@@ -607,7 +678,7 @@
       });
 
       // Handle form submission
-      document.getElementById('attributeForm').addEventListener('submit', function(event) {
+      document.getElementById('submitAttributeForm').addEventListener('click', function(event) {
           event.preventDefault(); // Prevent default form submission
 
           const attributeRows = document.querySelectorAll('.attribute-row');
@@ -642,6 +713,7 @@
               },
               success: function(data) {
                 toastr.success(data.msg);
+                console.log("attributes_data===",data)
                 window.location.href = "{% url 'all_products' %}";
               },
               error: function(error) {
@@ -651,14 +723,14 @@
           });
       });
 
-      // Function to get CSRF token (if using Django)
-      function getCsrfToken() {
-          const csrfToken = $("input[name=csrfmiddlewaretoken]").val();
-          return csrfToken;
-      }
-
-  });
-
+      
+    });
+    
+    // Function to get CSRF token (if using Django)
+    function getCsrfToken() {
+        const csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+        return csrfToken;
+    }
 
 </script>
 

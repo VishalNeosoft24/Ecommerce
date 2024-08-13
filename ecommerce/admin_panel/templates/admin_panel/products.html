@@ -67,41 +67,40 @@
   </div>
 
   <script>
+  $(document).ready(function () {
+    $("#productDataTable").DataTable({
+      responsive: false,
+      lengthChange: true,
+      autoWidth: true,
+      scrollX: true,
+      dom: "Bfrtip",
 
-    $(document).ready(function () {
+      ajax: {
+        url: "{% url 'get_all_products' %}",
+        type: "GET",
+        dataType: "json",
+        dataSrc: "",
+      },
+      columns: [
+        { data: "index", title: "Sr.No" },
+        { data: "name", title: "Name" },
+        { data: "price", title: "Price" },
+        { data: "category", title: "Category" },
+        { data: "short_description", title: "Short Description" },
+        { data: "short_description", title: "Long Description" },
+        { data: "quantity", title: "Quantity" },
+        {
+          data: "attributes",
+          title: "Attributes",
+          render: function (data, type, row, meta) {
+            let buttons = "";
+            if (Array.isArray(data)) {
+              data.forEach((attr) => {
+                const attrName = Object.keys(attr)[0];
+                const attrValues = attr[attrName];
+                const collapseId = `attr-${row.id}-${attrName}`;
 
-      $("#productDataTable").DataTable({
-        responsive: false,
-        lengthChange: true,
-        autoWidth: true,
-        scrollX:true,
-        dom: 'Bfrtip',
-        
-        ajax: {
-          url: "{% url 'get_all_products' %}",
-          type: "GET",
-          dataType: "json",
-          dataSrc: "",
-        },
-        columns:[
-          { data:'index', title:'Sr.No'}, 
-          { data:'name', title:'Name'}, 
-          { data:'price', title:'Price'}, 
-          { data:'category', title:'Category'}, 
-          { data:'short_description', title:'Short Description'}, 
-          { data:'short_description', title:'Long Description'}, 
-          { data:'quantity', title:'Quantity'}, 
-          {
-            data: 'attributes', title: 'Attributes',
-            render: function (data, type, row, meta) {
-              let buttons = '';
-              if (Array.isArray(data)) {
-                data.forEach(attr => {
-                  const attrName = Object.keys(attr)[0];
-                  const attrValues = attr[attrName];
-                  const collapseId = `attr-${row.id}-${attrName}`;
-                  
-                  buttons += `
+                buttons += `
                     <div class="attribute-container mb-2">
                       <button class="btn btn-secondary attribute-btn" type="button" data-toggle="collapse" data-target="#${collapseId}">
                          ${attrName} <span class="collapse-icon">+</span>
@@ -109,92 +108,107 @@
                       <div id="${collapseId}" class="collapse">
                         <div class="card card-body">
                           <ul class="list-unstyled">
-                            ${attrValues.map(value => `<li>${value}</li>`).join('')}
+                            ${attrValues
+                              .map((value) => `<li>${value}</li>`)
+                              .join("")}
                           </ul>
                         </div>
                       </div>
                     </div>
                   `;
-                });
-              }
-              return buttons;
+              });
             }
+            return buttons;
           },
-          { data: 'image', title: 'Image', render: function (data, type, row) {
-            return data.map(imgUrl => `<img src="${imgUrl}" alt="Product Image" style="width: 50px; height: 50px;"/>`).join(' ');
-          }},
-          {
-            data: null, title:'Action',
-            defaultContent: '',
-            render: function (data, type, row, meta) {
-              return '<button class="btn btn-info mr-2 m-2 edit-btn" data-id="' + row.id + '"><i class="fa fa-edit"></i></button>' +
-                '<button class="btn btn-danger m-2 delete-btn" data-id="' + row.id + '"><i class="fa fa-trash" aria-hidden="true"></i></button>';
-               
-            }, 
+        },
+        {
+          data: "image",
+          title: "Image",
+          render: function (data, type, row) {
+            return data
+              .map(
+                (imgUrl) =>
+                  `<img src="${imgUrl}" alt="Product Image" style="width: 50px; height: 50px;"/>`
+              )
+              .join(" ");
           },
-        ]
-      });
-
-      // Update collapse icons when the page is loaded or DataTable is redrawn
-      $('#productDataTable').on('draw.dt', function () {
-        updateCollapseIcons();
-      });
-
-      function updateCollapseIcons() {
-        $('.collapse').each(function () {
-          const $button = $(this).prev('.attribute-btn');
-          if ($(this).hasClass('show')) {
-            $button.find('.collapse-icon').text('-');
-          } else {
-            $button.find('.collapse-icon').text('+');
-          }
-        });
-      }
-
-      // Toggle icon based on collapse state
-      $(document).on('shown.bs.collapse hidden.bs.collapse', function (e) {
-        updateCollapseIcons();
-      });
-
-      // Handle delete button click
-      $('#productDataTable tbody').on('click', '.delete-btn', function () {
-        couponIdToDelete = $(this).data('id');
-        const checkAccessUrl = "{% url 'delete_product' %}";
-        checkUserGroupInfo(checkAccessUrl).then(hasAccess => {
-            if (hasAccess) {
-                $('#deleteProductModal').modal('show');
-            } else {
-                toastr.error('Permission denied');
-            }
-        });
-      });
-
-      // Handle confirm delete button click
-      $('#confirmDelete').on('click', function () {
-        $.ajax({
-          url: "{% url 'delete_product' %}",
-          type: 'POST',
-          data: {
-            'product_id': couponIdToDelete,
+        },
+        {
+          data: null,
+          title: "Action",
+          defaultContent: "",
+          render: function (data, type, row, meta) {
+            let updateUrl = "/admin-panel/update-product/" + row.id + "/"
+            return (
+            '<a href="' + updateUrl + 
+            '" class="btn btn-info mr-2 m-2 edit-btn"><i class="fa fa-edit"></i></a>' +
+            '<button class="btn btn-danger m-2 delete-btn" data-id="' +
+            row.id +
+            '"><i class="fa fa-trash" aria-hidden="true"></i></button>'
+          );
           },
-          success: function (response) {
-            if (response.status === 'success') {
-              $('#deleteProductModal').modal('hide');
-              toastr.success(response.msg);
-              $('#productDataTable').DataTable().ajax.reload(); // Reload the DataTable to reflect changes
-            } else {
-              toastr.error(response.msg);
-            }
-          },
-          error: function (xhr, status, error) {
-            console.error('Failed to delete product:', error);
-          }
-        });
-      });
-    
+        },
+      ],
     });
 
-  </script>
+    // Update collapse icons when the page is loaded or DataTable is redrawn
+    $("#productDataTable").on("draw.dt", function () {
+      updateCollapseIcons();
+    });
+
+    function updateCollapseIcons() {
+      $(".collapse").each(function () {
+        const $button = $(this).prev(".attribute-btn");
+        if ($(this).hasClass("show")) {
+          $button.find(".collapse-icon").text("-");
+        } else {
+          $button.find(".collapse-icon").text("+");
+        }
+      });
+    }
+
+    // Toggle icon based on collapse state
+    $(document).on("shown.bs.collapse hidden.bs.collapse", function (e) {
+      updateCollapseIcons();
+    });
+
+    // Handle delete button click
+    $("#productDataTable tbody").on("click", ".delete-btn", function () {
+      couponIdToDelete = $(this).data("id");
+      const checkAccessUrl = "{% url 'delete_product' %}";
+      checkUserGroupInfo(checkAccessUrl).then((hasAccess) => {
+        if (hasAccess) {
+          $("#deleteProductModal").modal("show");
+        } else {
+          toastr.error("Permission denied");
+        }
+      });
+    });
+
+    // Handle confirm delete button click
+    $("#confirmDelete").on("click", function () {
+      $.ajax({
+        url: "{% url 'delete_product' %}",
+        type: "POST",
+        data: {
+          product_id: couponIdToDelete,
+        },
+        success: function (response) {
+          if (response.status === "success") {
+            $("#deleteProductModal").modal("hide");
+            toastr.success(response.msg);
+            $("#productDataTable").DataTable().ajax.reload(); // Reload the DataTable to reflect changes
+          } else {
+            toastr.error(response.msg);
+          }
+        },
+        error: function (xhr, status, error) {
+          console.error("Failed to delete product:", error);
+        },
+      });
+    });
+  });
+</script>
 
   
 {% endblock %}
