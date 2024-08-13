@@ -410,8 +410,6 @@ def get_all_products(request):
             products_list = []
             index = 1
             for product in products:
-                categories = "".join(product.categories.values_list("name", flat=True))
-
                 # Fetch all attributes and their values
                 attributes = ProductAttribute.objects.filter(product=product)
                 attributes_list = []
@@ -441,7 +439,7 @@ def get_all_products(request):
                         "id": product.id,
                         "name": product.name,
                         "price": product.price,
-                        "category": categories,
+                        "category": str(product.category),
                         "short_description": product.short_description,
                         "long_description": product.long_description,
                         "quantity": product.quantity,
@@ -451,6 +449,7 @@ def get_all_products(request):
                     }
                 )
                 index += 1
+            print("products_list = ", products_list)
             return JsonResponse(products_list, safe=False)
     except Exception as e:
         return HttpResponse(str(e))
@@ -594,7 +593,6 @@ def add_product(request):
         # Get product details from POST request
         product_name = request.POST.get("product_name")
         product_id = request.POST.get("product_id", None)
-        print("product_id: ", product_id)
         price = request.POST.get("price")
         short_description = request.POST.get("short_description")
         long_description = request.POST.get("long_description")
@@ -670,6 +668,7 @@ def add_product(request):
         product = Product(
             name=product_name,
             price=price,
+            category=category,
             short_description=short_description,
             long_description=long_description,
             quantity=quantity,
@@ -679,7 +678,6 @@ def add_product(request):
         product.save()
 
         # Associate category with product
-        product.categories.add(category)
 
         return JsonResponse(
             {"msg": "Product added successfully", "product_id": product.id}, status=200
@@ -694,16 +692,17 @@ def add_product(request):
 @require_POST
 def delete_file_view(request):
     image_id = request.POST.get("image_id")
+    print("image_id: ", image_id)
 
     if not image_id:
         return JsonResponse({"success": False, "error": "Missing image ID"})
 
     product_image = get_object_or_404(ProductImage, id=image_id)
+    print("product_image: ", product_image)
 
     if product_image.image:
         product_image.image.delete(save=False)  # Delete the image file from storage
         product_image.delete()  # Delete the database entry
-
         return JsonResponse({"success": True})
     else:
         return JsonResponse({"success": False, "error": "Image does not exist"})
@@ -730,6 +729,116 @@ def delete_all_files_view(request):
         product_image.delete()  # Delete each database entry
 
     return JsonResponse({"success": True})
+
+
+@check_user_group()
+def update_product(request, id):
+    try:
+        if not id:
+            return JsonResponse({"status": "error", "msg": "Product ID is required."})
+
+        product = get_object_or_404(Product, id=id)
+        images = product.product_images.all()
+
+        if request.method == "POST":
+            print("===============")
+            # Get product details from POST request
+            product_name = request.POST.get("product_name")
+            price = request.POST.get("price")
+            short_description = request.POST.get("short_description")
+            long_description = request.POST.get("long_description")
+            quantity = request.POST.get("stock_quantity")
+            category_parent_id = request.POST.get("category_parent", None)
+
+            # Validate required fields
+            if not product_name:
+                return JsonResponse(
+                    {"msg": "Product name is required.", "exists": True}, status=400
+                )
+            if not price:
+                return JsonResponse(
+                    {"msg": "Price is required.", "exists": True}, status=400
+                )
+            if not short_description:
+                return JsonResponse(
+                    {"msg": "Short description is required.", "exists": True},
+                    status=400,
+                )
+            if not long_description:
+                return JsonResponse(
+                    {"msg": "Long description is required.", "exists": True},
+                    status=400,
+                )
+            if not quantity:
+                return JsonResponse(
+                    {"msg": "Stock quantity is required.", "exists": True}, status=400
+                )
+            if not category_parent_id:
+                return JsonResponse(
+                    {"msg": "Category is required.", "exists": True}, status=400
+                )
+
+            # Validate numeric fields
+            try:
+                price = float(price)
+                quantity = int(quantity)
+                if price < 0:
+                    return JsonResponse(
+                        {"msg": "Price cannot be negative.", "exists": True}, status=400
+                    )
+                if quantity < 0:
+                    return JsonResponse(
+                        {"msg": "Quantity cannot be negative.", "exists": True},
+                        status=400,
+                    )
+            except ValueError:
+                return JsonResponse(
+                    {
+                        "msg": "Price and quantity must be valid numbers.",
+                        "exists": True,
+                    },
+                    status=400,
+                )
+
+            category_instance = Category.objects.get(id=category_parent_id)
+
+            if not category_instance:
+                return JsonResponse(
+                    {"msg": "Invalid Category.", "exists": True}, status=400
+                )
+
+            product.name = product_name
+            product.price = price
+            product.short_description = short_description
+            product.long_description = long_description
+            product.quantity = quantity
+            product.category = category_instance
+
+            product.save()
+
+            print("product", product)
+
+            return JsonResponse(
+                {
+                    "msg": "Product Updated Successfully.",
+                    "exists": False,
+                    "product_id": product.id,
+                },
+                status=200,
+            )
+
+        else:
+            return render(
+                request,
+                "admin_panel/product_add.html",
+                {
+                    "update_product": product,
+                    "categories": get_categories_list(),
+                    "images": images,
+                },
+            )
+    except Exception as e:
+        return JsonResponse({"status": "error", "msg": str(e)})
 
 
 @check_user_group()
@@ -821,13 +930,22 @@ def add_category(request):
 
             # Check if category with the same name already exists under the same parent
             if category_name:
-                existing_category = Category.objects.filter(
-                    name=category_name, parent_id=parent_category_id
-                ).exists()
-                if existing_category:
-                    errors.append(
-                        "A category with this name already exists under the selected parent."
-                    )
+                if parent_category_id:
+                    existing_category = Category.objects.filter(
+                        name=category_name, parent_id=parent_category_id
+                    ).exists()
+                    if existing_category:
+                        errors.append(
+                            "A category with this name already exists under the selected parent."
+                        )
+                else:
+                    existing_category = Category.objects.filter(
+                        name=category_name
+                    ).exists()
+                    if existing_category:
+                        errors.append(
+                            "A category with this name already exists under the selected parent."
+                        )
 
             # If there are any validation errors, display them and re-render the form
             if errors:
@@ -858,6 +976,8 @@ def add_category(request):
                 name=category_name,
                 parent=parent_category_instance,
                 description=category_description,
+                created_by=request.user,
+                updated_by=request.user,
             )
             category.save()
             messages.success(request, "Category added successfully!")
