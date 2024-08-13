@@ -100,12 +100,7 @@ class EmailTemplateAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = [
-        "id",
-        "name",
-        "parent",
-        "description",
-    ]
+    list_display = ["id", "name", "parent", "description", "created_at", "updated_at"]
 
 
 @admin.register(Product)
@@ -116,6 +111,7 @@ class ProductAdmin(admin.ModelAdmin):
         "short_description",
         "long_description",
         "price",
+        "category",
         "quantity",
         "is_active",
         "created_by",
