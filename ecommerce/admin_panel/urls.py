@@ -38,5 +38,7 @@ urlpatterns = [
     # File Handling
     path("delete_file/", views.delete_file_view, name="delete_file"),
     path("delete_all_files/", views.delete_all_files_view, name="delete_all_files"),
+    # Attributes
     path("handle-attributes/", views.handle_attributes, name="handle_attributes"),
+    path("attributes/<int:id>/", views.update_attribute, name="update_attribute"),
 ]
