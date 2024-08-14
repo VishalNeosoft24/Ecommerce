@@ -150,7 +150,7 @@
                           <div class="row mt-2 existing-image-preview">
                               <div class="col-auto">
                                   <span class="preview">
-                                      <img src="{{ image.image.url }}" alt="{{ product.name }}" class="img-thumbnail" data-dz-thumbnail />
+                                      <img src="{{ image.image.url }}" style="height: 80px; width: 80px;" alt="{{ product.name }}" class="img-thumbnail" data-dz-thumbnail />
                                   </span>
                               </div>
                               <div class="col d-flex align-items-center">
@@ -212,52 +212,170 @@
                     
                     <div class="card-footer">
                       <button class="btn btn-primary" onclick="stepper.previous()">Previous</button>
-                      <button class="btn btn-primary" id="fileNext" style="display:none;">Next</button>
+                      <button class="btn btn-primary" id="fileNext" {% if update_product %}style="display:inline-block;" {% else %} style="display:none;" {% endif %}>Next</button>
                     </div>
                   </div>
                   <div id="attribute-part" class="content" role="tabpanel" aria-labelledby="attribute-part-trigger">
-                      <form id=
-                          "attributeForm" method="post">
-                          {% csrf_token %}
-                          <div class="card-body">
-                            <div id="attributesContainer" class="mb-4">
-                                <!-- Initial Attribute Row -->
-                                <div class="row attribute-row mb-3 p-3 border rounded shadow-sm bg-light">
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="attribute_name" class="font-weight-bold">Attribute Name</label>
-                                            <input type="text" class="form-control attribute-name-input" name="attribute_name[]" placeholder="Enter name">
+                      
+                     
+
+
+                    <div class="container mt-4">
+                      <div class="row">
+                        {% for attribute in attributes %}
+                          <div class="col-md-3 mb-4">
+                            <div class="card card-outline card-primary">
+                              <div class="card-header">
+                                <h3 class="card-title">{{ attribute.name }}</h3>
+                                <div class="card-tools">
+                                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                  </button>
+                                  <button type="button" id="edit-attribute" class="btn btn-tool btn-sm edit-attribute" data-attribute-id="{{ attribute.id }}" data-toggle="modal" data-target="#editAttributeModal">
+                                    <i class="fas fa-edit"></i>
+                                  </button>
+                                  <button type="button" class="btn btn-tool btn-sm delete-attribute" data-attribute-id="{{ attribute.id }}" data-toggle="modal" data-target="#deleteAttributeModal">
+                                    <i class="fas fa-trash-alt"></i>
+                                  </button>
+                                </div>
+                              </div>
+                              <!-- /.card-header -->
+                              <div class="card-body" style="display: block;">
+                                <ul class="list-group">
+                                  {% for value in attribute.product_attribute_key.all %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                      {{ value.attribute_value }}
+                                    </li>
+                                  {% empty %}
+                                    <li class="list-group-item">No values available</li>
+                                  {% endfor %}
+                                </ul>
+                              </div>
+                              <!-- /.card-body -->
+                            </div>
+                            <!-- /.card -->
+                          </div>
+                          <!-- /.col -->
+                        {% endfor %}
+                      </div>
+                    </div>
+
+                    <!-- Edit Attribute Modal -->
+                    <div class="modal fade" id="editAttributeModal" tabindex="-1" aria-labelledby="editAttributeModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="editAttributeModalLabel">Edit Attribute</h5>
+                            <button type="button" class="close position-absolute" style="right: 15px;" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>                          
+                          </div>
+                          <div class="modal-body">
+                            <form id="editAttributeForm">
+                              {% csrf_token %}
+                              <input type="hidden" id="edit_attribute_id" name="attribute_id">
+                              <div class="mb-3">
+                                <label for="edit_attribute_name" class="form-label">Attribute Name</label>
+                                <input type="text" class="form-control" id="edit_attribute_name" name="attribute_name" required>
+                              </div>
+                              <div id="edit_attribute_values_container">
+                                <!-- Existing values will be populated here via JavaScript -->
+                              </div>
+                              <button type="button" id="add_value" class="btn btn-secondary">Add Value</button>
+                            </form>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" id="saveAttributeChanges" class="btn btn-primary">Save changes</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+
+
+
+                    <!-- Delete Confirmation Modal -->
+                    <div class="modal fade" id="deleteAttributeModal" tabindex="-1" aria-labelledby="deleteAttributeModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <!-- Modal Header -->
+                          <div class="modal-header">
+                            <h4 class="modal-title" id="deleteAttributeModalLabel">Delete Attribute</h4>
+                            <button type="button" class="close position-absolute" style="right: 15px;" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button> 
+                          </div>
+                          <!-- Modal Body -->
+                          <div class="modal-body">
+                            Are you sure you want to delete this attribute?
+                          </div>
+                          <!-- Modal Footer -->
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" id="confirmDeleteAttribute">Delete</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+
+                  
+
+
+
+
+
+
+
+
+
+
+
+                    <div class="row">
+                      <div class="col-12">
+                        <form id="attributeForm" method="post">
+                              {% csrf_token %}
+                              <div class="card-body">
+                                <div id="attributesContainer" class="mb-4">
+                                    <!-- Initial Attribute Row -->
+                                    <div class="row attribute-row mb-3 p-3 border rounded shadow-sm bg-light">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="attribute_name" class="font-weight-bold">Attribute Name</label>
+                                                <input type="text" class="form-control attribute-name-input" name="attribute_name[]" placeholder="Enter name">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="attribute_value" class="font-weight-bold">Attribute Values</label>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control attribute-value-input" placeholder="Add value">
-                                                <div class="input-group-append">
-                                                    <button type="button" class="btn btn-primary add-value">+</button>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="attribute_value" class="font-weight-bold">Attribute Values</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control attribute-value-input" placeholder="Add value">
+                                                    <div class="input-group-append">
+                                                        <button type="button" class="btn btn-primary add-value">+</button>
+                                                    </div>
+                                                </div>
+                                                <div class="attribute-values-list mt-2">
+                                                    <!-- Display added values here -->
                                                 </div>
                                             </div>
-                                            <div class="attribute-values-list mt-2">
-                                                <!-- Display added values here -->
-                                            </div>
+                                        </div>
+                                        <div class="col-md-3 d-flex align-items-center justify-content-end">
+                                            <button type="button" class="btn btn-danger remove-attribute">Remove</button>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 d-flex align-items-center justify-content-end">
-                                        <button type="button" class="btn btn-danger remove-attribute">Remove</button>
-                                    </div>
                                 </div>
-                            </div>
-                            <button type="button" id="addAttribute" class="btn btn-outline-secondary">+ Add Attribute</button>
-                          </div>
-                          
-                          <input type="hidden" name="product_id" id="attribute_product_id" value="{{ update_product.id }}">
-                        </form>
+                                <button type="button" id="addAttribute" class="btn btn-outline-secondary">+ Add Attribute</button>
+                              </div>
+                              
+                              <input type="hidden" name="product_id" id="attribute_product_id" value="{{ update_product.id }}">
+                          </form>
+                    </div></div>
                         <div class="card-footer">
                             <button class="btn btn-primary" onclick="stepper.previous()">Previous</button>
                             <button id="submitAttributeForm" class="btn btn-primary">Save Attributes</button>
                         </div>
-                  </div>
+                    </div>
               </div>
             </div>
             <!-- /.card-body -->
@@ -285,6 +403,8 @@
 
   // Initialize a flag to track if any file has been successfully uploaded
   let fileUploaded = false;
+  let fileAddedButNotUploaded;
+  const isUpdateMode = window.location.href.includes("update-product");
 
   // DropzoneJS Demo Code Start
   Dropzone.autoDiscover = false;
@@ -320,6 +440,7 @@
 
   myDropzone.on("addedfile", function (file) {
     // Hookup the start button
+    fileAddedButNotUploaded = true;
     file.previewElement.querySelector(".start").onclick = function () {
         myDropzone.enqueueFile(file);
     };
@@ -362,22 +483,30 @@
 
       // Set the flag to true indicating a file was uploaded successfully
       fileUploaded = true;
+      fileAddedButNotUploaded = false;
       // Show the "fileNext" button
       document.getElementById("fileNext").style.display = "inline-block";
     }
-  });
+    });
 
-  // Update the "Next" button click handler in the file upload section
-  document.getElementById("fileNext").addEventListener("click", function (event) {
-    // Prevent moving to the next step if no files are uploaded
-    if (!fileUploaded) {
-        event.preventDefault();
-        toastr.error("Please upload at least one file before proceeding to the next step.");
-        return;
-    }
-    
-    // If files are uploaded, proceed to the next step
-    stepper.next();
+    document.getElementById("fileNext").addEventListener("click", function (event) {
+      const isUpdateMode = window.location.href.includes("update-product");
+
+      // Check if in update mode or if files are uploaded
+      if (isUpdateMode) {
+          if(fileAddedButNotUploaded){
+            event.preventDefault();
+            toastr.error("Please upload at least one file before proceeding to the next step.");
+            return;
+          }
+      } else if (!fileUploaded) {
+          event.preventDefault();
+          toastr.error("Please upload at least one file before proceeding to the next step.");
+          return;
+      }
+
+      // Proceed to the next step
+      stepper.next();
   });
 
   // Setup the buttons for all transfers
@@ -386,11 +515,7 @@
   document.querySelector("#actions .start").onclick = function () {
       myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED));
   };
-  {% comment %}
-  document.querySelector("#actions .cancel").onclick = function () {
-      myDropzone.removeAllFiles(true);
-  };
-  {% endcomment %}
+  
   // DropzoneJS Demo Code End
 
   // Handling the delete button click
@@ -419,8 +544,10 @@
                   );
 
                   if (!fileUploaded) {
-                    // Hide the "fileNext" button if no files are uploaded
-                    document.getElementById("fileNext").style.display = "none";
+                    if (!isUpdateMode){
+                      // Hide the "fileNext" button if no files are uploaded
+                      document.getElementById("fileNext").style.display = "none";
+                    }
                   }
                 } else {
                   toastr.error("Failed to delete image.");
@@ -680,7 +807,6 @@
       // Handle form submission
       document.getElementById('submitAttributeForm').addEventListener('click', function(event) {
           event.preventDefault(); // Prevent default form submission
-
           const attributeRows = document.querySelectorAll('.attribute-row');
           const attributesData = [];
           const productId = document.getElementById('product_id').value;
@@ -732,7 +858,110 @@
         return csrfToken;
     }
 
+
+    // Handle adding new values in the modal
+      document.getElementById('add_value').addEventListener('click', function() {
+          console.log("====edit_attribute_values_container====")
+          const valuesContainer = document.getElementById('edit_attribute_values_container');
+          const valueElement = document.createElement('div');
+          valueElement.classList.add('input-group', 'mb-2');
+          valueElement.innerHTML = `
+              <input type="text" class="form-control" placeholder="Enter value">
+              <button type="button" class="btn btn-danger remove-value">Remove</button>
+          `;
+          valuesContainer.appendChild(valueElement);
+      });
+
+      // Handle removal of values
+      document.addEventListener('click', function(e) {
+          if (e.target.classList.contains('remove-value')) {
+              e.target.closest('.input-group').remove();
+          }
+      });
+
+
+    document.getElementById('edit-attribute').addEventListener('click', function(e) {
+      console.log("==============================")
+        if (e.target.classList.contains('edit-attribute')) {
+            // Get attribute ID from button data attribute
+            const attributeId = e.target.getAttribute('data-attribute-id');
+            console.log('attributeId: ', attributeId)
+
+            // Set the attribute ID in the form
+            document.getElementById('edit_attribute_id').value = attributeId;
+
+            // Fetch attribute details via AJAX
+            $.ajax({
+                url: `/admin-panel/attributes/${attributeId}/`,
+                method: 'GET',
+                success: function(data) {
+                    // Populate the form fields with the fetched data
+                    document.getElementById('edit_attribute_name').value = data.name;
+                    // Populate attribute values
+                    const valuesContainer = document.getElementById('edit_attribute_values_container');
+                    valuesContainer.innerHTML = '';  // Clear existing values
+
+                    data.values.forEach(value => {
+                        const valueElement = document.createElement('div');
+                        valueElement.classList.add('input-group', 'mb-2');
+                        valueElement.innerHTML = `
+                            <input type="text" class="form-control" value="${value}" readonly>
+                            <button type="button" class="btn btn-danger remove-value" data-value="${value}">Remove</button>
+                        `;
+                        valuesContainer.appendChild(valueElement);
+                    });
+                },
+                error: function(xhr) {
+                    console.error('An error occurred:', xhr.responseText);
+                }
+            });
+
+            // Show the modal
+            var myModal = new bootstrap.Modal(document.getElementById('editAttributeModal'));
+            myModal.show();
+        }
+
+      });
+
+
+      // Handle saving changes
+      document.getElementById('saveAttributeChanges').addEventListener('click', function(e) {
+          const attributeId = document.getElementById('edit_attribute_id').value
+
+          const form = document.getElementById('editAttributeForm');
+          const formData = new FormData(form);
+          console.log("formData = ", formData)
+
+          $.ajax({
+          url: `/admin-panel/attributes/${attributeId}/`,  // Adjust URL based on your API endpoint
+          type: 'POST',
+          data: formData,
+          processData: false,  // Prevent jQuery from automatically transforming the data into a query string
+          contentType: false,  // Prevent jQuery from overriding the `Content-Type` header with `multipart/form-data`
+          success: function(data) {
+              if (data.success) {
+                  // Handle success (e.g., update the UI)
+                  location.reload();  // Reload page or update UI as needed
+              } else {
+                  // Handle errors
+                  console.error('Error:', data.message);
+              }
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+              console.error('AJAX Error:', textStatus, errorThrown);
+          }
+      });
+        
+      });
+
+
+
+
+
+
+
 </script>
+
 
   
 {% endblock %}
