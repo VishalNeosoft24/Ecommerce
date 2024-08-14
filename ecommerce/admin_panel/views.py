@@ -201,11 +201,21 @@ def all_users(request):
                 }
             )
 
+        product = get_object_or_404(Product, id=198)
+        print("product: ", product)
+        attributes = ProductAttribute.objects.filter(product=product).prefetch_related(
+            "product_attribute_key"
+        )
+
         available_groups = format_role(Group.objects.values_list("name", flat=True))
         return render(
             request,
             "admin_panel/users.html",
-            {"users": user_list, "available_groups": available_groups},
+            {
+                "users": user_list,
+                "available_groups": available_groups,
+                "attributes": attributes,
+            },
         )
     except Exception as e:
         return HttpResponse(str(e))
@@ -457,27 +467,28 @@ def get_all_products(request):
 
 @check_user_group()
 def file_upload_view(request):
-    if request.method == "POST":
-        product_id = request.POST.get("product_id", None)
-        product_instance = get_object_or_404(Product, id=product_id)
-        file = request.FILES["file"]
-        uploaded_file = ProductImage.objects.create(
-            image=file,
-            product=product_instance,
-            created_by=request.user,
-            updated_by=request.user,
-        )
+    try:
+        if request.method == "POST":
+            product_id = request.POST.get("product_id", None)
+            product_instance = get_object_or_404(Product, id=product_id)
+            file = request.FILES["file"]
+            uploaded_file = ProductImage.objects.create(
+                image=file,
+                product=product_instance,
+                created_by=request.user,
+                updated_by=request.user,
+            )
 
-        return JsonResponse(
-            {
-                "status": "success",
-                "image_id": uploaded_file.id,
-                "file_url": uploaded_file.image.url,
-                "msg": "File Uploded successfully",
-            }
-        )
-
-    return HttpResponse("some_error_page")
+            return JsonResponse(
+                {
+                    "status": "success",
+                    "image_id": uploaded_file.id,
+                    "file_url": uploaded_file.image.url,
+                    "msg": "File Uploded successfully",
+                }
+            )
+    except Exception as e:
+        return HttpResponse(str(e))
 
 
 def handle_attributes(request):
@@ -541,6 +552,52 @@ def handle_attributes(request):
     return JsonResponse(
         {"status": "error", "msg": "Invalid request method"}, status=405
     )
+
+
+def update_attribute(request, id):
+    if request.method == "GET":
+        try:
+            attribute = ProductAttribute.objects.get(pk=id)
+            data = {
+                "name": attribute.name,
+                "values": list(
+                    attribute.product_attribute_key.values_list(
+                        "attribute_value", flat=True
+                    )
+                ),
+            }
+            return JsonResponse(data)
+        except ProductAttribute.DoesNotExist:
+            return JsonResponse({"error": "Attribute not found"}, status=404)
+
+    elif request.method == "POST":
+        try:
+            attribute_id = request.POST.get("attribute_id")
+            attribute_name = request.POST.get("attribute_name")
+            values = request.POST.getlist("values")
+
+            # Fetch and update the attribute
+            attribute = ProductAttribute.objects.get(pk=attribute_id)
+            attribute.name = attribute_name
+            attribute.save()
+
+            # Clear existing values
+            ProductAttributeValue.objects.filter(product_attribute=attribute).delete()
+
+            # Add new values
+            for value in values:
+                ProductAttributeValue.objects.create(
+                    product_attribute=attribute,
+                    attribute_value=value,
+                    created_by=request.user,  # Assuming you want to set created_by
+                )
+
+            return JsonResponse({"success": True})
+
+        except ProductAttribute.DoesNotExist:
+            return JsonResponse({"error": "Attribute not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
 
 
 # def add_product(request):
@@ -815,7 +872,6 @@ def update_product(request, id):
             product.category = category_instance
 
             product.save()
-
             print("product", product)
 
             return JsonResponse(
@@ -828,6 +884,17 @@ def update_product(request, id):
             )
 
         else:
+            attributes = ProductAttribute.objects.filter(
+                product=product
+            ).prefetch_related("product_attribute_key")
+
+            for attribute in attributes:
+                print(f"Attribute: {attribute.name}")
+                for value in attribute.product_attribute_key.all():
+                    print(f" - Value: {value.attribute_value}")
+
+            print("========", attributes)
+
             return render(
                 request,
                 "admin_panel/product_add.html",
@@ -835,6 +902,7 @@ def update_product(request, id):
                     "update_product": product,
                     "categories": get_categories_list(),
                     "images": images,
+                    "attributes": attributes,
                 },
             )
     except Exception as e:
