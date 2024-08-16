@@ -102,7 +102,6 @@
                                         <textarea class="form-control" id="long_description" name="long_description" rows="5" required>{{ update_product.short_description }}</textarea>
                                         <div class="text-danger" id="long_description_error"></div> <!-- Error message container -->
                                     </div>
-                                    
                                 </div>
                             </div>
                         </div>
@@ -112,9 +111,7 @@
                             <button type="button" id="addProduct" class="btn btn-primary">{% if update_product %}Update {% else %}Add {% endif %}Product</button>
                             <button type="button" id="Next" class="btn btn-primary" {% if update_product %}style="display:inline-block;" {% else %} style="display:none;" {% endif %} onclick="stepper.next();">Next</button>
                         </div>
-
                         <input type="hidden" name="product_id" id="product_id" value="{{update_product.id}}">
-
                     </form>
                   </div>
                   <div id="information-part" class="content" role="tabpanel" aria-labelledby="information-part-trigger">
@@ -143,7 +140,6 @@
                         </div>
                       </div>
                     </div>
-                    
                     <!-- Section to Display Existing Images -->
                     <div id="existing-images" class="table table-striped files">
                         {% for image in images %}
@@ -167,17 +163,10 @@
                           </div>
                         {% endfor %}
                     </div>
-
-
-
-
                     <div class="table table-striped files" id="previews">
                       <div id="template" class="row mt-2">
                         <div class="col-auto">
                             <span class="preview"><img src="data:," alt="" data-dz-thumbnail /></span>
-                             
-                            
-                              
                         </div>
                         <div class="col d-flex align-items-center">
                             <p class="mb-0">
@@ -215,12 +204,9 @@
                       <button class="btn btn-primary" id="fileNext" {% if update_product %}style="display:inline-block;" {% else %} style="display:none;" {% endif %}>Next</button>
                     </div>
                   </div>
+
                   <div id="attribute-part" class="content" role="tabpanel" aria-labelledby="attribute-part-trigger">
-                      
-                     
-
-
-                    <div class="container mt-4">
+                    <div class="container edit-attribute-container mt-4">
                       <div class="row">
                         {% for attribute in attributes %}
                           <div class="col-md-3 mb-4">
@@ -231,7 +217,7 @@
                                   <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
                                   </button>
-                                  <button type="button" id="edit-attribute" class="btn btn-tool btn-sm edit-attribute" data-attribute-id="{{ attribute.id }}" data-toggle="modal" data-target="#editAttributeModal">
+                                  <button type="button" id="edit-attribute" class="btn btn-tool btn-sm edit-attribute" data-attribute-id="{{ attribute.id }}" data-toggle="modal">
                                     <i class="fas fa-edit"></i>
                                   </button>
                                   <button type="button" class="btn btn-tool btn-sm delete-attribute" data-attribute-id="{{ attribute.id }}" data-toggle="modal" data-target="#deleteAttributeModal">
@@ -292,9 +278,6 @@
                       </div>
                     </div>
 
-
-
-
                     <!-- Delete Confirmation Modal -->
                     <div class="modal fade" id="deleteAttributeModal" tabindex="-1" aria-labelledby="deleteAttributeModalLabel" aria-hidden="true">
                       <div class="modal-dialog">
@@ -318,19 +301,6 @@
                         </div>
                       </div>
                     </div>
-
-
-                  
-
-
-
-
-
-
-
-
-
-
 
                     <div class="row">
                       <div class="col-12">
@@ -367,7 +337,6 @@
                                 </div>
                                 <button type="button" id="addAttribute" class="btn btn-outline-secondary">+ Add Attribute</button>
                               </div>
-                              
                               <input type="hidden" name="product_id" id="attribute_product_id" value="{{ update_product.id }}">
                           </form>
                     </div></div>
@@ -416,88 +385,88 @@
   previewNode.parentNode.removeChild(previewNode);
 
   var myDropzone = new Dropzone(document.body, {
-    // Make the whole body a dropzone
-    url: "/admin-panel/file_upload_view/", // Set the url
-    thumbnailWidth: 80,
-    thumbnailHeight: 80,
-    parallelUploads: 20,
-    previewTemplate: previewTemplate,
-    autoQueue: false, // Make sure the files aren't queued until manually added
-    previewsContainer: "#previews", // Define the container to display the previews
-    clickable: ".fileinput-button", // Define the element that should be used as click trigger to select files.
+      // Make the whole body a dropzone
+      url: "/admin-panel/file_upload_view/", // Set the url
+      thumbnailWidth: 80,
+      thumbnailHeight: 80,
+      parallelUploads: 20,
+      previewTemplate: previewTemplate,
+      autoQueue: false, // Make sure the files aren't queued until manually added
+      previewsContainer: "#previews", // Define the container to display the previews
+      clickable: ".fileinput-button", // Define the element that should be used as click trigger to select files.
 
-    // Add the CSRF token to the headers of each request
-    headers: {
-        "X-CSRFToken": csrf_token1,
-    },
+      // Add the CSRF token to the headers of each request
+      headers: {
+          "X-CSRFToken": csrf_token1,
+      },
 
-    // Use a function to dynamically get product_id
-    sending: function (file, xhr, formData) {
-        const productId = document.getElementById("product_id").value;
-        formData.append("product_id", productId);
-    },
+      // Use a function to dynamically get product_id
+      sending: function (file, xhr, formData) {
+          const productId = document.getElementById("product_id").value;
+          formData.append("product_id", productId);
+      },
   });
 
   myDropzone.on("addedfile", function (file) {
-    // Hookup the start button
-    fileAddedButNotUploaded = true;
-    file.previewElement.querySelector(".start").onclick = function () {
-        myDropzone.enqueueFile(file);
-    };
+      // Hookup the start button
+      fileAddedButNotUploaded = true;
+      file.previewElement.querySelector(".start").onclick = function () {
+          myDropzone.enqueueFile(file);
+      };
   });
 
   // Update the total progress bar
   myDropzone.on("totaluploadprogress", function (progress) {
-    document.querySelector("#total-progress .progress-bar").style.width =
-      progress + "%";
+      document.querySelector("#total-progress .progress-bar").style.width =
+          progress + "%";
   });
 
   myDropzone.on("sending", function (file) {
-    // Show the total progress bar when upload starts
-    document.querySelector("#total-progress").style.opacity = "1";
-    // And disable the start button
-    file.previewElement
-        .querySelector(".start")
-        .setAttribute("disabled", "disabled");
+      // Show the total progress bar when upload starts
+      document.querySelector("#total-progress").style.opacity = "1";
+      // And disable the start button
+      file.previewElement
+          .querySelector(".start")
+          .setAttribute("disabled", "disabled");
   });
 
   // Hide the total progress bar when nothing's uploading anymore
   myDropzone.on("queuecomplete", function (progress) {
-    document.querySelector("#total-progress").style.opacity = "0";
+      document.querySelector("#total-progress").style.opacity = "0";
   });
 
 
   // Handling the successful upload response
   myDropzone.on("success", function (file, response) {
-    if (response.status === "success") {
-      toastr.success(response.msg);
-      // Add image_id as a data attribute to the image element
-      const imgElement = file.previewElement.querySelector(".preview img");
-      imgElement.src = response.file_url;
-      imgElement.dataset.imageId = response.image_id; // Store image_id in a data attribute
+      if (response.status === "success") {
+          toastr.success(response.msg);
+          // Add image_id as a data attribute to the image element
+          const imgElement = file.previewElement.querySelector(".preview img");
+          imgElement.src = response.file_url;
+          imgElement.dataset.imageId = response.image_id; // Store image_id in a data attribute
 
-      // Ensure that the thumbnail size is correctly applied
-      imgElement.style.width = "80px"; // Adjust width as needed
-      imgElement.style.height = "80px"; // Adjust height as needed
-      imgElement.style.objectFit = "cover"; // Ensures the image covers the thumbnail area
+          // Ensure that the thumbnail size is correctly applied
+          imgElement.style.width = "80px"; // Adjust width as needed
+          imgElement.style.height = "80px"; // Adjust height as needed
+          imgElement.style.objectFit = "cover"; // Ensures the image covers the thumbnail area
 
-      // Set the flag to true indicating a file was uploaded successfully
-      fileUploaded = true;
-      fileAddedButNotUploaded = false;
-      // Show the "fileNext" button
-      document.getElementById("fileNext").style.display = "inline-block";
-    }
-    });
+          // Set the flag to true indicating a file was uploaded successfully
+          fileUploaded = true;
+          fileAddedButNotUploaded = false;
+          // Show the "fileNext" button
+          document.getElementById("fileNext").style.display = "inline-block";
+      }
+  });
 
-    document.getElementById("fileNext").addEventListener("click", function (event) {
+  document.getElementById("fileNext").addEventListener("click", function (event) {
       const isUpdateMode = window.location.href.includes("update-product");
 
       // Check if in update mode or if files are uploaded
       if (isUpdateMode) {
-          if(fileAddedButNotUploaded){
-            event.preventDefault();
-            toastr.error("Please upload at least one file before proceeding to the next step.");
-            return;
+          if (fileAddedButNotUploaded) {
+              event.preventDefault();
+              toastr.error("Please upload at least one file before proceeding to the next step.");
+              return;
           }
       } else if (!fileUploaded) {
           event.preventDefault();
@@ -515,60 +484,60 @@
   document.querySelector("#actions .start").onclick = function () {
       myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED));
   };
-  
+
   // DropzoneJS Demo Code End
 
   // Handling the delete button click
   myDropzone.on("addedfile", function (file) {
-    file.previewElement.querySelector(".delete").onclick = function () {
-      if (file.status === Dropzone.SUCCESS) {
-          const imageElement =
-            file.previewElement.querySelector(".preview img");
-          const imageId = imageElement ? imageElement.dataset.imageId : null;
-          if (imageId) {
-            // Make an AJAX call to delete the image from the server
-            $.ajax({
-              url: "/admin-panel/delete_file/",
-              type: "POST",
-              data: {
-                image_id: imageId,
-                csrfmiddlewaretoken: csrf_token1,
-              },
-              success: function (response) {
-                if (response.success) {
-                  myDropzone.removeFile(file);
-                  toastr.success("Image deleted successfully.");
-                  // Check if there are any successful uploads left
-                  fileUploaded = myDropzone.getAcceptedFiles().some(
-                    (file) => file.status === Dropzone.SUCCESS
-                  );
+      file.previewElement.querySelector(".delete").onclick = function () {
+          if (file.status === Dropzone.SUCCESS) {
+              const imageElement =
+                  file.previewElement.querySelector(".preview img");
+              const imageId = imageElement ? imageElement.dataset.imageId : null;
+              if (imageId) {
+                  // Make an AJAX call to delete the image from the server
+                  $.ajax({
+                      url: "/admin-panel/delete_file/",
+                      type: "POST",
+                      data: {
+                          image_id: imageId,
+                          csrfmiddlewaretoken: csrf_token1,
+                      },
+                      success: function (response) {
+                          if (response.success) {
+                              myDropzone.removeFile(file);
+                              toastr.success("Image deleted successfully.");
+                              // Check if there are any successful uploads left
+                              fileUploaded = myDropzone.getAcceptedFiles().some(
+                                  (file) => file.status === Dropzone.SUCCESS
+                              );
 
-                  if (!fileUploaded) {
-                    if (!isUpdateMode){
-                      // Hide the "fileNext" button if no files are uploaded
-                      document.getElementById("fileNext").style.display = "none";
-                    }
-                  }
-                } else {
-                  toastr.error("Failed to delete image.");
-                }
-              },
-              error: function (xhr, status, error) {
-                toastr.error(
-                  "An error occurred while deleting the image."
-                );
-              },
-            });
+                              if (!fileUploaded) {
+                                  if (!isUpdateMode) {
+                                      // Hide the "fileNext" button if no files are uploaded
+                                      document.getElementById("fileNext").style.display = "none";
+                                  }
+                              }
+                          } else {
+                              toastr.error("Failed to delete image.");
+                          }
+                      },
+                      error: function (xhr, status, error) {
+                          toastr.error(
+                              "An error occurred while deleting the image."
+                          );
+                      },
+                  });
+              } else {
+                  toastr.error(
+                      "Image ID is missing, unable to delete the image."
+                  );
+              }
           } else {
-            toastr.error(
-              "Image ID is missing, unable to delete the image."
-            );
+              // File was not uploaded, just remove it from the UI
+              myDropzone.removeFile(file);
           }
-      } else {
-          // File was not uploaded, just remove it from the UI
-          myDropzone.removeFile(file);
-      }
-    };
+      };
   });
 
   // Handle cancel button click
@@ -618,8 +587,8 @@
   };
 
   //Handle existing-image delete
-  document.addEventListener('DOMContentLoaded', function() {
-      $('.delete-existing-image').on('click', function() {
+  document.addEventListener('DOMContentLoaded', function () {
+      $('.delete-existing-image').on('click', function () {
           var imageId = $(this).data('image-id');
           console.log('imageId: ', imageId);
 
@@ -630,7 +599,7 @@
                   "image_id": imageId,
                   csrfmiddlewaretoken: getCsrfToken(),  // Assuming you have a function to get the CSRF token
               },
-              success: function(response) {
+              success: function (response) {
                   console.log("response = ", response);
                   if (response.success) {  // Assuming the response contains a 'success' field
                       $(this).closest('.existing-image-preview').remove();  // Remove the image preview from the DOM
@@ -638,15 +607,12 @@
                       console.error('Failed to delete the image.');
                   }
               }.bind(this),  // Use .bind(this) to keep the context of `this`
-              error: function(xhr, status, error) {
+              error: function (xhr, status, error) {
                   console.error('Failed to delete the image.', error);
               }
           });
       });
   });
-
-
-
 
 
   // Validations and form submission.
@@ -717,251 +683,268 @@
               }
           });
       }
+  });
 
-      // Function to create a card with a cross (X) icon
-      function createValueCard(value) {
-          const card = document.createElement('div');
-          card.className = 'value-card d-inline-block bg-light p-2 mr-2 mb-2 rounded';
-          card.innerHTML = `
-              <span>${value}</span>
-              <button type="button" class="btn btn-sm btn-danger ml-2 remove-value">X</button>
+  // Function to create a card with a cross (X) icon
+  function createValueCard(value) {
+      const card = document.createElement('div');
+      card.className = 'value-card d-inline-block bg-light p-2 mr-2 mb-2 rounded';
+      card.innerHTML = `
+                <span>${value}</span>
+                <button type="button" class="btn btn-sm btn-danger ml-2 remove-value">X</button>
+            `;
+      return card;
+  }
+
+  // Function to add a new attribute row
+  function addAttributeRow() {
+      const attributeContainer = document.getElementById('attributesContainer');
+      const attributeRow = document.createElement('div');
+      attributeRow.className = 'row attribute-row mb-3 p-3 border rounded shadow-sm bg-light';
+      attributeRow.innerHTML = `
+              <div class="col-md-3">
+                  <div class="form-group">
+                      <label for="attribute_name" class="font-weight-bold">Attribute Name</label>
+                      <input type="text" class="form-control attribute-name-input" name="attribute_name[]" placeholder="Enter name">
+                  </div>
+              </div>
+              <div class="col-md-6">
+                  <div class="form-group">
+                      <label for="attribute_value" class="font-weight-bold">Attribute Values</label>
+                      <div class="input-group">
+                          <input type="text" class="form-control attribute-value-input" placeholder="Add value">
+                          <div class="input-group-append">
+                              <button type="button" class="btn btn-primary add-value">+</button>
+                          </div>
+                      </div>
+                      <div class="attribute-values-list mt-2">
+                          <!-- Display added values here -->
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3 d-flex align-items-center justify-content-end">
+                  <button type="button" class="btn btn-danger remove-attribute">Remove</button>
+              </div>
           `;
-          return card;
+      attributeContainer.appendChild(attributeRow);
+  }
+
+
+  // Add a new value to the list of values for an attribute
+  document.getElementById('attributesContainer').addEventListener('click', function (event) {
+      if (event.target.classList.contains('add-value')) {
+          const attributeRow = event.target.closest('.attribute-row');
+
+          const nameInput = attributeRow.querySelector('.attribute-name-input');
+          const attributeNameValue = nameInput.value.trim();
+
+          const valueInput = attributeRow.querySelector('.attribute-value-input');
+          const value = valueInput.value.trim();
+
+          if (attributeNameValue && value) {
+              const valuesList = attributeRow.querySelector('.attribute-values-list');
+              const valueCard = createValueCard(value);
+
+              valuesList.appendChild(valueCard);
+              valueInput.value = ''; // Clear the input after adding
+          } else {
+              toastr.error('Both Fields are required')
+          }
       }
 
-      // Function to add a new attribute row
-      function addAttributeRow() {
-        const attributeContainer = document.getElementById('attributesContainer');
-        const attributeRow = document.createElement('div');
-        attributeRow.className = 'row attribute-row mb-3 p-3 border rounded shadow-sm bg-light';
-        attributeRow.innerHTML = `
-            <div class="col-md-3">
-                <div class="form-group">
-                    <label for="attribute_name" class="font-weight-bold">Attribute Name</label>
-                    <input type="text" class="form-control attribute-name-input" name="attribute_name[]" placeholder="Enter name">
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="attribute_value" class="font-weight-bold">Attribute Values</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control attribute-value-input" placeholder="Add value">
-                        <div class="input-group-append">
-                            <button type="button" class="btn btn-primary add-value">+</button>
-                        </div>
-                    </div>
-                    <div class="attribute-values-list mt-2">
-                        <!-- Display added values here -->
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 d-flex align-items-center justify-content-end">
-                <button type="button" class="btn btn-danger remove-attribute">Remove</button>
-            </div>
-        `;
-        attributeContainer.appendChild(attributeRow);
+      if (event.target.classList.contains('remove-value')) {
+          const valueCard = event.target.closest('.value-card');
+          valueCard.remove();
       }
+  });
+
+  // Remove an attribute row
+  document.getElementById('attributesContainer').addEventListener('click', function (event) {
+      if (event.target.classList.contains('remove-attribute')) {
+          const attributeRow = event.target.closest('.attribute-row');
+          attributeRow.remove();
+      }
+  });
+
+  // Add a new attribute row
+  document.getElementById('addAttribute').addEventListener('click', function () {
+      addAttributeRow();
+  });
+
+  // Handle form submission
+  document.getElementById('submitAttributeForm').addEventListener('click', function (event) {
+      event.preventDefault(); // Prevent default form submission
+      const attributeRows = document.querySelectorAll('.attribute-row');
+      const attributesData = [];
+      const productId = document.getElementById('product_id').value;
+      console.log('productId: ', productId)
 
 
-      // Add a new value to the list of values for an attribute
-      document.getElementById('attributesContainer').addEventListener('click', function(event) {
-          if (event.target.classList.contains('add-value')) {
-              const attributeRow = event.target.closest('.attribute-row');
+      attributeRows.forEach(row => {
+          const attributeName = row.querySelector('input[name="attribute_name[]"]').value.trim();
+          const attributeValues = Array.from(row.querySelectorAll('.value-card span')).map(span => span.textContent);
 
-              const nameInput = attributeRow.querySelector('.attribute-name-input');
-              const attributeNameValue = nameInput.value.trim();
-
-              const valueInput = attributeRow.querySelector('.attribute-value-input');
-              const value = valueInput.value.trim();
-
-              if (attributeNameValue && value) {
-                  const valuesList = attributeRow.querySelector('.attribute-values-list');
-                  const valueCard = createValueCard(value);
-
-                  valuesList.appendChild(valueCard);
-                  valueInput.value = ''; // Clear the input after adding
-              } else {
-                toastr.error('Both Fields are required')
-              }
-          }
-
-          if (event.target.classList.contains('remove-value')) {
-              const valueCard = event.target.closest('.value-card');
-              valueCard.remove();
-          }
-      });
-
-      // Remove an attribute row
-      document.getElementById('attributesContainer').addEventListener('click', function(event) {
-          if (event.target.classList.contains('remove-attribute')) {
-              const attributeRow = event.target.closest('.attribute-row');
-              attributeRow.remove();
+          if (attributeName && attributeValues.length > 0) {
+              attributesData.push({ [attributeName]: attributeValues });
           }
       });
 
-      // Add a new attribute row
-      document.getElementById('addAttribute').addEventListener('click', function() {
-          addAttributeRow();
-      });
+      // Add CSRF token to data
+      const formData = new FormData();
+      formData.append('attributes_data', JSON.stringify(attributesData));
+      formData.append('product_id', productId);
 
-      // Handle form submission
-      document.getElementById('submitAttributeForm').addEventListener('click', function(event) {
-          event.preventDefault(); // Prevent default form submission
-          const attributeRows = document.querySelectorAll('.attribute-row');
-          const attributesData = [];
-          const productId = document.getElementById('product_id').value;
-          console.log('productId: ', productId)
-
-
-          attributeRows.forEach(row => {
-              const attributeName = row.querySelector('input[name="attribute_name[]"]').value.trim();
-              const attributeValues = Array.from(row.querySelectorAll('.value-card span')).map(span => span.textContent);
-
-              if (attributeName && attributeValues.length > 0) {
-                  attributesData.push({ [attributeName]: attributeValues });
-              }
-          });
-
-          // Add CSRF token to data
-          const formData = new FormData();
-          formData.append('attributes_data', JSON.stringify(attributesData));
-          formData.append('product_id', productId);
-
-          // Submit the form data via AJAX
-          $.ajax({
-              url: '/admin-panel/handle-attributes/',
-              type: 'POST',
-              data: formData,
-              contentType: false,
-              processData: false,
-              headers: {
-                  'X-CSRFToken': getCsrfToken(),
-              },
-              success: function(data) {
-                toastr.success(data.msg);
-                console.log("attributes_data===",data)
-                window.location.href = "{% url 'all_products' %}";
-              },
-              error: function(error) {
-                  console.error('Error:', error);
-                  toastr.error('An error occurred while saving attributes.');
-              }
-          });
-      });
-
-      
-    });
-    
-    // Function to get CSRF token (if using Django)
-    function getCsrfToken() {
-        const csrfToken = $("input[name=csrfmiddlewaretoken]").val();
-        return csrfToken;
-    }
-
-
-    // Handle adding new values in the modal
-      document.getElementById('add_value').addEventListener('click', function() {
-          console.log("====edit_attribute_values_container====")
-          const valuesContainer = document.getElementById('edit_attribute_values_container');
-          const valueElement = document.createElement('div');
-          valueElement.classList.add('input-group', 'mb-2');
-          valueElement.innerHTML = `
-              <input type="text" class="form-control" placeholder="Enter value">
-              <button type="button" class="btn btn-danger remove-value">Remove</button>
-          `;
-          valuesContainer.appendChild(valueElement);
-      });
-
-      // Handle removal of values
-      document.addEventListener('click', function(e) {
-          if (e.target.classList.contains('remove-value')) {
-              e.target.closest('.input-group').remove();
-          }
-      });
-
-
-    document.getElementById('edit-attribute').addEventListener('click', function(e) {
-      console.log("==============================")
-        if (e.target.classList.contains('edit-attribute')) {
-            // Get attribute ID from button data attribute
-            const attributeId = e.target.getAttribute('data-attribute-id');
-            console.log('attributeId: ', attributeId)
-
-            // Set the attribute ID in the form
-            document.getElementById('edit_attribute_id').value = attributeId;
-
-            // Fetch attribute details via AJAX
-            $.ajax({
-                url: `/admin-panel/attributes/${attributeId}/`,
-                method: 'GET',
-                success: function(data) {
-                    // Populate the form fields with the fetched data
-                    document.getElementById('edit_attribute_name').value = data.name;
-                    // Populate attribute values
-                    const valuesContainer = document.getElementById('edit_attribute_values_container');
-                    valuesContainer.innerHTML = '';  // Clear existing values
-
-                    data.values.forEach(value => {
-                        const valueElement = document.createElement('div');
-                        valueElement.classList.add('input-group', 'mb-2');
-                        valueElement.innerHTML = `
-                            <input type="text" class="form-control" value="${value}" readonly>
-                            <button type="button" class="btn btn-danger remove-value" data-value="${value}">Remove</button>
-                        `;
-                        valuesContainer.appendChild(valueElement);
-                    });
-                },
-                error: function(xhr) {
-                    console.error('An error occurred:', xhr.responseText);
-                }
-            });
-
-            // Show the modal
-            var myModal = new bootstrap.Modal(document.getElementById('editAttributeModal'));
-            myModal.show();
-        }
-
-      });
-
-
-      // Handle saving changes
-      document.getElementById('saveAttributeChanges').addEventListener('click', function(e) {
-          const attributeId = document.getElementById('edit_attribute_id').value
-
-          const form = document.getElementById('editAttributeForm');
-          const formData = new FormData(form);
-          console.log("formData = ", formData)
-
-          $.ajax({
-          url: `/admin-panel/attributes/${attributeId}/`,  // Adjust URL based on your API endpoint
+      // Submit the form data via AJAX
+      $.ajax({
+          url: '/admin-panel/handle-attributes/',
           type: 'POST',
           data: formData,
-          processData: false,  // Prevent jQuery from automatically transforming the data into a query string
-          contentType: false,  // Prevent jQuery from overriding the `Content-Type` header with `multipart/form-data`
-          success: function(data) {
-              if (data.success) {
-                  // Handle success (e.g., update the UI)
-                  location.reload();  // Reload page or update UI as needed
-              } else {
-                  // Handle errors
-                  console.error('Error:', data.message);
-              }
+          contentType: false,
+          processData: false,
+          headers: {
+              'X-CSRFToken': getCsrfToken(),
           },
-          error: function(jqXHR, textStatus, errorThrown) {
-              console.error('AJAX Error:', textStatus, errorThrown);
+          success: function (data) {
+              toastr.success(data.msg);
+              console.log("attributes_data===", data)
+              window.location.href = "{% url 'all_products' %}";
+          },
+          error: function (error) {
+              console.error('Error:', error);
+              toastr.error('An error occurred while saving attributes.');
           }
       });
-        
-      });
+  });
+
+  // Function to get CSRF token (if using Django)
+  function getCsrfToken() {
+      const csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+      return csrfToken;
+  }
 
 
+  // Handle adding new values in the modal
+  document.getElementById('add_value').addEventListener('click', function () {
+      console.log("====edit_attribute_values_container====")
+      const valuesContainer = document.getElementById('edit_attribute_values_container');
+      const valueElement = document.createElement('div');
+      valueElement.classList.add('input-group', 'mb-2');
+      valueElement.innerHTML = `
+                <input type="text" name="values[]" class="form-control" placeholder="Enter value">
+                <button type="button" class="btn btn-danger remove-value">Remove</button>
+            `;
+      valuesContainer.appendChild(valueElement);
+  });
+
+  // Handle removal of values
+  document.addEventListener('click', function (e) {
+      if (e.target.classList.contains('remove-value')) {
+          e.target.closest('.input-group').remove();
+      }
+  });
 
 
+  $('.edit-attribute').click(function () {
+    var attributeId = $(this).data('attribute-id');
 
+    $.ajax({
+        url: `/admin-panel/attributes/${attributeId}/`,
+        method: 'GET',
+        success: function (data) {
+            $('#edit_attribute_name').val(data.name);
+            $('#edit_attribute_id').val(attributeId);
+
+
+            const valuesContainer = $('#edit_attribute_values_container');
+            valuesContainer.html('');
+
+            data.values.forEach(value => {
+                const valueElement = `
+                    <div class="input-group mb-2">
+                        <input type="text" name="values[]" class="form-control" value="${value}">
+                        <button type="button" class="btn btn-danger remove-value" data-value="${value}">Remove</button>
+                    </div>
+                `;
+                valuesContainer.append(valueElement);
+            });
+
+            $('#editAttributeModal').modal('show'); // Ensure this line is reached
+        },
+        error: function (xhr) {
+            console.error('An error occurred:', xhr.responseText);
+        }
+    });
+  });
+
+
+  $(document).ready(function() {
+    let attributeIdToDelete = null;
+
+    // Show the delete confirmation modal and store the ID of the attribute to be deleted
+    $('.delete-attribute').on('click', function() {
+        attributeIdToDelete = $(this).data('attribute-id');
+        $('#deleteAttributeModal').modal('show');
+    });
+
+    // Handle the confirmation of the deletion
+    $('#confirmDeleteAttribute').on('click', function() {
+        if (attributeIdToDelete !== null) {
+            $.ajax({
+                url: `/admin-panel/delete-attributes/${attributeIdToDelete}/`,  // Adjust URL to your endpoint
+                type: 'DELETE',
+                success: function(response) {
+                    if (response.success) {
+                        // Successfully deleted, you can remove the attribute from the UI or reload the page
+                        $('#deleteAttributeModal').modal('hide');
+                        $(`[data-attribute-id="${attributeIdToDelete}"]`).closest('.col-md-3').remove();  // Remove the attribute card
+                        // Optionally, reload the page or show a success message
+                        toastr.success(response.msg);
+                    } else {
+                        // Handle errors
+                        console.error('Error:', response.message);
+                    }
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    console.error('AJAX Error:', textStatus, errorThrown);
+                }
+            });
+        }
+    });
+  });
+
+
+  // Handle saving changes
+  $('#saveAttributeChanges').on('click', function(e) {
+    e.preventDefault();  // Prevent the default form submission behavior
+
+    const attributeId = $('#edit_attribute_id').val();
+
+    const form = $('#editAttributeForm')[0];  // Get the form element
+    const formData = new FormData(form);  // Create a FormData object from the form
+
+    console.log("formData =", formData);
+
+    $.ajax({
+        url: `/admin-panel/attributes/${attributeId}/`,  // Adjust URL based on your API endpoint
+        type: 'POST',
+        data: formData,
+        processData: false,  // Prevent jQuery from automatically transforming the data into a query string
+        contentType: false,  // Prevent jQuery from overriding the `Content-Type` header with `multipart/form-data`
+        success: function(data) {
+            if (data.success) {
+                location.reload();  // Reload page or update UI as needed
+            } else {
+                // Handle errors
+                console.error('Error:', data.message);
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.error('AJAX Error:', textStatus, errorThrown);
+        }
+    });
+  });
 
 
 </script>
 
-
-  
 {% endblock %}
