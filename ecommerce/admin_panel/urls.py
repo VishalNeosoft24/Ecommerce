@@ -46,4 +46,34 @@ urlpatterns = [
         views.delete_attribute,
         name="delete_attribute",
     ),
+    # Email Templates
+    path(
+        "email-templates/", views.list_all_email_templates, name="all_email_templates"
+    ),
+    path(
+        "get-emailtemplates",
+        views.get_all_email_templates,
+        name="get_all_email_templates",
+    ),
+    path(
+        "create-emailtemplate/",
+        views.create_email_template,
+        name="create_email_template",
+    ),
+    path(
+        "update-emailtemplate/<int:id>/",
+        views.update_email_template,
+        name="update_email_template",
+    ),
+    path(
+        "delete-emailtemplate/",
+        views.delete_email_template,
+        name="delete_email_template",
+    ),
+    # Banner
+    path("banners/", views.list_all_banners, name="all_banners"),
+    path("get-banners/", views.get_all_banners, name="get_all_banners"),
+    path("create-banner/", views.create_banner, name="create_banner"),
+    path("update-banner/<int:id>/", views.update_banner, name="upadte_banner"),
+    path("delete-banner/", views.delete_banner, name="delete_banner"),
 ]
