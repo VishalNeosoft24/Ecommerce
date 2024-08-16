@@ -1,8 +1,8 @@
 {% load static %}
 
 <!DOCTYPE html>
-<!--      This is a starter template page. Use this page to start your new project from
-scratch. This page gets rid of all links and provides the needed markup only.      -->
+<!--         This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.         -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -146,8 +146,8 @@ scratch. This page gets rid of all links and provides the needed markup only.   
           <!-- Sidebar Menu -->
           <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-              <!--           Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library           -->
+              <!--              Add icons to the links using the .nav-icon class
+               with font-awesome or any other icon font library              -->
               <li class="nav-item">
                 <a href="{% url 'admin-home' %}" class="nav-link">
                   <i class="nav-icon fas fa-th"></i>
@@ -221,12 +221,21 @@ scratch. This page gets rid of all links and provides the needed markup only.   
 
                 <!-- Email Template -->
                 <li class="nav-item">
-                  <a href="#" class="nav-link">
+                  <a href="{% url 'all_email_templates' %}" class="nav-link">
                     <i class="nav-icon fas fa-table"></i>
                     <p>Email Template</p>
                   </a>
                 </li>
                 <!-- /. Email Template -->
+
+                <!-- Banners -->
+                <li class="nav-item">
+                  <a href="{% url 'all_banners' %}" class="nav-link">
+                    <i class="nav-icon fas fa-table"></i>
+                    <p>Banners</p>
+                  </a>
+                </li>
+                <!-- /. Banners -->
               {% endif %}
 
               {% if 'order_manager' in request.session.group %}
