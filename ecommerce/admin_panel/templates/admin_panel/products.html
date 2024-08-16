@@ -73,15 +73,31 @@
       lengthChange: true,
       autoWidth: true,
       scrollX: true,
-      //serverSide: true,
-      //processing: true,
+      serverSide: true,
+      processing: true,
       dom: "Bfrtip",
+      buttons: [
+          {
+            text: 'Add Product',
+            className: 'btn btn-info',
+            action: function (e, dt, node, config) {
+              const checkAccessUrl = "{% url 'add_product' %}";
+              checkUserGroupInfo(checkAccessUrl).then((hasAccess) => {
+                if (hasAccess) {
+                  window.location.href = "{% url 'add_product' %}";
+                } else {
+                  toastr.error('Permission denied');
+                }
+              });
+            }
+          }, 'copy', 'excel', 'csv', 'pdf', 'print'
+        ],
 
       ajax: {
         url: "{% url 'get_all_products' %}",
         type: "GET",
         dataType: "json",
-        dataSrc: "",
+        dataSrc: "data",
       },
       columns: [
         { data: "index", title: "Sr.No" },
