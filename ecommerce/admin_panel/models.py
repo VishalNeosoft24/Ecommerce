@@ -78,19 +78,18 @@ class EmailTemplate(models.Model):
     bcc = models.CharField(max_length=50, blank=True, null=True)
     subject = models.CharField(max_length=200)
     body = models.TextField()
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="emailtemplate_created"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="emailtemplate_updated"
+    )
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
-
-    def delete(self, using=None, keep_parents=False):
-        """
-        Soft delete the instance by setting deleted_at to the current timestamp.
-        """
-        self.deleted_at = timezone.now()
-        self.save(using=using)
 
 
 class Banner(models.Model):
@@ -98,11 +97,14 @@ class Banner(models.Model):
     image = models.ImageField(upload_to="banners/")
     url = models.URLField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
-    last_modified = models.DateTimeField(auto_now=True)
-    click_count = models.IntegerField(default=0)
+    status = models.BooleanField(default=True)
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="banner_created"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="banner_updated"
+    )
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(auto_now=True)
 
