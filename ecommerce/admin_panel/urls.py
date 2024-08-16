@@ -41,4 +41,9 @@ urlpatterns = [
     # Attributes
     path("handle-attributes/", views.handle_attributes, name="handle_attributes"),
     path("attributes/<int:id>/", views.update_attribute, name="update_attribute"),
+    path(
+        "delete-attributes/<int:attribute_id>/",
+        views.delete_attribute,
+        name="delete_attribute",
+    ),
 ]
