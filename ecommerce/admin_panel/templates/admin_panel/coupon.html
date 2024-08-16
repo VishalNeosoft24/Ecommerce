@@ -1,7 +1,8 @@
-{% extends "admin_panel/base.html" %}
-{% block title %} Coupon {% endblock %}
+{% extends 'admin_panel/base.html' %}
+{% block title %}
+  Coupon
+{% endblock %}
 {% block content %}
-
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -12,7 +13,8 @@
             <h1>Coupons</h1>
           </div>
         </div>
-      </div><!-- /.container-fluid -->
+      </div>
+      <!-- /.container-fluid -->
     </section>
 
     <!-- Main content -->
@@ -24,10 +26,8 @@
               <!-- /.card-header -->
               <div class="card-body">
                 <table id="couponDataTable" class="table table-bordered table-striped">
-                  <thead>
-                  </thead>
-                  <tbody>
-                  </tbody>
+                  <thead></thead>
+                  <tbody></tbody>
                 </table>
               </div>
               <!-- /.card-body -->
@@ -47,7 +47,6 @@
   <div class="modal fade" id="createNewCoupon">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-
         <!-- Modal Header -->
         <div class="modal-header bg-warning">
           <h4 class="modal-title">Create New Coupon</h4>
@@ -62,13 +61,13 @@
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="code">Code <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="code" name="code" maxlength="10" required>
+                  <input type="text" class="form-control" id="code" name="code" maxlength="10" required />
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="name">Name <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="name" name="name" maxlength="25" required>
+                  <input type="text" class="form-control" id="name" name="name" maxlength="25" required />
                 </div>
               </div>
             </div>
@@ -82,21 +81,21 @@
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="far fa-clock"></i></span>
                     </div>
-                    <input type="text" class="form-control float-right" name="datetimerange" id="reservationtime">
+                    <input type="text" class="form-control float-right" name="datetimerange" id="reservationtime" />
                   </div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
                   {% comment %} <label for="discount">Discount <span class="text-danger">*</span></label>
-                  <input type="number" step="0.01" class="form-control" id="discount" name="discount" required> {% endcomment %}
-                
+                  <input type="number" step="0.01" class="form-control" id="discount" name="discount" required /> {% endcomment %}
+
                   <label for="discount">Discount <span class="text-danger">*</span></label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-percent" aria-hidden="true"></i></span>
                     </div>
-                    <input type="number" step="0.01" class="form-control" placeholder="Discount in Percent" id="discount" name="discount" required>
+                    <input type="number" step="0.01" class="form-control" placeholder="Discount in Percent" id="discount" name="discount" required />
                   </div>
                 </div>
               </div>
@@ -117,17 +116,14 @@
           <button type="submit" form="couponForm" class="btn btn-success">Save</button>
           <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
         </div>
-
       </div>
     </div>
   </div>
-
 
   <!-- The Edit Modal -->
   <div class="modal fade" id="couponEditModal">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-
         <!-- Modal Header -->
         <div class="modal-header bg-warning">
           <h4 class="modal-title">Edit Coupon</h4>
@@ -138,18 +134,18 @@
         <div class="modal-body">
           <form id="couponEditForm" method="post" action="{% url 'update_coupon' %}">
             {% csrf_token %}
-            <input type="hidden" id="coupon_id" name="coupon_id" value="">
+            <input type="hidden" id="coupon_id" name="coupon_id" value="" />
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="code_edit">Code <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="code_edit" name="code" maxlength="10" required>
+                  <input type="text" class="form-control" id="code_edit" name="code" maxlength="10" required />
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="name_edit">Name <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="name_edit" name="name" maxlength="25" required>
+                  <input type="text" class="form-control" id="name_edit" name="name" maxlength="25" required />
                 </div>
               </div>
             </div>
@@ -162,14 +158,14 @@
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="far fa-clock"></i></span>
                     </div>
-                    <input type="text" class="form-control float-right" name="datetimerange_edit" id="reservationtime_edit">
+                    <input type="text" class="form-control float-right" name="datetimerange_edit" id="reservationtime_edit" />
                   </div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="discount_edit">Discount <span class="text-danger">*</span></label>
-                  <input type="number" step="0.01" class="form-control" id="discount_edit" name="discount" required>
+                  <input type="number" step="0.01" class="form-control" id="discount_edit" name="discount" required />
                 </div>
               </div>
             </div>
@@ -189,11 +185,9 @@
           <button type="submit" form="couponEditForm" class="btn btn-success">Save</button>
           <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
         </div>
-
       </div>
     </div>
   </div>
-
 
   <!-- Delete Confirmation Modal -->
   <div class="modal fade" id="deleteCouponModal">
@@ -205,9 +199,7 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <!-- Modal Body -->
-        <div class="modal-body">
-          Are you sure you want to delete this coupon?
-        </div>
+        <div class="modal-body">Are you sure you want to delete this coupon?</div>
         <!-- Modal Footer -->
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
@@ -217,191 +209,181 @@
     </div>
   </div>
 
-
   <script>
-
     $(document).ready(function () {
-
       // Initialize Date and Time Range Picker
       $('#reservationtime').daterangepicker({
-        timePicker: true, 
+        timePicker: true,
         timePickerIncrement: 30,
         locale: {
           format: 'MM/DD/YYYY hh:mm A'
         }
-      });
-
+      })
+    
       $('#reservationtime_edit').daterangepicker({
         opens: 'left',
-        timePicker: true, 
+        timePicker: true,
         timePickerIncrement: 30,
         locale: {
-            format: 'MM/DD/YYYY hh:mm A'
+          format: 'MM/DD/YYYY hh:mm A'
         }
-      });
-   
-
-      $(function () { 
-        $("#couponDataTable").DataTable({
+      })
+    
+      $(function () {
+        $('#couponDataTable').DataTable({
           responsive: true,
           lengthChange: false,
           autoWidth: false,
           dom: 'Bfrtip',
-          buttons: [{
-            text: "Create New Coupon",
-            action: function (e, dt, node, config) {
-                const checkAccessUrl = "{% url 'create_coupon' %}";
-                checkUserGroupInfo(checkAccessUrl).then(hasAccess => {
-                    if (hasAccess) {
-                        $('#createNewCoupon').modal('show');
-                    } else {
-                        toastr.error('Permission denied');
-                    }
-                });
-            },
-        }],
-        
-          ajax: {
-            url:"{% url 'get_all_coupons' %}",
-            type:"GET",
-            dataType:"json",
-            dataSrc:""
-          },
-          columns:[
-            { data:'index', title:'Sr.No'}, 
-            { data:'name', title:'Name'}, 
-            { data:'code', title:'Coupon Code'}, 
-            { data:'desc', title:'Description'}, 
-            { data:'duration', title:'Duration'}, 
+          buttons: [
             {
-              data: null, title:'Action',
+              text: 'Create New Coupon',
+              action: function (e, dt, node, config) {
+                const checkAccessUrl = "{% url 'create_coupon' %}"
+                checkUserGroupInfo(checkAccessUrl).then((hasAccess) => {
+                  if (hasAccess) {
+                    $('#createNewCoupon').modal('show')
+                  } else {
+                    toastr.error('Permission denied')
+                  }
+                })
+              }
+            }
+          ],
+    
+          ajax: {
+            url: "{% url 'get_all_coupons' %}",
+            type: 'GET',
+            dataType: 'json',
+            dataSrc: ''
+          },
+          columns: [
+            { data: 'index', title: 'Sr.No' },
+            { data: 'name', title: 'Name' },
+            { data: 'code', title: 'Coupon Code' },
+            { data: 'desc', title: 'Description' },
+            { data: 'duration', title: 'Duration' },
+            {
+              data: null,
+              title: 'Action',
               render: function (data, type, row, meta) {
-                return '<button class="btn btn-info edit-btn" data-id="' + row.id + '"><i class="fa fa-edit"></i></button> ' +
-                      '<button class="btn btn-danger delete-btn" data-id="' + row.id + '"><i class="fa fa-trash" aria-hidden="true"></i></button>';
-              }, 
+                return '<button class="btn btn-info edit-btn" data-id="' + row.id + '"><i class="fa fa-edit"></i></button> ' + '<button class="btn btn-danger delete-btn" data-id="' + row.id + '"><i class="fa fa-trash" aria-hidden="true"></i></button>'
+              }
             }
           ]
-        });
-
-      });
-
-
+        })
+      })
+    
       function formatDateTime(dateTimeStr) {
-        if (!dateTimeStr) return '';
-        var dateTime = new Date(dateTimeStr);
-        return dateTime.toISOString().slice(0, 16);
+        if (!dateTimeStr) return ''
+        var dateTime = new Date(dateTimeStr)
+        return dateTime.toISOString().slice(0, 16)
       }
-
-
+    
       $('#couponDataTable tbody').on('click', '.edit-btn', function () {
-        var couponId = $(this).data('id');
+        var couponId = $(this).data('id')
         $.ajax({
           url: '/admin-panel/get-coupon-details/' + couponId + '/',
           type: 'GET',
           success: function (response) {
-            
-            if (response.status=='error') {
+            if (response.status == 'error') {
               //permission denied message from view
-              toastr.error(response.msg);
+              toastr.error(response.msg)
             } else {
-              $('#coupon_id').val(response.data.id);
-              $('#code_edit').val(response.data.code);
-              $('#name_edit').val(response.data.name);
-              $('#is_active_edit').val(response.data.is_active ? 'True' : 'False');
-              $('#discount_edit').val(response.data.discount);
-              $('#description_edit').val(response.data.description);
-
+              $('#coupon_id').val(response.data.id)
+              $('#code_edit').val(response.data.code)
+              $('#name_edit').val(response.data.name)
+              $('#is_active_edit').val(response.data.is_active ? 'True' : 'False')
+              $('#discount_edit').val(response.data.discount)
+              $('#description_edit').val(response.data.description)
+    
               // Set dates in the picker
-              var picker = $('#reservationtime_edit').data('daterangepicker');
-              picker.setStartDate(moment(response.data.start_date));
-              picker.setEndDate(moment(response.data.end_date));
-              
-              $('#couponEditModal').modal('show');
-
+              var picker = $('#reservationtime_edit').data('daterangepicker')
+              picker.setStartDate(moment(response.data.start_date))
+              picker.setEndDate(moment(response.data.end_date))
+    
+              $('#couponEditModal').modal('show')
             }
           },
           error: function (xhr, status, error) {
-            console.error('Failed to fetch coupon details:', error);
+            console.error('Failed to fetch coupon details:', error)
           }
-        });
-      });
-
-
+        })
+      })
+    
       // Update Button Click Event
-      $('#couponEditForm').on('submit', function(e) { 
-        e.preventDefault(); // Prevent default form submission
+      $('#couponEditForm').on('submit', function (e) {
+        e.preventDefault() // Prevent default form submission
         $.ajax({
           url: "{% url 'update_coupon' %}",
           type: 'POST',
           data: $(this).serialize(),
-          success: function(response) {
+          success: function (response) {
             if (response.status === 'success') {
-              $('#couponEditModal').modal('hide');
-              toastr.success(response.msg);
-              $('#couponDataTable').DataTable().ajax.reload(); // Reload the table data
+              $('#couponEditModal').modal('hide')
+              toastr.success(response.msg)
+              $('#couponDataTable').DataTable().ajax.reload() // Reload the table data
             } else {
-              toastr.success(response.msg);
+              toastr.success(response.msg)
             }
           },
-          error: function() {
-            alert('Error updating coupon.');
+          error: function () {
+            alert('Error updating coupon.')
           }
-        });
-      });
-
+        })
+      })
+    
       //check user permission for perticular url
       async function checkUserGroupInfo(url) {
         try {
-            let response = await checkUserAccess(url);
-            if (response.status === 'success' && response.code === 1) {
-                return true;
-            } else {
-                return false;
-            }
+          let response = await checkUserAccess(url)
+          if (response.status === 'success' && response.code === 1) {
+            return true
+          } else {
+            return false
+          }
         } catch (error) {
-            console.error('Failed to check user group info:', error);
-            return false;
+          console.error('Failed to check user group info:', error)
+          return false
         }
       }
-
+    
       // Handle delete button click
       $('#couponDataTable tbody').on('click', '.delete-btn', function () {
-        couponIdToDelete = $(this).data('id');
-        const checkAccessUrl = "{% url 'delete_coupon' %}";
-        checkUserGroupInfo(checkAccessUrl).then(hasAccess => {
-            if (hasAccess) {
-                $('#deleteCouponModal').modal('show');
-            } else {
-                toastr.error('Permission denied');
-            }
-        });
-      });
-
+        couponIdToDelete = $(this).data('id')
+        const checkAccessUrl = "{% url 'delete_coupon' %}"
+        checkUserGroupInfo(checkAccessUrl).then((hasAccess) => {
+          if (hasAccess) {
+            $('#deleteCouponModal').modal('show')
+          } else {
+            toastr.error('Permission denied')
+          }
+        })
+      })
+    
       // Handle confirm delete button click
       $('#confirmDelete').on('click', function () {
         $.ajax({
           url: "{% url 'delete_coupon' %}",
           type: 'POST',
           data: {
-            'coupon_id': couponIdToDelete,
-            'csrfmiddlewaretoken': '{{ csrf_token }}'
+            coupon_id: couponIdToDelete,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
           },
           success: function (response) {
             if (response.status === 'success') {
-              $('#deleteCouponModal').modal('hide');
-              toastr.success(response.msg);
-              $('#couponDataTable').DataTable().ajax.reload(); // Reload the DataTable to reflect changes
+              $('#deleteCouponModal').modal('hide')
+              toastr.success(response.msg)
+              $('#couponDataTable').DataTable().ajax.reload() // Reload the DataTable to reflect changes
             } else {
-              toastr.error(response.msg);
+              toastr.error(response.msg)
             }
           },
           error: function (xhr, status, error) {
-            console.error('Failed to delete coupon:', error);
+            console.error('Failed to delete coupon:', error)
           }
-        });
-      });
-
+        })
+      })
     })
   </script>
-  {% endblock %}
-
+{% endblock %}
