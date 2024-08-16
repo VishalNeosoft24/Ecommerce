@@ -574,7 +574,7 @@ def update_attribute(request, id):
         try:
             attribute_id = request.POST.get("attribute_id")
             attribute_name = request.POST.get("attribute_name")
-            values = request.POST.getlist("values")
+            values = request.POST.getlist("values[]")
 
             # Fetch and update the attribute
             attribute = ProductAttribute.objects.get(pk=attribute_id)
@@ -584,65 +584,36 @@ def update_attribute(request, id):
             # Clear existing values
             ProductAttributeValue.objects.filter(product_attribute=attribute).delete()
 
-            # Add new values
-            for value in values:
-                ProductAttributeValue.objects.create(
-                    product_attribute=attribute,
-                    attribute_value=value,
-                    created_by=request.user,  # Assuming you want to set created_by
-                )
+            # Check if values list is not empty before attempting to create new entries
+            if values:
+                for value in values:
+                    ProductAttributeValue.objects.create(
+                        product_attribute=attribute,
+                        attribute_value=value,
+                        created_by=request.user,  # Assuming you want to set created_by
+                        updated_by=request.user,
+                    )
+            else:
+                return JsonResponse({"error": "Values list is empty"}, status=400)
 
             return JsonResponse({"success": True})
 
         except ProductAttribute.DoesNotExist:
             return JsonResponse({"error": "Attribute not found"}, status=404)
         except Exception as e:
+            # Return the error message with status 400 for debugging purposes
             return JsonResponse({"error": str(e)}, status=400)
 
 
-# def add_product(request):
-#     if request.method == "POST":
-#         product_name = request.POST.get("product_name")
-#         product_id = request.POST.get(
-#             "product_id", None
-#         )  # Default to None for new products
-#         # Check if a product with the same name already exists (excluding the product with the current ID if provided)
-#         if product_id:
-#             if Product.objects.filter(id=product_id, name=product_name).exists():
-#                 return JsonResponse(
-#                     {
-#                         "msg": "Product with this ID and name already exists.",
-#                         "exists": True,
-#                     }
-#                 )
-#             else:
-#                 return JsonResponse({"msg": "Do not mess with ID.", "exists": True})
-#         else:
-#             if Product.objects.filter(name=product_name).exists():
-#                 return JsonResponse(
-#                     {"msg": "Product with this name already exists.", "exists": True}
-#                 )
-
-#         # Proceed with adding the product
-#         product = Product(
-#             name=product_name,
-#             price=request.POST.get("price"),
-#             short_description=request.POST.get("short_description"),
-#             quantity=request.POST.get("stock_quantity"),
-#             long_description=request.POST.get("long_description"),
-#             created_by=request.user,
-#             updated_by=request.user,
-#         )
-#         product.save()
-
-#         return JsonResponse(
-#             {"msg": "Product added successfully", "product_id": product.id}, status=200
-#         )
-#     else:
-#         categories_list = get_categories_list()
-#         return render(
-#             request, "admin_panel/product_add.html", {"categories": categories_list}
-#         )
+def delete_attribute(request, attribute_id):
+    try:
+        attribute = ProductAttribute.objects.get(pk=attribute_id)
+        attribute.delete()
+        return JsonResponse({"success": True, "msg": "Attribute Deleted successfully"})
+    except ProductAttribute.DoesNotExist:
+        return JsonResponse({"error": "Attribute not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
 
 
 def add_product(request):
