@@ -17,16 +17,20 @@ from django.utils import timezone
 import humanize
 
 # Local imports
+from .forms import EmailTemplateForm, BannerForm
 from ecommerce.utils import parse_datetimerange
 from .models import (
+    Banner,
     Category,
     Coupon,
     Product,
     ProductAttribute,
     ProductAttributeValue,
     ProductImage,
+    EmailTemplate,
 )
 from .decorators import check_user_group
+from .utils import paginated_response
 
 
 # -----------------------------------User----------------------------------------------------
@@ -459,7 +463,8 @@ def get_all_products(request):
                     }
                 )
                 index += 1
-            print("products_list = ", products_list)
+            products_list = paginated_response(request, products_list)
+
             return JsonResponse(products_list, safe=False)
     except Exception as e:
         return HttpResponse(str(e))
@@ -616,6 +621,7 @@ def delete_attribute(request, attribute_id):
         return JsonResponse({"error": str(e)}, status=400)
 
 
+@check_user_group()
 def add_product(request):
     if request.method == "POST":
         # Get product details from POST request
@@ -1080,3 +1086,205 @@ def delete_category(request):
         )
     except Exception as e:
         return JsonResponse({"status": "error", "msg": str(e)})
+
+
+# ----------------------------------------Category---------------------------------------------
+
+
+def list_all_email_templates(request):
+    try:
+        return render(request, "admin_panel/email_templates.html")
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+@check_user_group()
+def get_all_email_templates(request):
+    try:
+        if request.method == "GET":
+            email_templates = EmailTemplate.objects.all()
+            email_templatelist = []
+            index = 1
+            for email_template in email_templates:
+                email_templatelist.append(
+                    {
+                        "index": index,
+                        "id": email_template.id,
+                        "name": email_template.name,
+                        "cc": email_template.cc,
+                        "bcc": email_template.bcc,
+                        "subject": email_template.subject,
+                        "body": email_template.body,
+                    }
+                )
+                index += 1
+            print("email_templatelist = ", email_templatelist)
+            return JsonResponse(email_templatelist, safe=False)
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+@check_user_group()
+def create_email_template(request):
+    try:
+        if request.method == "POST":
+            form = EmailTemplateForm(request.POST or None)
+
+            if form.is_valid():
+                email_template = form.save(commit=False)
+                email_template.created_by = request.user
+                email_template.updated_by = request.user
+                email_template.save()
+                return redirect("all_email_templates")
+        else:
+
+            form = EmailTemplateForm()
+            return render(
+                request, "admin_panel/email_templates_add.html", {"form": form}
+            )
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+@check_user_group()
+def update_email_template(request, id):
+    try:
+        email_template = EmailTemplate.objects.get(id=id)
+    except EmailTemplate.DoesNotExist:
+        return JsonResponse(
+            {"status": "error", "msg": "Email Template not found"}, status=404
+        )
+
+    if request.method == "POST":
+        form = EmailTemplateForm(request.POST, instance=email_template)
+        if form.is_valid():
+            email_template = form.save(commit=False)
+            email_template.updated_by = request.user
+            email_template.save()
+            return redirect(
+                "all_email_templates"
+            )  # Redirect to a list of email templates
+    else:
+        form = EmailTemplateForm(instance=email_template)
+    return render(request, "admin_panel/email_templates_add.html", {"form": form})
+
+
+@check_user_group()
+def delete_email_template(request):
+    if request.method == "POST":
+        try:
+            email_template_id = request.POST.get("email_template_id")
+            if not email_template_id:
+                return JsonResponse(
+                    {"status": "error", "msg": "Email Template ID is required."}
+                )
+
+            email_template = EmailTemplate.objects.get(id=email_template_id)
+            email_template.delete()
+            return JsonResponse(
+                {"status": "success", "msg": "Email Template deleted successfully."}
+            )
+
+        except EmailTemplate.DoesNotExist:
+            return JsonResponse({"status": "error", "msg": "Email Template not found."})
+        except Exception as e:
+            return JsonResponse({"status": "error", "msg": str(e)})
+    return JsonResponse({"status": "error", "msg": "Invalid request method."})
+
+
+# ----------------------------------------Banner---------------------------------------------
+def list_all_banners(request):
+    try:
+        return render(request, "admin_panel/banners.html")
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+@check_user_group()
+def get_all_banners(request):
+    try:
+        if request.method == "GET":
+            banners = Banner.objects.filter(is_active=True).all()
+            bannerlist = []
+            index = 1
+            for banner in banners:
+                bannerlist.append(
+                    {
+                        "id": banner.id,
+                        "index": index,
+                        "title": banner.title,
+                        "image": banner.image.url if banner.image else "",
+                        "url": banner.url,
+                    }
+                )
+                index += 1
+            print("email_templatelist = ", bannerlist)
+            return JsonResponse(bannerlist, safe=False)
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+@check_user_group()
+def create_banner(request):
+    try:
+        if request.method == "POST":
+            form = BannerForm(request.POST or None, request.FILES)
+
+            if form.is_valid():
+                banner = form.save(commit=False)
+                banner.created_by = request.user
+                banner.updated_by = request.user
+                banner.save()
+                return redirect("all_banners")
+            else:
+                return HttpResponse(f"Form is invalid: {form.errors}")
+
+        else:
+            form = BannerForm()
+            return render(request, "admin_panel/banner_add.html", {"form": form})
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+@check_user_group()
+def update_banner(request, id):
+    try:
+        banner = Banner.objects.get(id=id)
+    except Banner.DoesNotExist:
+        return JsonResponse({"status": "error", "msg": "Banner not found"}, status=404)
+
+    if request.method == "POST":
+        form = BannerForm(request.POST, request.FILES, instance=banner)
+        if form.is_valid():
+            banner = form.save(commit=False)
+            banner.updated_by = request.user
+            banner.save()
+            return redirect("all_banners")  # Redirect to a list of email templates
+    else:
+        form = BannerForm(instance=banner)
+    return render(request, "admin_panel/banner_add.html", {"form": form})
+
+
+@check_user_group()
+def delete_banner(request):
+    if request.method == "POST":
+        try:
+            banner_id = request.POST.get("banner_id")
+            if not banner_id:
+                return JsonResponse(
+                    {"status": "error", "msg": "Banner ID is required."}
+                )
+
+            banner = Banner.objects.get(id=banner_id)
+            banner.delete()
+            return JsonResponse(
+                {"status": "success", "msg": "Banner deleted successfully."}
+            )
+
+        except Banner.DoesNotExist:
+            return JsonResponse(
+                {"status": "error", "msg": "Banner Template not found."}
+            )
+        except Exception as e:
+            return JsonResponse({"status": "error", "msg": str(e)})
+    return JsonResponse({"status": "error", "msg": "Invalid request method."})
