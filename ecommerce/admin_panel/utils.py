@@ -1,191 +1,297 @@
 from django.contrib.auth.models import User
-from .models import Category, Product
+from product_management.models import Category, Product
 from django.core.paginator import Paginator
 
 
-created_by_user = User.objects.get(id=1)
-updated_by_user = created_by_user
-products_data = [
-    {
-        "name": "Smartphone",
-        "short_description": "A modern smartphone with 4G LTE",
-        "long_description": "This smartphone features a sleek design, powerful processor, and a high-quality camera.",
-        "price": 299.99,
-        "category_name": "Electronics",  # Single category for ForeignKey
-        "quantity": 50,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-    {
-        "name": "Gaming Laptop",
-        "short_description": "High-performance laptop for gaming",
-        "long_description": "Experience smooth gaming with this laptop that has a powerful GPU and fast processor.",
-        "price": 1199.99,
-        "category_name": "Electronics",
-        "quantity": 30,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-    {
-        "name": "Yoga Mat",
-        "short_description": "Non-slip yoga mat",
-        "long_description": "This yoga mat provides comfort and stability during your yoga practice.",
-        "price": 29.99,
-        "category_name": "Sports & Outdoors",
-        "quantity": 100,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-    {
-        "name": "Digital Camera",
-        "short_description": "High-resolution digital camera",
-        "long_description": "Capture stunning images with this high-resolution digital camera.",
-        "price": 499.99,
-        "category_name": "Electronics",
-        "quantity": 20,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-    {
-        "name": "Smart TV",
-        "short_description": "4K Ultra HD Smart TV",
-        "long_description": "Enjoy your favorite shows in stunning 4K Ultra HD with this Smart TV.",
-        "price": 699.99,
-        "category_name": "Electronics",
-        "quantity": 25,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-    {
-        "name": "Men's Shirt",
-        "short_description": "Cotton casual shirt",
-        "long_description": "A comfortable and stylish cotton casual shirt for men.",
-        "price": 19.99,
-        "category_name": "Fashion",
-        "quantity": 200,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-    {
-        "name": "Women's Dress",
-        "short_description": "Elegant evening dress",
-        "long_description": "This elegant evening dress is perfect for special occasions.",
-        "price": 79.99,
-        "category_name": "Fashion",
-        "quantity": 75,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-    {
-        "name": "Boys' T-Shirt",
-        "short_description": "Graphic T-shirt for boys",
-        "long_description": "A cool and comfortable graphic T-shirt for boys.",
-        "price": 9.99,
-        "category_name": "Fashion",
-        "quantity": 150,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-    {
-        "name": "Living Room Sofa",
-        "short_description": "Comfortable living room sofa",
-        "long_description": "A comfortable and stylish sofa for your living room.",
-        "price": 399.99,
-        "category_name": "Home & Kitchen",
-        "quantity": 10,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-    {
-        "name": "Refrigerator",
-        "short_description": "Energy-efficient refrigerator",
-        "long_description": "This energy-efficient refrigerator keeps your food fresh and reduces energy consumption.",
-        "price": 899.99,
-        "category_name": "Home & Kitchen",
-        "quantity": 15,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-    {
-        "name": "Wall Art",
-        "short_description": "Beautiful canvas wall art",
-        "long_description": "Add a touch of elegance to your home with this beautiful canvas wall art.",
-        "price": 49.99,
-        "category_name": "Home & Kitchen",
-        "quantity": 80,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-    {
-        "name": "Science Fiction Book",
-        "short_description": "Exciting science fiction novel",
-        "long_description": "Dive into an exciting adventure with this science fiction novel.",
-        "price": 14.99,
-        "category_name": "Books",
-        "quantity": 120,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-    {
-        "name": "Biography Book",
-        "short_description": "Inspiring biography",
-        "long_description": "Read about the life and achievements of a remarkable individual.",
-        "price": 19.99,
-        "category_name": "Books",
-        "quantity": 90,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-    {
-        "name": "Treadmill",
-        "short_description": "High-performance treadmill",
-        "long_description": "Stay fit and healthy with this high-performance treadmill.",
-        "price": 599.99,
-        "category_name": "Sports & Outdoors",
-        "quantity": 15,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-    {
-        "name": "Camping Tent",
-        "short_description": "Durable camping tent",
-        "long_description": "This durable camping tent is perfect for your outdoor adventures.",
-        "price": 99.99,
-        "category_name": "Sports & Outdoors",
-        "quantity": 40,
-        "is_active": True,
-        "created_by": created_by_user,
-        "updated_by": updated_by_user,
-    },
-]
+def create_categories():
+    # Fetch or create the admin user who will be the 'created_by' and 'updated_by'
+    admin_user, _ = User.objects.get_or_create(
+        username="admin",
+        defaults={"email": "admin@example.com", "password": "adminpass"},
+    )
+
+    categories = [
+        {
+            "name": "Electronics",
+            "description": "All kinds of electronics",
+            "parent": None,
+        },
+        {
+            "name": "Mobile Phones",
+            "description": "Smartphones and accessories",
+            "parent": "Electronics",
+        },
+        {
+            "name": "Android Phones",
+            "description": "Phones running Android OS",
+            "parent": "Mobile Phones",
+        },
+        {
+            "name": "Android Accessories",
+            "description": "Accessories for Android Phones",
+            "parent": "Android Phones",
+        },
+        {
+            "name": "Laptop Accessories",
+            "description": "Accessories for laptops",
+            "parent": "Laptops",
+        },
+        {
+            "name": "Home Appliances",
+            "description": "Appliances for home",
+            "parent": None,
+        },
+        {
+            "name": "Kitchen Appliances",
+            "description": "Appliances for kitchen",
+            "parent": "Home Appliances",
+        },
+        {
+            "name": "Microwaves",
+            "description": "Microwave ovens",
+            "parent": "Kitchen Appliances",
+        },
+        {
+            "name": "Convection Microwaves",
+            "description": "Convection microwave ovens",
+            "parent": "Microwaves",
+        },
+        {"name": "Clothing", "description": "All types of clothing", "parent": None},
+        {"name": "Men's Clothing", "description": "Men's wear", "parent": "Clothing"},
+        {
+            "name": "Men's Suits",
+            "description": "Suits for men",
+            "parent": "Men's Clothing",
+        },
+        {
+            "name": "Formal Suits",
+            "description": "Formal suits for men",
+            "parent": "Men's Suits",
+        },
+        {
+            "name": "Women's Clothing",
+            "description": "Women's wear",
+            "parent": "Clothing",
+        },
+        {
+            "name": "Women's Dresses",
+            "description": "Dresses for women",
+            "parent": "Women's Clothing",
+        },
+        {
+            "name": "Evening Gowns",
+            "description": "Evening gowns and party wear",
+            "parent": "Women's Dresses",
+        },
+        {"name": "Books", "description": "Books of all genres", "parent": None},
+        {"name": "Science Fiction", "description": "Sci-Fi books", "parent": "Books"},
+        {
+            "name": "Cyberpunk",
+            "description": "Cyberpunk novels",
+            "parent": "Science Fiction",
+        },
+        {
+            "name": "Classic Cyberpunk",
+            "description": "Classic cyberpunk books",
+            "parent": "Cyberpunk",
+        },
+        {
+            "name": "Sports Equipment",
+            "description": "Sports gear and equipment",
+            "parent": None,
+        },
+        {
+            "name": "Football Gear",
+            "description": "Football equipment and gear",
+            "parent": "Sports Equipment",
+        },
+        {
+            "name": "Outdoor Equipment",
+            "description": "Equipment for outdoor sports",
+            "parent": "Sports Equipment",
+        },
+        {
+            "name": "Camping Gear",
+            "description": "Camping essentials",
+            "parent": "Outdoor Equipment",
+        },
+        {
+            "name": "Advanced Camping Gear",
+            "description": "High-end camping gear",
+            "parent": "Camping Gear",
+        },
+    ]
+
+    # Create categories
+    for category_data in categories:
+        parent_name = category_data.pop("parent")
+        parent_category = (
+            Category.objects.filter(name=parent_name).first() if parent_name else None
+        )
+
+        category, created = Category.objects.get_or_create(
+            name=category_data["name"],
+            defaults={
+                "description": category_data["description"],
+                "parent": parent_category,
+                "created_by": admin_user,
+                "updated_by": admin_user,
+            },
+        )
+
+        if created:
+            print(f"Category '{category.name}' created successfully.")
+        else:
+            print(f"Category '{category.name}' already exists.")
 
 
-def get_category_instance(category_name):
-    """
-    Fetch the Category instance based on the category name.
-    """
-    category, created = Category.objects.get_or_create(name=category_name)
-    return category
+def create_products():
+    # Fetch the admin user who will be the 'created_by' and 'updated_by'
+    admin_user = User.objects.get(username="admin")
 
+    products = [
+        {
+            "name": "Samsung Galaxy S22",
+            "short_description": "High-end Android smartphone",
+            "long_description": "Samsung Galaxy S22 with 128GB storage and 8GB RAM.",
+            "price": 999.99,
+            "category_name": "Android Phones",
+            "quantity": 25,
+        },
+        {
+            "name": "Apple MacBook Pro",
+            "short_description": "High-performance laptop",
+            "long_description": "Apple MacBook Pro with M1 chip, 16GB RAM, and 512GB SSD.",
+            "price": 1999.99,
+            "category_name": "Laptop Accessories",
+            "quantity": 10,
+        },
+        {
+            "name": "Sony WH-1000XM4",
+            "short_description": "Noise-canceling headphones",
+            "long_description": "Over-ear wireless headphones with industry-leading noise cancellation.",
+            "price": 349.99,
+            "category_name": "Electronics",
+            "quantity": 50,
+        },
+        {
+            "name": "LG Convection Microwave",
+            "short_description": "Convection microwave oven",
+            "long_description": "LG 30L convection microwave with auto-cook menu.",
+            "price": 299.99,
+            "category_name": "Convection Microwaves",
+            "quantity": 20,
+        },
+        {
+            "name": "Men's Formal Suit",
+            "short_description": "Stylish formal suit",
+            "long_description": "Premium formal suit perfect for business meetings and formal occasions.",
+            "price": 149.99,
+            "category_name": "Formal Suits",
+            "quantity": 15,
+        },
+        {
+            "name": "Women's Evening Gown",
+            "short_description": "Elegant evening gown",
+            "long_description": "Stunning evening gown with intricate designs and premium fabric.",
+            "price": 199.99,
+            "category_name": "Evening Gowns",
+            "quantity": 12,
+        },
+        {
+            "name": "Camping Tent - 4 Person",
+            "short_description": "Durable camping tent",
+            "long_description": "Waterproof and windproof tent suitable for 4 people.",
+            "price": 129.99,
+            "category_name": "Camping Gear",
+            "quantity": 30,
+        },
+        {
+            "name": "Classic Cyberpunk Novel",
+            "short_description": "Iconic cyberpunk book",
+            "long_description": "A classic cyberpunk novel by a renowned author.",
+            "price": 19.99,
+            "category_name": "Classic Cyberpunk",
+            "quantity": 100,
+        },
+        {
+            "name": "Nike Football Shoes",
+            "short_description": "Professional football shoes",
+            "long_description": "High-performance football shoes with superior grip and comfort.",
+            "price": 79.99,
+            "category_name": "Football Gear",
+            "quantity": 40,
+        },
+        {
+            "name": "Samsung 4K Smart TV",
+            "short_description": "Ultra HD Smart TV",
+            "long_description": "Samsung 55-inch 4K Ultra HD Smart TV with HDR support.",
+            "price": 699.99,
+            "category_name": "Electronics",
+            "quantity": 20,
+        },
+        {
+            "name": "KitchenAid Mixer",
+            "short_description": "All-purpose kitchen mixer",
+            "long_description": "Powerful stand mixer with multiple attachments for all your kitchen needs.",
+            "price": 499.99,
+            "category_name": "Kitchen Appliances",
+            "quantity": 15,
+        },
+        {
+            "name": "Gaming Laptop - ASUS ROG",
+            "short_description": "High-performance gaming laptop",
+            "long_description": "ASUS ROG laptop with Intel i7, 16GB RAM, and NVIDIA RTX 3060.",
+            "price": 1499.99,
+            "category_name": "Laptop Accessories",
+            "quantity": 8,
+        },
+        {
+            "name": "Men's Casual Shirt",
+            "short_description": "Comfortable casual shirt",
+            "long_description": "Lightweight casual shirt perfect for daily wear.",
+            "price": 29.99,
+            "category_name": "Men's Clothing",
+            "quantity": 50,
+        },
+        {
+            "name": "Women's Summer Dress",
+            "short_description": "Light and breezy summer dress",
+            "long_description": "Stylish summer dress made from breathable fabric.",
+            "price": 39.99,
+            "category_name": "Women's Dresses",
+            "quantity": 40,
+        },
+        {
+            "name": "Advanced Camping Stove",
+            "short_description": "Portable camping stove",
+            "long_description": "High-efficiency camping stove for outdoor cooking.",
+            "price": 69.99,
+            "category_name": "Advanced Camping Gear",
+            "quantity": 25,
+        },
+    ]
 
-for product_data in products_data:
-    category_instance = get_category_instance(product_data.pop("category_name"))
-    product_data["category"] = category_instance
-    Product.objects.create(**product_data)
+    for product_data in products:
+        category = Category.objects.get(name=product_data.pop("category_name"))
+
+        product, created = Product.objects.get_or_create(
+            name=product_data["name"],
+            defaults={
+                "short_description": product_data["short_description"],
+                "long_description": product_data["long_description"],
+                "price": product_data["price"],
+                "category": category,
+                "quantity": product_data["quantity"],
+                "created_by": admin_user,
+                "updated_by": admin_user,
+            },
+        )
+
+        if created:
+            print(f"Product '{product.name}' created successfully.")
+        else:
+            print(f"Product '{product.name}' already exists.")
 
 
 def paginated_response(request, data):
