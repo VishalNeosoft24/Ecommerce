@@ -166,7 +166,6 @@ def format_role(groups):
 @check_user_group()
 def all_users(request):
     try:
-        breakpoint()
         users = (
             User.objects.prefetch_related("groups")
             .filter(
@@ -199,11 +198,6 @@ def all_users(request):
                 }
             )
 
-        product = get_object_or_404(Product, id=198)
-        attributes = ProductAttribute.objects.filter(product=product).prefetch_related(
-            "product_attribute_key"
-        )
-
         available_groups = format_role(Group.objects.values_list("name", flat=True))
         return render(
             request,
@@ -211,7 +205,6 @@ def all_users(request):
             {
                 "users": user_list,
                 "available_groups": available_groups,
-                "attributes": attributes,
             },
         )
     except Exception as e:
