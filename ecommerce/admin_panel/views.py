@@ -416,7 +416,7 @@ def get_all_email_templates(request):
                         "id": email_template.id,
                         "title": email_template.title,
                         "subject": email_template.subject,
-                        "title": email_template.content,
+                        "content": email_template.content,
                     }
                 )
                 index += 1
