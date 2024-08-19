@@ -72,11 +72,9 @@ class CouponAdmin(admin.ModelAdmin):
 class EmailTemplateAdmin(admin.ModelAdmin):
     list_display = [
         "id",
-        "name",
-        "cc",
-        "bcc",
+        "title",
         "subject",
-        "body",
+        "content",
         "created_at",
         "updated_at",
         "deleted_at",

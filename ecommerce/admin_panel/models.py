@@ -73,11 +73,9 @@ class Address(models.Model):
 
 
 class EmailTemplate(models.Model):
-    name = models.CharField(max_length=100)
-    cc = models.CharField(max_length=50, blank=True, null=True)
-    bcc = models.CharField(max_length=50, blank=True, null=True)
+    title = models.CharField(max_length=100)
     subject = models.CharField(max_length=200)
-    body = models.TextField()
+    content = models.TextField()
     created_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="emailtemplate_created"
     )

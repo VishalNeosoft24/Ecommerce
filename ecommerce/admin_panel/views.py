@@ -414,11 +414,9 @@ def get_all_email_templates(request):
                     {
                         "index": index,
                         "id": email_template.id,
-                        "name": email_template.name,
-                        "cc": email_template.cc,
-                        "bcc": email_template.bcc,
+                        "title": email_template.title,
                         "subject": email_template.subject,
-                        "body": email_template.body,
+                        "title": email_template.content,
                     }
                 )
                 index += 1

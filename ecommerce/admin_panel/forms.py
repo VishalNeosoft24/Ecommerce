@@ -9,19 +9,13 @@ class EmailTemplateForm(forms.ModelForm):
         exclude = ["created_by", "updated_by", "deleted_at"]
         fields = "__all__"
         widgets = {
-            "name": forms.TextInput(
+            "title": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "Email Template Name"}
-            ),
-            "cc": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "Email CC"}
-            ),
-            "bcc": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "Email BCC"}
             ),
             "subject": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "Email Subject"}
             ),
-            "body": forms.Textarea(
+            "content": forms.Textarea(
                 attrs={
                     "class": "form-control",
                     "rows": 4,
