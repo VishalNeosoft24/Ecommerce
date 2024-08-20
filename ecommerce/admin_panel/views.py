@@ -10,6 +10,10 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.db.models import Q
 from django.utils import timezone
+from django.contrib.sites.models import Site
+from django.contrib.flatpages.models import FlatPage
+from .forms import FlatPageForm
+
 
 # Third-party imports
 import humanize
@@ -588,3 +592,79 @@ def delete_banner(request):
         except Exception as e:
             return JsonResponse({"status": "error", "msg": str(e)})
     return JsonResponse({"status": "error", "msg": "Invalid request method."})
+
+
+# ----------------------------------------FlatPages---------------------------------------------
+def create_flatpage(request):
+    if request.method == "POST":
+        form = FlatPageForm(request.POST)
+        if form.is_valid():
+            flatpage = form.save(commit=False)
+            flatpage.save()
+            # Ensure the current site is always included
+            current_site = Site.objects.get_current()
+
+            # Check if 'sites' exists in cleaned_data
+            sites = form.cleaned_data.get("sites", [])
+            if current_site not in sites:
+                flatpage.sites.add(current_site)
+
+            form.save_m2m()  # Save the many-to-many relationship (sites)
+            return redirect("flatpage_list")  # Redirect to a list or detail view
+    else:
+        form = FlatPageForm(initial={"sites": [Site.objects.get_current()]})
+    return render(request, "admin_panel/flatpage_form.html", {"form": form})
+
+
+def flatpage_list(request):
+    flatpages = FlatPage.objects.all()
+    try:
+        return render(
+            request, "admin_panel/flatpage_list.html", {"flatpages": flatpages}
+        )
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+def get_all_flatpage(request):
+    try:
+        flatpages = FlatPage.objects.all()
+        flagpages_list = []
+        index = 1
+        for flatpage in flatpages:
+            flagpages_list.append(
+                {
+                    "id": flatpage.id,
+                    "index": index,
+                    "title": flatpage.title,
+                    "url": flatpage.url,
+                }
+            )
+            index += 1
+        return JsonResponse(flagpages_list, safe=False)
+
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+def update_flatpage(request, pk):
+    flatpage = get_object_or_404(FlatPage, pk=pk)
+    if request.method == "POST":
+        form = FlatPageForm(request.POST, instance=flatpage)
+        if form.is_valid():
+            form.save()
+            return redirect("flatpage_list")
+    else:
+        form = FlatPageForm(instance=flatpage)
+    return render(request, "admin_panel/flatpage_form.html", {"form": form})
+
+
+@check_user_group()
+def delete_flatpage(request, pk):
+    flatpage = get_object_or_404(FlatPage, pk=pk)
+    if request.method == "POST":
+        flatpage.delete()
+        return redirect("flatpage_list")
+    return render(
+        request, "admin_panel/flatpage_confirm_delete.html", {"flatpage": flatpage}
+    )
