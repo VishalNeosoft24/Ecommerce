@@ -595,6 +595,7 @@ def delete_banner(request):
 
 
 # ----------------------------------------FlatPages---------------------------------------------
+@check_user_group()
 def create_flatpage(request):
     if request.method == "POST":
         form = FlatPageForm(request.POST)
@@ -610,18 +611,15 @@ def create_flatpage(request):
                 flatpage.sites.add(current_site)
 
             form.save_m2m()  # Save the many-to-many relationship (sites)
-            return redirect("flatpage_list")  # Redirect to a list or detail view
+            return redirect("all_flatpages")  # Redirect to a list or detail view
     else:
         form = FlatPageForm(initial={"sites": [Site.objects.get_current()]})
     return render(request, "admin_panel/flatpage_add.html", {"form": form})
 
 
 def flatpage_list(request):
-    flatpages = FlatPage.objects.all()
     try:
-        return render(
-            request, "admin_panel/flatpage_list.html", {"flatpages": flatpages}
-        )
+        return render(request, "admin_panel/flatpage_list.html")
     except Exception as e:
         return HttpResponse(str(e))
 
@@ -638,6 +636,7 @@ def get_all_flatpage(request):
                     "index": index,
                     "title": flatpage.title,
                     "url": flatpage.url,
+                    "abs_url": flatpage.get_absolute_url(),
                 }
             )
             index += 1
@@ -647,21 +646,23 @@ def get_all_flatpage(request):
         return HttpResponse(str(e))
 
 
-def update_flatpage(request, pk):
-    flatpage = get_object_or_404(FlatPage, pk=pk)
+def update_flatpage(request, flatpage_id):
+    flatpage = get_object_or_404(FlatPage, pk=flatpage_id)
     if request.method == "POST":
         form = FlatPageForm(request.POST, instance=flatpage)
         if form.is_valid():
             form.save()
-            return redirect("flatpage_list")
+            return redirect("all_flatpages")
     else:
         form = FlatPageForm(instance=flatpage)
     return render(request, "admin_panel/flatpage_add.html", {"form": form})
 
 
 @check_user_group()
-def delete_flatpage(request, pk):
-    flatpage = get_object_or_404(FlatPage, pk=pk)
+def delete_flatpage(request, flatpage_id):
+    flatpage = get_object_or_404(FlatPage, pk=flatpage_id)
     if request.method == "POST":
         flatpage.delete()
-        return redirect("flatpage_list")
+        return JsonResponse(
+            {"status": "suceess", "msg": "FlatPage Deleted Successfully"}
+        )
