@@ -613,7 +613,7 @@ def create_flatpage(request):
             return redirect("flatpage_list")  # Redirect to a list or detail view
     else:
         form = FlatPageForm(initial={"sites": [Site.objects.get_current()]})
-    return render(request, "admin_panel/flatpage_form.html", {"form": form})
+    return render(request, "admin_panel/flatpage_add.html", {"form": form})
 
 
 def flatpage_list(request):
@@ -656,7 +656,7 @@ def update_flatpage(request, pk):
             return redirect("flatpage_list")
     else:
         form = FlatPageForm(instance=flatpage)
-    return render(request, "admin_panel/flatpage_form.html", {"form": form})
+    return render(request, "admin_panel/flatpage_add.html", {"form": form})
 
 
 @check_user_group()
@@ -665,6 +665,3 @@ def delete_flatpage(request, pk):
     if request.method == "POST":
         flatpage.delete()
         return redirect("flatpage_list")
-    return render(
-        request, "admin_panel/flatpage_confirm_delete.html", {"flatpage": flatpage}
-    )
