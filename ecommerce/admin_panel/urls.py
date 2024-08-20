@@ -56,8 +56,17 @@ urlpatterns = [
     path("update-banner/<int:id>/", views.update_banner, name="upadte_banner"),
     path("delete-banner/", views.delete_banner, name="delete_banner"),
     # Flatpages
-    path("flatpages/", views.flatpage_list, name="flatpage_list"),
+    path("flatpages/", views.flatpage_list, name="all_flatpages"),
+    path("get-flatpages/", views.get_all_flatpage, name="get_all_flatpages"),
     path("flatpages/create/", views.create_flatpage, name="create_flatpage"),
-    path("flatpages/<int:pk>/edit/", views.update_flatpage, name="update_flatpage"),
-    path("flatpages/<int:pk>/delete/", views.delete_flatpage, name="delete_flatpage"),
+    path(
+        "flatpages/<int:flatpage_id>/edit/",
+        views.update_flatpage,
+        name="update_flatpage",
+    ),
+    path(
+        "flatpages/<int:flatpage_id>/delete/",
+        views.delete_flatpage,
+        name="delete_flatpage",
+    ),
 ]
