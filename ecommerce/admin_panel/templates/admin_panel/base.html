@@ -246,7 +246,7 @@ scratch. This page gets rid of all links and provides the needed markup only.   
 
                 <!-- Flatpages -->
                 <li class="nav-item">
-                  <a href="{% url 'flatpage_list' %}" class="nav-link {% if request.path == '/admin-panel/flatpages/' %}active{% endif %}">
+                  <a href="{% url 'all_flatpages' %}" class="nav-link {% if request.path == '/admin-panel/flatpages/' %}active{% endif %}">
                     <i class="nav-icon fas fa-table"></i>
                     <p>Flatpages</p>
                   </a>
