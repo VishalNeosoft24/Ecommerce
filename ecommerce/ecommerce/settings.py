@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.flatpages",
     "admin_panel",
     "product_management",
+    "order_management",
 ]
 
 SITE_ID = 1
