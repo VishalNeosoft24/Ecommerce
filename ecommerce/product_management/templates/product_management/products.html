@@ -71,6 +71,7 @@
     $("#productDataTable").DataTable({
       responsive: false,
       lengthChange: true,
+      pageLength: 5,
       autoWidth: true,
       scrollX: true,
       serverSide: true,
@@ -103,7 +104,7 @@
         { data: "index", title: "Sr.No" },
         { data: "name", title: "Name" },
         { data: "price", title: "Price" },
-        { data: "category", title: "Category" },
+        { data: "category", title: "Category", width:"250px"},
         { data: "short_description", title: "Short Description" },
         { data: "short_description", title: "Long Description" },
         { data: "quantity", title: "Quantity" },
