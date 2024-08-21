@@ -52,11 +52,17 @@ class Coupon(models.Model):
 
 class Address(models.Model):
 
-    ADDRESS_CHOICES = [(0, "HOME"), (1, "WORK"), (2, "OTHER")]
-
+    ADDRESS_CHOICES = [
+        ("HOME", "Home"),
+        ("WORK", "Work"),
+        ("OTHER", "Other"),
+    ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.CharField(
-        max_length=20, choices=ADDRESS_CHOICES, verbose_name="Address type"
+        max_length=20,
+        choices=ADDRESS_CHOICES,
+        verbose_name="Address type",
+        default="HOME",
     )
     country = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
