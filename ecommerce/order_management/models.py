@@ -63,14 +63,21 @@ class UserOrder(models.Model):
     user = models.ForeignKey(
         User, related_name="orders", on_delete=models.CASCADE, verbose_name="User"
     )
-    grand_total = models.FloatField(null=True, verbose_name="Grand Total")
+    grand_total = models.DecimalField(
+        null=True,
+        verbose_name="Grand Total",
+        max_digits=12,
+        decimal_places=2,
+    )
     shipping_method = models.CharField(
         max_length=3,
         choices=SHIPPING_METHOD_CHOICES,
         default="STD",
         verbose_name="Shipping Method",
     )
-    shipping_charges = models.FloatField(null=True, verbose_name="Shipping Charges")
+    shipping_charges = models.DecimalField(
+        null=True, verbose_name="Shipping Charges", max_digits=12, decimal_places=2
+    )
     AWB_NO = models.CharField(
         max_length=100, blank=True, null=True, verbose_name="AWB Number"
     )
