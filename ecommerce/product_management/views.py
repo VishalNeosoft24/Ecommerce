@@ -22,10 +22,13 @@ from .models import (
     ProductImage,
 )
 from admin_panel.decorators import check_user_group
-from admin_panel.utils import paginated_response
+from ecommerce.utils import paginated_response
 
 
 # Create your views here.
+
+
+@check_user_group(["inventory_manager"])
 def list_all_products(request):
     try:
         return render(request, "product_management/products.html")
@@ -33,7 +36,7 @@ def list_all_products(request):
         return HttpResponse(str(e))
 
 
-@check_user_group()
+@check_user_group(["inventory_manager"])
 def get_all_products(request):
     try:
         if request.method == "GET":
@@ -86,7 +89,7 @@ def get_all_products(request):
         return HttpResponse(str(e))
 
 
-@check_user_group()
+@check_user_group(["inventory_manager"])
 def file_upload_view(request):
     try:
         if request.method == "POST":
@@ -112,6 +115,7 @@ def file_upload_view(request):
         return HttpResponse(str(e))
 
 
+@check_user_group(["inventory_manager"])
 def handle_attributes(request):
     if request.method == "POST":
         try:
@@ -175,6 +179,7 @@ def handle_attributes(request):
     )
 
 
+@check_user_group(["inventory_manager"])
 def update_attribute(request, id):
     if request.method == "GET":
         try:
@@ -226,6 +231,7 @@ def update_attribute(request, id):
             return JsonResponse({"error": str(e)}, status=400)
 
 
+@check_user_group(["inventory_manager"])
 def delete_attribute(request, attribute_id):
     try:
         attribute = ProductAttribute.objects.get(pk=attribute_id)
@@ -237,7 +243,7 @@ def delete_attribute(request, attribute_id):
         return JsonResponse({"error": str(e)}, status=400)
 
 
-@check_user_group()
+@check_user_group(["inventory_manager"])
 def add_product(request):
     if request.method == "POST":
         # Get product details from POST request
@@ -342,6 +348,7 @@ def add_product(request):
 
 
 @require_POST
+@check_user_group(["inventory_manager"])
 def delete_file_view(request):
     image_id = request.POST.get("image_id")
 
@@ -359,6 +366,7 @@ def delete_file_view(request):
 
 
 @require_POST
+@check_user_group(["inventory_manager"])
 def delete_all_files_view(request):
     product_id = request.POST.get("product_id")
 
@@ -378,7 +386,7 @@ def delete_all_files_view(request):
     return JsonResponse({"success": True})
 
 
-@check_user_group()
+@check_user_group(["inventory_manager"])
 def update_product(request, id):
     try:
         if not id:
@@ -489,7 +497,7 @@ def update_product(request, id):
         return JsonResponse({"status": "error", "msg": str(e)})
 
 
-@check_user_group()
+@check_user_group(["inventory_manager"])
 def delete_product(request):
     try:
         product_id = request.POST.get("product_id", None)
@@ -506,7 +514,7 @@ def delete_product(request):
 
 
 # ----------------------------------------Category---------------------------------------------
-@check_user_group()
+@check_user_group(["inventory_manager"])
 def list_all_categories(request):
     try:
         categories_list = fetch_sub_cat()
@@ -538,7 +546,7 @@ def fetch_sub_cat(parent=None):
     return categories_list
 
 
-@check_user_group()
+@check_user_group(["inventory_manager"])
 def get_all_categories(request):
     try:
         if request.method == "GET":
@@ -564,7 +572,7 @@ def get_categories_list():
     return categories_list
 
 
-@check_user_group()
+@check_user_group(["inventory_manager"])
 def add_category(request):
     try:
         if request.method == "POST":
@@ -644,7 +652,7 @@ def add_category(request):
         return HttpResponse(str(e))
 
 
-@check_user_group()
+@check_user_group(["inventory_manager"])
 def update_category(request, id):
     try:
         if not id:
@@ -677,7 +685,7 @@ def update_category(request, id):
         return JsonResponse({"status": "error", "msg": str(e)})
 
 
-@check_user_group()
+@check_user_group(["inventory_manager"])
 def delete_category(request):
     try:
         category_id = request.POST.get("category_id", None)
