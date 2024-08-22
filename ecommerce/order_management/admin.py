@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PaymentGateway, UserOrder
+from .models import PaymentGateway, UserOrder, OrderDetail
 
 
 # Register your models here.
@@ -26,7 +26,7 @@ class UserOrderAdmin(admin.ModelAdmin):
         "grand_total",
         "shipping_method",
         "shipping_charges",
-        "AWB_NO",
+        "awb_no",
         "coupon",
         "payment_gateway",
         "transaction_id",
@@ -46,3 +46,16 @@ class UserOrderAdmin(admin.ModelAdmin):
         "updated_by",
     )
     ordering = ("-created_at",)
+
+
+@admin.register(OrderDetail)
+class OrderDetailAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "order",
+        "product",
+        "quantity",
+        "amount",
+        "created_at",
+        "updated_at",
+    )
