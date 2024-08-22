@@ -14,12 +14,7 @@
           <form method="post">
             {% csrf_token %}
             <div class="input-group mb-3">
-              <input
-                type="text"
-                class="form-control"
-                name="username"
-                placeholder="username"
-              />
+              <input type="text" class="form-control" name="username" placeholder="username" />
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-user"></span>
@@ -27,32 +22,32 @@
               </div>
             </div>
             <div class="input-group mb-3">
-              <input
-                type="password"
-                class="form-control"
-                name="password"
-                placeholder="Password"
-              />
+              <input type="password" class="form-control" name="password" id="password" placeholder="Password" />
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-lock"></span>
                 </div>
               </div>
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-eye" id="togglePassword" style="cursor: pointer;"></span>
+                </div>
+              </div>
             </div>
             <div class="row">
               <div class="col-12">
-                {% if messages %} {% for message in messages %}
-                <p style="color: red">{{ message }}</p>
-                {% endfor %} {% endif %}
+                {% if messages %}
+                  {% for message in messages %}
+                    <p style="color: red">{{ message }}</p>
+                  {% endfor %}
+                {% endif %}
               </div>
             </div>
 
             <div class="row">
               <!-- /.col -->
               <div class="col-4">
-                <button type="submit" class="btn btn-primary btn-block mb-8">
-                  Sign In
-                </button>
+                <button type="submit" class="btn btn-primary btn-block mb-8">Sign In</button>
               </div>
               <!-- /.col -->
             </div>
@@ -62,9 +57,7 @@
             <a href="{% url 'forgot_password' %}">I forgot my password</a>
           </p>
           <p class="mb-0">
-            <a href="{% url 'register' %}" class="text-center"
-              >Register a new membership</a
-            >
+            <a href="{% url 'register' %}" class="text-center">Register a new membership</a>
           </p>
         </div>
         <!-- /.login-card-body -->
@@ -78,5 +71,19 @@
     <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <!-- AdminLTE App -->
     <script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+
+    <script>
+      const togglePassword = document.querySelector('#togglePassword')
+      const password = document.querySelector('#password')
+      
+      togglePassword.addEventListener('click', function () {
+        // Toggle the type attribute
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password'
+        password.setAttribute('type', type)
+      
+        // Toggle the eye slash icon
+        this.classList.toggle('fa-eye-slash')
+      })
+    </script>
   </body>
 </html>
