@@ -69,4 +69,12 @@ urlpatterns = [
         views.delete_flatpage,
         name="delete_flatpage",
     ),
+    # orders
+    path("orders/", views.list_all_orders, name="all_orders"),
+    path("get-orders/", views.get_all_orders, name="get_all_orders"),
+    path(
+        "update-order/<int:order_id>/",
+        views.update_order,
+        name="update_order",
+    ),
 ]
