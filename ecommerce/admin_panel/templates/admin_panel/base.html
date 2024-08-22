@@ -129,16 +129,6 @@ scratch. This page gets rid of all links and provides the needed markup only.   
 
         <!-- Sidebar -->
         <div class="sidebar">
-          <!-- Sidebar user panel (optional) -->
-          {% comment %} <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-            <div class="image">
-              <i class="nav-icon fa fa-user fa-2x text-white"></i>
-            </div>
-            <div class="info">
-              <a href="#" class="d-block">{{ request.user.username }}</a>
-            </div>
-          </div> {% endcomment %}
-
           <!-- SidebarSearch Form -->
           <div class="form-inline mt-3">
             <div class="input-group" data-widget="sidebar-search">
@@ -160,12 +150,7 @@ scratch. This page gets rid of all links and provides the needed markup only.   
                   <p>Home</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="{% url 'all_coupons' %}" class="nav-link {% if request.path == '/admin-panel/coupons/' %}active{% endif %}">
-                  <i class="nav-icon fa fa-tag"></i>
-                  <p>Coupons</p>
-                </a>
-              </li>
+              
               {% if 'Admin' in request.session.group %}
                 <li class="nav-item">
                   <a href="{% url 'users' %}" class="nav-link {% if request.path == '/admin-panel/users/' %}active{% endif %}">
@@ -173,6 +158,7 @@ scratch. This page gets rid of all links and provides the needed markup only.   
                     <p>Users</p>
                   </a>
                 </li>
+                <li class="nav-header">PMS</li>
                 <!-- Category -->
                 <li class="nav-item">
                   <a href="#" class="nav-link {% if request.path == '/admin-panel/add-category/' %}active {% elif request.path == '/admin-panel/categories/' %}active {% endif %}">
@@ -224,8 +210,17 @@ scratch. This page gets rid of all links and provides the needed markup only.   
                   </ul>
                 </li>
                 <!-- /. Products -->
+
+                <!-- /. Coupon -->
+                <li class="nav-item">
+                <a href="{% url 'all_coupons' %}" class="nav-link {% if request.path == '/admin-panel/coupons/' %}active{% endif %}">
+                  <i class="nav-icon fa fa-tag"></i>
+                  <p>Coupons</p>
+                </a>
+              </li>
+              <!-- /. Coupon -->
                 
-                <!-- <li class="nav-header">CMS</li> -->
+                <li class="nav-header">CMS</li>
                 <!-- Email Template -->
                 <li class="nav-item">
                   <a href="{% url 'all_email_templates' %}" class="nav-link {% if request.path == '/admin-panel/email-templates/' %}active{% endif %}">
@@ -252,24 +247,93 @@ scratch. This page gets rid of all links and provides the needed markup only.   
                   </a>
                 </li>
                 <!-- /. Flatpages -->
+
+                <li class="nav-header">OMS</li>
+                <!-- Orders -->
+                <li class="nav-item">
+                  <a href="{% url 'all_orders' %}" class="nav-link {% if request.path == '/admin-panel/orders/' %}active{% endif %}">
+                    <i class="nav-icon fas fa-shopping-basket"></i>
+                    <p>Orders</p>
+                  </a>
+                </li>
+                <!-- /. Orders -->
+
               {% endif %}
 
               {% if 'order_manager' in request.session.group %}
+                <li class="nav-header">OMS</li>
+                <!-- Orders -->
                 <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <i class="nav-icon fas fa-th"></i>
-                    <p>Order</p>
+                  <a href="{% url 'all_orders' %}" class="nav-link {% if request.path == '/admin-panel/orders/' %}active{% endif %}">
+                    <i class="nav-icon fas fa-shopping-basket"></i>
+                    <p>Orders</p>
                   </a>
                 </li>
+                <!-- /. Orders -->
               {% endif %}
 
               {% if 'inventory_manager' in request.session.group %}
+                <li class="nav-header">PMS</li>
+                <!-- Category -->
                 <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <i class="nav-icon fas fa-th"></i>
-                    <p>Inventory</p>
+                  <a href="#" class="nav-link {% if request.path == '/admin-panel/add-category/' %}active {% elif request.path == '/admin-panel/categories/' %}active {% endif %}">
+                    <i class="nav-icon fas fa-list-alt"></i>
+                    <p>
+                      Category
+                      <i class="fas fa-angle-left right"></i>
+                    </p>
                   </a>
+                  <ul class="nav nav-treeview" {% if request.path == '/admin-panel/add-category/' %} style="display: block;" {% elif request.path == '/admin-panel/categories/' %} style="display: block;" {% else %} style="display: none;" {% endif %} >
+                    <li class="nav-item">
+                      <a href="{% url 'add_category' %}" class="nav-link {% if request.path == '/admin-panel/add-category/' %}active{% endif %}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Add Category</p>
+                      </a>
+                    </li>
+                    <li class="nav-item">  
+                      <a href="{% url 'all_categories' %}" class="nav-link {% if request.path == '/admin-panel/categories/' %}active{% endif %}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>View Category</p>
+                      </a>
+                    </li>
+                  </ul>
                 </li>
+                <!-- /. Category -->
+
+                <!-- Products -->
+                <li class="nav-item">
+                  <a href="#" class="nav-link {% if request.path == '/admin-panel/add-product/' %}active {% elif request.path == '/admin-panel/products/' %}active {% endif %}">
+                    <i class="nav-icon fas fa-boxes"></i>
+                    <p>
+                      Products
+                      <i class="fas fa-angle-left right"></i>
+                    </p>
+                  </a>
+                  <ul class="nav nav-treeview" {% if request.path == '/admin-panel/add-product/' %} style="display: block;" {% elif request.path == '/admin-panel/products/' %} style="display: block;" {% else %} style="display: none;" {% endif %}>
+                    <li class="nav-item">
+                      <a href="{% url 'add_product' %}" class="nav-link {% if request.path == '/admin-panel/add-product/' %}active{% endif %}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Add Product</p>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a href="{% url 'all_products' %}" class="nav-link {% if request.path == '/admin-panel/products/' %}active{% endif %}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>View Products</p>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                <!-- /. Products -->
+
+                <!-- /. Coupon -->
+                <li class="nav-item">
+                <a href="{% url 'all_coupons' %}" class="nav-link {% if request.path == '/admin-panel/coupons/' %}active{% endif %}">
+                  <i class="nav-icon fa fa-tag"></i>
+                  <p>Coupons</p>
+                </a>
+              </li>
+              <!-- /. Coupon -->
               {% endif %}
             </ul>
           </nav>
