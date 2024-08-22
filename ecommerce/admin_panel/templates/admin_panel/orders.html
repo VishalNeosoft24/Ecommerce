@@ -1,0 +1,194 @@
+<!-- templates/flatpages/flatpage_list.html -->
+
+{% extends 'admin_panel/base.html' %}
+{% block title %}
+  Orders
+{% endblock %}
+{% block content %}
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Orders</h1>
+          </div>
+        </div>
+      </div>
+      <!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <!-- /.card-header -->
+              <div class="card-body">
+                <table id="orderDataTable" class="table table-bordered table-striped">
+                  <tbody></tbody>
+                </table>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteorderModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Delete Order</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <!-- Modal Body -->
+        <div class="modal-body">Are you sure you want to delete this Order?</div>
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $('#orderDataTable').DataTable({
+        responsive: true,
+        lengthChange: false,
+        autoWidth: true,
+        scrollX: true,
+    
+        processing: true,
+        serverSide: true,
+        dom: 'Bfrtip',
+    
+        ajax: {
+          url: "{% url 'get_all_orders' %}",
+          type: 'GET',
+          dataType: 'json',
+          dataSrc: 'data'
+        },
+        columns: [
+          { data: 'index', title: 'Sr.No', searchable: false },
+          { data: 'user', title: 'Customer', searchable: true },
+          //{ data: 'shipping_method', title: 'Shipping Method', searchable: false },
+          { data: 'awb_no', title: 'Ref No.', searchable: true },
+          //{ data: 'payment_gateway', title: 'Payment Gateway', searchable: false },
+          //{ data: 'transaction_id', title: 'Transaction Id', searchable: false },
+          { data: 'grand_total', title: 'Grand Total', searchable: false },
+          { data: 'status', title: 'Status', searchable: true },
+          //{ data: 'shipping_charges', title: 'Shipping Charges', searchable: false },
+          //{ data: 'coupon', title: 'Coupon', searchable: false },
+          { data: 'created_at', title: 'Create At', searchable: false },
+          {
+            data: 'order_details',
+            title: 'Order Details',
+            render: function (data, type, row, meta) {
+              return `
+                            <table class="table table-sm table-bordered">
+                              <thead>
+                                <tr>
+                                  <th>Product</th>
+                                  <th>Quantity</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                ${data
+                                  .map(function (detail) {
+                                    return `
+                                      <tr>
+                                        <td>${detail.product}</td>
+                                        <td>${detail.quantity}</td>
+                                        
+                                      </tr>
+                                    `
+                                  })
+                                  .join('')}
+                              </tbody>
+                            </table>
+                          `
+            }
+          },
+          {
+            data: null,
+            title: 'Action',
+            render: function (data, type, row, meta) {
+              return '<a class="btn btn-info edit-btn" data-id="' + row.id + '"><i class="fa fa-eye"></i></a> '
+            }
+          }
+        ]
+      })
+    
+      $(document).on('click', '.edit-btn', function () {
+        var id = $(this).data('id')
+        window.location.href = `/admin-panel/update-order/${id}/`
+      })
+    
+      //check user permission for perticular url
+      async function checkUserGroupInfo(url) {
+        try {
+          let response = await checkUserAccess(url)
+          if (response.status === 'success' && response.code === 1) {
+            return true
+          } else {
+            return false
+          }
+        } catch (error) {
+          console.error('Failed to check user group info:', error)
+          return false
+        }
+      }
+    
+      // Handle delete button click
+      $('#orderDataTable tbody').on('click', '.delete-btn', function () {
+        flatpageIdToDelete = $(this).data('id')
+        const checkAccessUrl = `{% url 'delete_flatpage' flatpage_id=0 %}`.replace('0', flatpageIdToDelete)
+        checkUserGroupInfo(checkAccessUrl).then((hasAccess) => {
+          if (hasAccess) {
+            $('#deleteorderModal').modal('show')
+          } else {
+            toastr.error('Permission denied')
+          }
+        })
+      })
+    
+      // Handle confirm delete button click
+      $('#confirmDelete').on('click', function () {
+        $.ajax({
+          url: `{% url 'delete_flatpage' flatpage_id=0 %}`.replace('0', flatpageIdToDelete),
+          type: 'POST',
+          data: {
+            coupon_id: flatpageIdToDelete,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+          },
+          success: function (response) {
+            if (response.status === 'success') {
+              $('#deleteorderModal').modal('hide')
+              toastr.success(response.msg)
+              $('#orderDataTable').DataTable().ajax.reload() // Reload the table data
+            } else {
+              toastr.error('Errror - ', response.msg)
+            }
+          },
+          error: function (xhr, status, error) {
+            console.error('Failed to delete coupon:', error)
+          }
+        })
+      })
+    })
+  </script>
+{% endblock %}

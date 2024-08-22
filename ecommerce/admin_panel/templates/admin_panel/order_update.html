@@ -1,0 +1,206 @@
+<!-- templates/flatpages/flatpage_add.html -->
+
+{% extends 'admin_panel/base.html' %}
+{% block title %}
+  Orders Update
+{% endblock %}
+
+{% block content %}
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Update Order Status</h1>
+          </div>
+        </div>
+      </div>
+      <!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <!-- /.card-header -->
+              <div class="card-body">
+                <!-- Order Detail Section -->
+                <div class="row">
+                  <!-- Order Information and Order Details in One Row -->
+                  <div class="col-md-6">
+                    <div class="card card-outline card-success mb-3">
+                      <div class="card-header">
+                        <h5 class="card-title">Order Information</h5>
+                      </div>
+                      <div class="card-body">
+                        <p>
+                          <strong>Order ID:</strong> {{ order.id }}
+                        </p>
+                        <p>
+                          <strong>User:</strong> {{ order.user }}
+                        </p>
+                        <p>
+                          <strong>Shipping Method:</strong> {{ order.get_shipping_method_display }}
+                        </p>
+                        <p>
+                          <strong>Shipping Charges:</strong> {{ order.shipping_charges }}
+                        </p>
+                        <p>
+                          <strong>AWB Number:</strong> {{ order.awb_no }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="card card-outline card-success mb-3">
+                      <div class="card-header">
+                        <h5 class="card-title">Order Details</h5>
+                      </div>
+                      <div class="card-body">
+                        <p>
+                          <strong>Coupon:</strong> {{ order.coupon }}
+                        </p>
+                        <p>
+                          <strong>Payment Gateway:</strong> {{ order.payment_gateway }}
+                        </p>
+                        <p>
+                          <strong>Transaction ID:</strong> {{ order.transaction_id }}
+                        </p>
+                        <p>
+                          <span class="bg-warning text-dark"><strong>Status:</strong> {{ order.get_status_display }}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- End Order Information and Order Details Row -->
+
+                <!-- Addresses in One Row -->
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="card card-outline card-primary mb-3">
+                      <div class="card-header">
+                        <h5 class="card-title">Billing Address</h5>
+                      </div>
+                      <div class="card-body">
+                        <p>{{ order.billing_address }}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="card card-outline card-primary mb-3">
+                      <div class="card-header">
+                        <h5 class="card-title">Shipping Address</h5>
+                      </div>
+                      <div class="card-body">
+                        <p>{{ order.shipping_address }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- End Addresses Row -->
+
+                <!-- Grand Total Card -->
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="card card-outline card-warning mb-4 shadow-sm">
+                      <div class="card-header">
+                        <h5 class="card-title mb-0">Product Details</h5>
+                      </div>
+                      <div class="card-body p-0">
+                        <table class="table table-hover table-striped table-sm mb-0">
+                          <thead class="thead-light">
+                            <tr>
+                              <th scope="col">Product</th>
+                              <th scope="col">Quantity</th>
+                              <th scope="col">Amount</th>
+                              <th scope="col">Total Amount</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for detail in order.order_details.all %}
+                              <tr>
+                                <td>{{ detail.product }}</td>
+                                <td>{{ detail.quantity }}</td>
+                                <td>{{ detail.amount }}</td>
+                                <td>
+                                  {% widthratio detail.amount 1 detail.quantity %}
+                                </td>
+                              </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="card card-outline card-danger mb-4 shadow-sm">
+                      <div class="card-header">
+                        <h5 class="card-title mb-0">Grand Total</h5>
+                      </div>
+                      <div class="card-body text-center">
+                        <h3 class="font-weight-bold mb-0 text-danger">{{ order.grand_total }}</h3>
+                        <p class="lead text-muted">Total Amount</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="card card-outline card-danger mb-4 shadow-sm">
+                      <div class="card-header">
+                        <h5 class="card-title mb-0">User Details</h5>
+                      </div>
+                      <div class="card-body">
+                        <p>
+                          <strong>First Name:</strong> {{ order.user.first_name }}
+                        </p>
+                        <p>
+                          <strong>Last Name:</strong> {{ order.user.last_name }}
+                        </p>
+                        <p>
+                          <strong>Username:</strong> {{ order.user.username }}
+                        </p>
+                        <p>
+                          <strong>Email:</strong> {{ order.user.email }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- End Grand Total Card -->
+                <hr />
+                <!-- Form Section -->
+                <form method="post">
+                  {% csrf_token %}
+                  {{ form.as_p }}
+                  <div class="card-footer">
+                    <button class="btn btn-primary" type="submit">Save</button>
+                    <a href="{% url 'all_orders' %}" class="btn btn-secondary">Cancel</a>
+                  </div>
+                </form>
+                <!-- End Form Section -->
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- Include Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock %}
