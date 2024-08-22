@@ -39,7 +39,7 @@ class Coupon(models.Model):
     deleted_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.name} - {self.code} ({self.discount})"
+        return f"{self.name}"
 
     def delete(self, using=None, keep_parents=False):
         """
@@ -75,7 +75,14 @@ class Address(models.Model):
     default = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.user.first_name}: {self.user.last_name}, {self.state}, {self.country}"
+        address_parts = [
+            f"{self.street_address}",
+            f"Apt {self.apartment_number}" if self.apartment_number else "",
+            f"{self.city}, {self.state}",
+            f"{self.pincode}",
+            f"{self.country}",
+        ]
+        return f"{', '.join(part for part in address_parts if part)}"
 
 
 class EmailTemplate(models.Model):
