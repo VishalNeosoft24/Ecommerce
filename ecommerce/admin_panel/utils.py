@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from product_management.models import Category, Product
-from django.core.paginator import Paginator
 
 
 def create_categories():
@@ -292,27 +291,3 @@ def create_products():
             print(f"Product '{product.name}' created successfully.")
         else:
             print(f"Product '{product.name}' already exists.")
-
-
-def paginated_response(request, data):
-    """
-    request for vars like Draw, start, length, search
-    data for [{}] list of dicts
-    """
-    draw = int(request.GET.get("draw", 1))
-    start = int(request.GET.get("start", 0))
-    length = int(request.GET.get("length", 10))
-
-    paginator = Paginator(data, length)
-    page_number = (start // length) + 1
-    page = paginator.get_page(page_number)
-    data_paginated = list(page.object_list)
-
-    response = {
-        "draw": draw,
-        "recordsTotal": len(data),
-        "recordsFiltered": paginator.count,
-        "data": data_paginated,
-    }
-
-    return response
