@@ -1,6 +1,11 @@
+# Standard Django imports
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+
+# App-specific imports
 from admin_panel.models import Address, Coupon
+from product_management.models import Product
 
 
 class PaymentGateway(models.Model):
@@ -9,20 +14,16 @@ class PaymentGateway(models.Model):
     This model includes information about the gateway, its creator, and modification details.
     """
 
-    name = models.CharField(
-        max_length=255, unique=True, help_text="Name of the payment gateway."
-    )
+    name = models.CharField(max_length=255, unique=True)
     created_by = models.ForeignKey(
         User,
         related_name="created_payment_gateway",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        help_text="User who created the payment gateway.",
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
-        help_text="Date and time when the payment gateway was created.",
     )
     updated_by = models.ForeignKey(
         User,
@@ -30,11 +31,9 @@ class PaymentGateway(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        help_text="User who last modified the payment gateway.",
     )
     updated_at = models.DateTimeField(
         auto_now=True,
-        help_text="Date and time when the payment gateway was last modified.",
     )
 
     def __str__(self):
@@ -78,7 +77,7 @@ class UserOrder(models.Model):
     shipping_charges = models.DecimalField(
         null=True, verbose_name="Shipping Charges", max_digits=12, decimal_places=2
     )
-    AWB_NO = models.CharField(
+    awb_no = models.CharField(
         max_length=100, blank=True, null=True, verbose_name="AWB Number"
     )
     coupon = models.ForeignKey(
@@ -103,15 +102,21 @@ class UserOrder(models.Model):
     status = models.CharField(
         max_length=1,
         choices=STATUS_CHOICES,
-        blank=True,
-        null=True,
         verbose_name="Status",
     )
     billing_address = models.ForeignKey(
-        Address, related_name="billing_orders", null=True, on_delete=models.SET_NULL
+        Address,
+        related_name="billing_orders",
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name="Billing Address",
     )
     shipping_address = models.ForeignKey(
-        Address, related_name="shipping_orders", null=True, on_delete=models.SET_NULL
+        Address,
+        related_name="shipping_orders",
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name="Shipping Address",
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
     created_by = models.ForeignKey(
@@ -120,20 +125,71 @@ class UserOrder(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        help_text="User who created the payment gateway.",
     )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        help_text="Date and time when the payment gateway was last modified.",
-    )
+    updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.ForeignKey(
         User,
         related_name="user_order_update",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        help_text="User who last modified the payment gateway.",
     )
+
+    def generate_awb_no(self):
+        """Generate AWB number using current timestamp and shipping method."""
+        timestamp = timezone.now().strftime("%Y%m%d%H%M")
+        method = self.shipping_method
+        return f"ORD{timestamp}{method}"
+
+    def save(self, *args, **kwargs):
+        """Override save method to set awb_no before saving the instance."""
+        if not self.awb_no:
+            self.awb_no = self.generate_awb_no()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
+
+
+class OrderDetail(models.Model):
+    """
+    Represents the details of an order, including products and quantities.
+    """
+
+    order = models.ForeignKey(
+        UserOrder,
+        on_delete=models.SET_NULL,
+        related_name="order_details",
+        null=True,
+        blank=True,
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.SET_NULL,
+        related_name="order_details",
+        null=True,
+        blank=True,
+    )
+    quantity = models.PositiveIntegerField(null=True, blank=True)
+    amount = models.FloatField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
+    created_by = models.ForeignKey(
+        User,
+        related_name="orderdetail_create",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+    updated_by = models.ForeignKey(
+        User,
+        related_name="orderdetail_update",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+
+    def __str__(self):
+        return f"Order {self.order.id} - Product {self.product.name}"
