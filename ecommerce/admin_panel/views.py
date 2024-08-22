@@ -12,29 +12,43 @@ from django.db.models import Q
 from django.utils import timezone
 from django.contrib.sites.models import Site
 from django.contrib.flatpages.models import FlatPage
-from .forms import FlatPageForm
-
 
 # Third-party imports
 import humanize
 
 # Local imports
-from .forms import EmailTemplateForm, BannerForm
-from ecommerce.utils import parse_datetimerange
+from .forms import EmailTemplateForm, BannerForm, UserOrderForm
+from ecommerce.utils import format_datetime, parse_datetimerange
 from .models import (
     Banner,
     Coupon,
     EmailTemplate,
 )
 from .decorators import check_user_group
-from product_management.models import Product, ProductAttribute
+from order_management.models import UserOrder
+from .forms import FlatPageForm
+from ecommerce.utils import paginated_response
+from product_management.models import Product
 
 
 # -----------------------------------User----------------------------------------------------
 @login_required(login_url="login", redirect_field_name="next")
 def home(request):
     try:
-        return render(request, "admin_panel/starter.html")
+        orders = UserOrder.objects.all().count()
+        products = Product.objects.filter(is_active=True).all().count()
+        users = User.objects.filter(is_active=True).all().count()
+
+        return render(
+            request,
+            "admin_panel/starter.html",
+            {
+                "total_order": orders,
+                "total_product": products,
+                "total_user": users,
+                "queries": 10,
+            },
+        )
     except Exception as e:
         return HttpResponse(str(e))
 
@@ -45,10 +59,7 @@ def auth_user(request):
         password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
         if user is None:
-            messages.add_message(
-                request, messages.ERROR, "Invalid username or password."
-            )
-            return render(request, "admin_panel/login.html")
+            return None
 
         user = check_groups(request, user)
         return user
@@ -83,7 +94,7 @@ def login_view(request):
     try:
         if request.method == "POST":
             user = auth_user(request)
-            if user:
+            if user is not None:
                 login(request, user)
                 return redirect("admin-home")
             else:
@@ -265,7 +276,7 @@ def delete_user(request):
         return HttpResponse(str(e))
 
 
-@check_user_group(["inventory_manager", "order_manager"])
+@check_user_group(["inventory_manager"])
 def list_all_coupons(request):
     try:
         return render(request, "admin_panel/coupon.html")
@@ -273,7 +284,7 @@ def list_all_coupons(request):
         return HttpResponse(str(e))
 
 
-@check_user_group(["inventory_manager", "order_manager"])
+@check_user_group(["inventory_manager"])
 def get_all_coupons(request):
     try:
         if request.method == "GET":
@@ -302,7 +313,7 @@ def get_all_coupons(request):
 
 
 # ----------------------------------------Coupon---------------------------------------------
-@check_user_group()
+@check_user_group(["inventory_manager"])
 def create_coupon(request):
     try:
         if request.method == "POST":
@@ -331,7 +342,7 @@ def create_coupon(request):
         return HttpResponse(str(e))
 
 
-@check_user_group()
+@check_user_group(["inventory_manager"])
 def get_coupon_details(request, coupon_id):
     try:
         coupon = Coupon.objects.get(id=coupon_id)
@@ -352,7 +363,7 @@ def get_coupon_details(request, coupon_id):
         return HttpResponse(str(e), status=500)
 
 
-@login_required(login_url="login")
+@check_user_group(["inventory_manager"])
 def update_coupon(request):
     try:
         coupon_id = request.POST.get("coupon_id")
@@ -382,7 +393,7 @@ def update_coupon(request):
         return JsonResponse({"status": "error", "msg": str(e)})
 
 
-@check_user_group()
+@check_user_group(["inventory_manager"])
 def delete_coupon(request):
     coupon_id = request.POST.get("coupon_id", None)
     if not coupon_id:
@@ -666,3 +677,81 @@ def delete_flatpage(request, flatpage_id):
         return JsonResponse(
             {"status": "suceess", "msg": "FlatPage Deleted Successfully"}
         )
+
+
+# ----------------------------------------FlatPages---------------------------------------------
+
+
+def list_all_orders(request):
+    try:
+        return render(request, "admin_panel/orders.html")
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+def get_all_orders(request):
+    try:
+        search_val = request.GET.get("search[value]")
+        search_val = search_val if search_val.strip() != "" else None
+        query = Q()
+        if search_val is not None:
+            query = Q(user__username__icontains=search_val) | Q(
+                awb_no__icontains=search_val
+            )
+
+        orders = UserOrder.objects.filter(query).prefetch_related("order_details")
+
+        orders_list = []
+        index = 1
+        for order in orders:
+            order_details = [
+                {
+                    "product": detail.product.name,
+                    "quantity": detail.quantity,
+                    "amount": detail.amount,
+                }
+                for detail in order.order_details.all()
+            ]
+            orders_list.append(
+                {
+                    "id": order.id,
+                    "index": index,
+                    "user": str(order.user),
+                    "shipping_method": order.get_shipping_method_display(),
+                    "awb_no": order.awb_no,
+                    "payment_gateway": str(order.payment_gateway),
+                    "transaction_id": order.transaction_id,
+                    "created_at": format_datetime(order.created_at),
+                    "status": order.get_status_display(),
+                    "grand_total": order.grand_total,
+                    "shipping_charges": order.shipping_charges,
+                    "coupon": str(order.coupon),
+                    "order_details": order_details,
+                }
+            )
+            index += 1
+        orders_list = paginated_response(request, orders_list)
+        return JsonResponse(orders_list, safe=False)
+
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+def update_order(request, order_id):
+    order = UserOrder.objects.prefetch_related(
+        "order_details",
+    ).get(pk=order_id)
+
+    for ord in order.order_details.all():
+        print(ord)
+    # order = get_object_or_404(UserOrder, pk=order_id)
+    if request.method == "POST":
+        form = UserOrderForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+            return redirect("all_orders")
+    else:
+        form = UserOrderForm(instance=order)
+    return render(
+        request, "admin_panel/order_update.html", {"form": form, "order": order}
+    )
