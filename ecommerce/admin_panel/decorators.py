@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 
 
-def check_user_group(group_list=[]):
+def check_user_group(group_list=[], type=None):
     def decorator(func):
         @wraps(func)
         @login_required(login_url="login")
@@ -24,7 +24,12 @@ def check_user_group(group_list=[]):
                 result = func(request, *args, **kwargs)
                 return result
             else:
-                return JsonResponse({"status": "error", "msg": "Permission Denied"})
+                if type == "api":
+                    return JsonResponse({"status": "error", "msg": "Permission Denied"})
+                else:
+                    return HttpResponse("HttpResponse Permission Denied")
+
+                # return JsonResponse({"status": "error", "msg": "Permission Denied"})
 
         return inner
 
