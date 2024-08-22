@@ -1,4 +1,6 @@
 from django import forms
+
+from order_management.models import UserOrder
 from .models import Banner, EmailTemplate
 from django.contrib.flatpages.models import FlatPage
 from django.core.exceptions import ValidationError
@@ -111,3 +113,20 @@ class FlatPageForm(forms.ModelForm):
                 )
 
         return cleaned_data
+
+
+class UserOrderForm(forms.ModelForm):
+    class Meta:
+        model = UserOrder
+        fields = ["status"]  # Include all fields
+        widgets = {
+            "status": forms.Select(attrs={"class": "form-control"}),
+        }
+
+    def save(self, commit=True):
+        instance = super(UserOrderForm, self).save(commit=False)
+        if "status" in self.changed_data:  # Only update 'status' if it has changed
+            instance.status = self.cleaned_data.get("status")
+        if commit:
+            instance.save()
+        return instance
