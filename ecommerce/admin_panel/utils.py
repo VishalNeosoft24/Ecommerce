@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from .models import User
 from product_management.models import Category, Product
 
 
