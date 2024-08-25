@@ -1,10 +1,9 @@
-from django.urls import include, path
+from django.urls import path
+
 from . import views
 
 
 urlpatterns = [
-    # product_management_app
-    path("", include("product_management.urls")),
     # users
     path("", views.home, name="admin-home"),
     path("login/", views.login_view, name="login"),
@@ -14,6 +13,30 @@ urlpatterns = [
     path("users/", views.all_users, name="users"),
     path("user/", views.update_user, name="update_user"),
     path("delete/", views.delete_user, name="delete_user"),
+    # categories
+    path("categories/", views.list_all_categories, name="all_categories"),
+    path("get-categories/", views.get_all_categories, name="get_all_categories"),
+    path("add-category/", views.add_category, name="add_category"),
+    path("update-category/<int:id>/", views.update_category, name="update_category"),
+    path("delete-category/", views.delete_category, name="delete_category"),
+    # products
+    path("products/", views.list_all_products, name="all_products"),
+    path("get-products/", views.get_all_products, name="get_all_products"),
+    path("add-product/", views.add_product, name="add_product"),
+    path("file_upload_view/", views.file_upload_view, name="file_upload_view"),
+    path("update-product/<int:id>/", views.update_product, name="update_product"),
+    path("delete-product/", views.delete_product, name="delete_product"),
+    # File Handling
+    path("delete_file/", views.delete_file_view, name="delete_file"),
+    path("delete_all_files/", views.delete_all_files_view, name="delete_all_files"),
+    # Attributes
+    path("handle-attributes/", views.handle_attributes, name="handle_attributes"),
+    path("attributes/<int:id>/", views.update_attribute, name="update_attribute"),
+    path(
+        "delete-attributes/<int:attribute_id>/",
+        views.delete_attribute,
+        name="delete_attribute",
+    ),
     # coupons
     path("get-coupons/", views.get_all_coupons, name="get_all_coupons"),
     path("coupons/", views.list_all_coupons, name="all_coupons"),
