@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.core.paginator import Paginator
-from django.utils import timezone
+from django.db.models import Q
 
 
 def parse_datetimerange(datetimerange):
@@ -52,3 +52,15 @@ def format_datetime(datetime_value, format_string="%Y-%m-%d %H:%M"):
     if datetime_value:
         return datetime_value.strftime(format_string)
     return None
+
+
+def build_search_query(request, search_fields):
+    search_val = request.GET.get("search[value]", "").strip()
+    query = Q()
+    if search_val:
+        queries = Q()
+        for field in search_fields:
+            queries |= Q(**{f"{field}__icontains": search_val})
+        query = queries
+    print("===============", query)
+    return query
