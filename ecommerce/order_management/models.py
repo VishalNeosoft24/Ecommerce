@@ -1,46 +1,26 @@
 # Standard Django imports
 from django.db import models
-from django.contrib.auth.models import User
 from django.utils import timezone
 
 # App-specific imports
-from admin_panel.models import Address, Coupon
+from admin_panel.models import Address, Coupon, BaseModel
 from product_management.models import Product
+from user_management.models import User
 
 
-class PaymentGateway(models.Model):
+class PaymentGateway(BaseModel):
     """
     Represents a payment gateway that handles transactions for orders.
     This model includes information about the gateway, its creator, and modification details.
     """
 
     name = models.CharField(max_length=255, unique=True)
-    created_by = models.ForeignKey(
-        User,
-        related_name="created_payment_gateway",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-    )
-    updated_by = models.ForeignKey(
-        User,
-        related_name="updated_payment_gateway",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-    )
 
     def __str__(self):
         return self.name
 
 
-class UserOrder(models.Model):
+class UserOrder(BaseModel):
     """
     Represents an order placed by a user with various details.
     """
@@ -118,22 +98,6 @@ class UserOrder(models.Model):
         on_delete=models.SET_NULL,
         verbose_name="Shipping Address",
     )
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
-    created_by = models.ForeignKey(
-        User,
-        related_name="user_order_create",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-    )
-    updated_at = models.DateTimeField(auto_now=True)
-    updated_by = models.ForeignKey(
-        User,
-        related_name="user_order_update",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-    )
 
     def generate_awb_no(self):
         """Generate AWB number using current timestamp and shipping method."""
@@ -151,7 +115,7 @@ class UserOrder(models.Model):
         return f"Order {self.id} by {self.user.username}"
 
 
-class OrderDetail(models.Model):
+class OrderDetail(BaseModel):
     """
     Represents the details of an order, including products and quantities.
     """
@@ -172,24 +136,6 @@ class OrderDetail(models.Model):
     )
     quantity = models.PositiveIntegerField(null=True, blank=True)
     amount = models.FloatField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
-    created_by = models.ForeignKey(
-        User,
-        related_name="orderdetail_create",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-    )
-    updated_by = models.ForeignKey(
-        User,
-        related_name="orderdetail_update",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-    )
 
     def __str__(self):
         return f"Order {self.order.id} - Product {self.product.name}"
