@@ -72,7 +72,7 @@
           <div class="modal fade" id="deleteUserModal">
             <div class="modal-dialog">
                 <div class="modal-content">
-                  <form id="deleteUserForm" method="POST" action="{% url "delete_user" %}">
+                  <form id="deleteUserForm" method="POST" action="{% url 'delete_user' %}">
                     <div class="modal-header d-flex justify-content-center">
                       <h3 class="modal-title d-flex align-items-center">
                           <i class="bi bi-exclamation-triangle-fill mr-2"></i> Delete User
@@ -495,16 +495,17 @@
             data: $('#createForm').serialize(),
             success: function(response) {
               if (response.status === 'success') {
-                toastr.success('User created successfully.');
+                toastr.success(response.msg);
                 setTimeout(function(){
                   location.reload();
                 }, 1000);
               } else {
-                toastr.error('An unexpected error occurred.');
+                toastr.error(response.msg);
               }
             },
             error: function(error) {
-              toastr.error('An unexpected error occurred.');
+              console.log(error)
+              toastr.error("An unexpected error occurred");
             }
           });
         } else {
