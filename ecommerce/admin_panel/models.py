@@ -1,9 +1,25 @@
 from django.utils import timezone
 from django.db import models
-from django.contrib.auth.models import User
+from user_management.models import User
 
 
 # Create your models here.
+class BaseModel(models.Model):
+
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="%(class)s_created"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="%(class)s_updated"
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
 class ContactUs(models.Model):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True)
     first_name = models.CharField(max_length=50)
@@ -19,7 +35,7 @@ class ContactUs(models.Model):
         return f"{self.first_name} - {self.last_name} ({self.email})"
 
 
-class Coupon(models.Model):
+class Coupon(BaseModel):
     code = models.CharField(max_length=10)
     name = models.CharField(max_length=25)
     is_active = models.BooleanField(default=True)
@@ -28,15 +44,6 @@ class Coupon(models.Model):
     count = models.IntegerField(default=0, verbose_name="Coupon Used Count")
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="coupon_created"
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="coupon_updated"
-    )
-    updated_at = models.DateTimeField(auto_now=True)
-    deleted_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -50,7 +57,7 @@ class Coupon(models.Model):
         self.save(using=using)
 
 
-class Address(models.Model):
+class Address(BaseModel):
 
     ADDRESS_CHOICES = [
         ("HOME", "Home"),
@@ -85,39 +92,21 @@ class Address(models.Model):
         return f"{', '.join(part for part in address_parts if part)}"
 
 
-class EmailTemplate(models.Model):
+class EmailTemplate(BaseModel):
     title = models.CharField(max_length=100)
     subject = models.CharField(max_length=200)
     content = models.TextField()
-    created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="emailtemplate_created"
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="emailtemplate_updated"
-    )
-    updated_at = models.DateTimeField(auto_now=True)
-    deleted_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
 
 
-class Banner(models.Model):
+class Banner(BaseModel):
     title = models.CharField(max_length=100)
     image = models.ImageField(upload_to="banners/")
     url = models.URLField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     status = models.BooleanField(default=True)
-    created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="banner_created"
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="banner_updated"
-    )
-    updated_at = models.DateTimeField(auto_now=True)
-    deleted_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
@@ -131,20 +120,12 @@ class Banner(models.Model):
         self.save(using=using)
 
 
-class cms(models.Model):
+class CMS(BaseModel):
     title = models.CharField(max_length=50)
     content = models.TextField()
     meta_title = models.TextField()
     meta_description = models.TextField()
     meta_keyword = models.TextField()
-    created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="cms_created"
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="cms_updated"
-    )
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.title}"
