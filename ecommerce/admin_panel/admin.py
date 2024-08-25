@@ -1,5 +1,7 @@
 from django.contrib import admin
 from .models import ContactUs, Coupon, Banner, Address, EmailTemplate, Banner
+from django.contrib.auth.models import Permission
+
 
 # Register your models here.
 
@@ -79,3 +81,9 @@ class EmailTemplateAdmin(admin.ModelAdmin):
         "updated_at",
         "deleted_at",
     ]
+
+
+@admin.register(Permission)
+class PermissionAdmin(admin.ModelAdmin):
+    list_display = ("name", "content_type", "codename")
+    search_fields = ("name", "codename")
