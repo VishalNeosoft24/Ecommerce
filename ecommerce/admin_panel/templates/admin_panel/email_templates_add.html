@@ -27,8 +27,56 @@
               <div class="container">
                 <form action="" method="post">
                   {% csrf_token %}
-                  <div class="form-group">{{ form.as_p }}</div>
-                  <div class="card-footer">
+
+                  <div class="form-group">
+                    <label for="{{ form.title.id_for_label }}">
+                      Title:{% if form.title.field.required %}
+                        <span class="text-danger">*</span>
+                      {% endif %}
+                    </label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                      <div class="text-danger">
+                        {% for error in form.title.errors %}
+                          <p>{{ error }}</p>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </div>
+
+                  <div class="form-group">
+                    <label for="{{ form.subject.id_for_label }}">
+                      Subject:{% if form.subject.field.required %}
+                        <span class="text-danger">*</span>
+                      {% endif %}
+                    </label>
+                    {{ form.subject }}
+                    {% if form.subject.errors %}
+                      <div class="text-danger">
+                        {% for error in form.subject.errors %}
+                          <p>{{ error }}</p>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </div>
+
+                  <div class="form-group">
+                    <label for="{{ form.content.id_for_label }}">
+                      Content:{% if form.content.field.required %}
+                        <span class="text-danger">*</span>
+                      {% endif %}
+                    </label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                      <div class="text-danger">
+                        {% for error in form.content.errors %}
+                          <p>{{ error }}</p>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </div>
+
+                  <div class="card-footer mb-2">
                     <button type="submit" class="btn btn-primary">Save</button>
                     <a href="{% url 'all_email_templates' %}" class="btn btn-secondary">Cancel</a>
                   </div>
@@ -50,7 +98,7 @@
   <script>
     $(document).ready(function () {
       $('#summernote').summernote({
-        height: 300, // Set a reasonable height
+        height: 200, // Set a reasonable height
         width: '100%', // Set width to 100% or adjust as needed
         focus: true
       })
