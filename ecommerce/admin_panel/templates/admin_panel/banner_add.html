@@ -24,12 +24,47 @@
           <div class="col-12">
             <div class="card">
               <!-- /.card-header -->
-              <div class="container">
+              <div class="card-body">
                 <form action="" method="post" enctype="multipart/form-data">
                   {% csrf_token %}
-                  <div class="form-group">{{ form.as_p }}</div>
-                  <!-- Display the current image -->
-                  {% if form.instance.image %}
+
+                  <!-- Display non-field errors -->
+                  {% if form.non_field_errors %}
+                    <div class="text-danger">
+                      <ul class="list-unstyled mb-0">
+                        {% for error in form.non_field_errors %}
+                          <li>{{ error }}</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  {% endif %}
+
+                  <div class="form-group">
+                    <label for="{{ form.title.id_for_label }}">Title:</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                      <div class="text-danger mt-2">{{ form.title.errors }}</div>
+                    {% endif %}
+                  </div>
+
+                  <div class="form-group">
+                    <label for="{{ form.image.id_for_label }}">Image:</label>
+                    {{ form.image }}
+                    {% if form.image.errors %}
+                      <div class="text-danger mt-2">{{ form.image.errors }}</div>
+                    {% endif %}
+                  </div>
+
+                  <div class="form-group">
+                    <label for="{{ form.url.id_for_label }}">URL:</label>
+                    {{ form.url }}
+                    {% if form.url.errors %}
+                      <div class="text-danger mt-2">{{ form.url.errors }}</div>
+                    {% endif %}
+                  </div>
+
+                  <!-- Display the current image if available -->
+                  {% if form.instance.image and 'update' in request.path %}
                     <div class="form-group">
                       <label for="current-image">Current Image:</label>
                       <div>
@@ -37,7 +72,8 @@
                       </div>
                     </div>
                   {% endif %}
-                  <div class="card-footer">
+
+                  <div class="card-footer mt-3">
                     <button type="submit" class="btn btn-primary">Save</button>
                     <a href="{% url 'all_email_templates' %}" class="btn btn-secondary">Cancel</a>
                   </div>
