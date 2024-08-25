@@ -72,6 +72,9 @@
         responsive: true,
         lengthChange: false,
         autoWidth: false,
+        pageLength: 2,
+        processing: true,
+        serverSide: true, 
         dom: 'Bfrtip',
         buttons: [
           {
@@ -92,7 +95,7 @@
           url: "{% url 'get_all_email_templates' %}",
           type: 'GET',
           dataType: 'json',
-          dataSrc: ''
+          dataSrc: 'data'
         },
         columns: [
           { data: 'index', title: 'Sr.No' },
