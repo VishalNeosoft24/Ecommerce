@@ -24,7 +24,7 @@ class EmailTemplateForm(forms.ModelForm):
                 attrs={
                     "class": "form-control",
                     "id": "summernote",
-                    "rows": 4,
+                    "rows": 3,
                     "placeholder": "Email Body",
                 }
             ),
@@ -47,6 +47,45 @@ class BannerForm(forms.ModelForm):
             ),
         }
 
+    def clean_title(self):
+        title = self.cleaned_data.get("title")
+        if not title or len(title) < 5:
+            raise ValidationError("Title must be at least 5 characters long.")
+        return title
+
+    def clean_url(self):
+        url = self.cleaned_data.get("url")
+        if not url:
+            raise ValidationError("URL cannot be empty.")
+        if not url.startswith("http://") and not url.startswith("https://"):
+            raise ValidationError("URL must start with 'http://' or 'https://'.")
+        return url
+
+    def clean_image(self):
+        image = self.cleaned_data.get("image")
+        if image:
+            # Validate image size (e.g., max size 5MB)
+            if image.size > 5 * 1024 * 1024:
+                raise ValidationError("Image file size should not exceed 5 MB.")
+            # Optional: Check file extension
+            if not image.name.endswith((".jpg", ".jpeg", ".png")):
+                raise ValidationError(
+                    "Only JPG, JPEG, and PNG image formats are allowed."
+                )
+        return image
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # Example of cross-field validation
+        url = cleaned_data.get("url")
+        title = cleaned_data.get("title")
+
+        # Check if a Banner with the same URL already exists
+        if Banner.objects.filter(url=url).exists():
+            raise ValidationError(f"A banner with the URL '{url}' already exists.")
+
+        return cleaned_data
+
 
 class FlatPageForm(forms.ModelForm):
     class Meta:
@@ -67,6 +106,7 @@ class FlatPageForm(forms.ModelForm):
                 attrs={
                     "class": "form-control",
                     "id": "summernote",
+                    "rows": 3,
                     "placeholder": "Content",
                 }
             ),
@@ -76,6 +116,8 @@ class FlatPageForm(forms.ModelForm):
         url = self.cleaned_data.get("url")
         if not url.startswith("/"):
             raise ValidationError("URL must start with a forward slash ('/').")
+        elif "http" and "https" in url:
+            raise ValidationError("URL not contains 'http://' or 'https://'.")
         return url
 
     def clean_title(self):
