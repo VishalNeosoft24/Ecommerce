@@ -36,7 +36,7 @@ from product_management.models import (
     ProductAttributeValue,
     ProductImage,
 )
-from .decorators import check_user_group, group_required, check_user_permission
+from .decorators import check_user_permission
 from order_management.models import UserOrder
 from .forms import FlatPageForm
 from ecommerce.utils import paginated_response
@@ -199,7 +199,6 @@ def format_role(groups):
     return formatted_groups
 
 
-@check_user_group()
 def all_users(request):
     try:
         inventory_manager = Group.objects.filter(name="inventory_manager").exists()
@@ -266,7 +265,6 @@ def all_users(request):
         return HttpResponse(str(e))
 
 
-@check_user_group()
 def update_user(request):
     try:
         if request.method == "POST":
@@ -1136,8 +1134,41 @@ def create_coupon(request):
             datetimerange = request.POST.get("datetimerange")
             description = request.POST.get("description")
 
-            start_date, end_date = parse_datetimerange(datetimerange)
+            # Basic validations
+            if not code:
+                return JsonResponse({"error": "Coupon code is required."}, status=400)
+            if not name:
+                return JsonResponse({"error": "Coupon name is required."}, status=400)
+            if not discount:
+                return JsonResponse(
+                    {"error": "Discount value is required."}, status=400
+                )
+            try:
+                discount = float(discount)
+                if discount <= 0:
+                    return JsonResponse(
+                        {"error": "Discount must be a positive number."}, status=400
+                    )
+            except ValueError:
+                return JsonResponse({"error": "Invalid discount value."}, status=400)
 
+            if not datetimerange:
+                return JsonResponse(
+                    {"error": "Date and time range is required."}, status=400
+                )
+            try:
+                start_date, end_date = parse_datetimerange(datetimerange)
+                if start_date >= end_date:
+                    return JsonResponse(
+                        {"error": "End date must be after the start date."}, status=400
+                    )
+            except Exception as e:
+                return JsonResponse({"error": f"Invalid date range: {e}"}, status=400)
+
+            if not description:
+                return JsonResponse({"error": "Description is required."}, status=400)
+
+            # Create and save the coupon
             coupon = Coupon(
                 code=code,
                 name=name,
@@ -1149,10 +1180,10 @@ def create_coupon(request):
                 updated_by=request.user,
             )
             coupon.save()
-            return redirect("all_coupons")
+            return JsonResponse({"success": "Coupon created successfully."})
 
     except Exception as e:
-        return HttpResponse(str(e))
+        return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
 
 
 @check_user_permission(permission_codename="admin_panel.view_coupon", type="api")
