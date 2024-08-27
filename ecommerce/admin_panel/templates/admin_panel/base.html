@@ -161,44 +161,22 @@ scratch. This page gets rid of all links and provides the needed markup only.   
                 <li class="nav-header">PMS</li>
                 <!-- Category -->
                 <li class="nav-item">
-                  <a href="#" class="nav-link {% if request.path == '/admin-panel/add-category/' %}active {% elif request.path == '/admin-panel/categories/' %}active {% endif %}">
+                  <a href="{% url 'all_categories' %}" class="nav-link {% if request.path == '/admin-panel/add-category/' %}active {% elif request.path == '/admin-panel/categories/' %}active {% endif %}">
                     <i class="nav-icon fas fa-list-alt"></i>
-                    <p>
-                      Category
-                      <i class="fas fa-angle-left right"></i>
-                    </p>
+                    <p>Category</p>
                   </a>
-                  <ul class="nav nav-treeview" {% if request.path == '/admin-panel/add-category/' %} style="display: block;" {% elif request.path == '/admin-panel/categories/' %} style="display: block;" {% else %} style="display: none;" {% endif %} >
-                    
-                    <li class="nav-item">  
-                      <a href="{% url 'all_categories' %}" class="nav-link {% if request.path == '/admin-panel/categories/' %}active{% endif %}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>View Category</p>
-                      </a>
-                    </li>
-                  </ul>
                 </li>
                 <!-- /. Category -->
 
                 <!-- Products -->
                 <li class="nav-item">
-                  <a href="#" class="nav-link {% if request.path == '/admin-panel/add-product/' %}active {% elif request.path == '/admin-panel/products/' %}active {% endif %}">
+                  <a href="{% url 'all_products' %}" class="nav-link {% if request.path == '/admin-panel/add-product/' %}active {% elif request.path == '/admin-panel/products/' %}active {% endif %}">
                     <i class="nav-icon fas fa-boxes"></i>
                     <p>
                       Products
-                      <i class="fas fa-angle-left right"></i>
                     </p>
                   </a>
-                  <ul class="nav nav-treeview" {% if request.path == '/admin-panel/add-product/' %} style="display: block;" {% elif request.path == '/admin-panel/products/' %} style="display: block;" {% else %} style="display: none;" {% endif %}>
-                    
-                    <li class="nav-item">
-                      <a href="{% url 'all_products' %}" class="nav-link {% if request.path == '/admin-panel/products/' %}active{% endif %}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>View Products</p>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
+                  </li>
                 <!-- /. Products -->
 
                 <!-- /. Coupon -->
@@ -238,6 +216,15 @@ scratch. This page gets rid of all links and provides the needed markup only.   
                 </li>
                 <!-- /. Flatpages -->
 
+                <!-- Contact Us -->
+                <li class="nav-item">
+                  <a href="{% url 'all_contact_us_queries' %}" class="nav-link {% if request.resolver_match.url_name == 'all_contact_us_queries' or request.resolver_match.url_name == 'contact_us_query_detail' %}active{% endif %}">
+                    <i class="nav-icon fas fa-cog"></i>
+                    <p>Contact Us</p>
+                  </a>
+                </li>
+                <!-- /.Contact Us -->
+
                 <li class="nav-header">OMS</li>
                 <!-- Orders -->
                 <li class="nav-item">
@@ -266,43 +253,34 @@ scratch. This page gets rid of all links and provides the needed markup only.   
                 <li class="nav-header">PMS</li>
                 <!-- Category -->
                 <li class="nav-item">
-                  <a href="#" class="nav-link {% if request.path == '/admin-panel/add-category/' %}active {% elif request.path == '/admin-panel/categories/' %}active {% endif %}">
+                  <a href="{% url 'all_categories' %}" class="nav-link {% if request.path == '/admin-panel/add-category/' %}active {% elif request.path == '/admin-panel/categories/' %}active {% endif %}">
                     <i class="nav-icon fas fa-list-alt"></i>
                     <p>
                       Category
-                      <i class="fas fa-angle-left right"></i>
+                      
                     </p>
                   </a>
-                  <ul class="nav nav-treeview" {% if request.path == '/admin-panel/add-category/' %} style="display: block;" {% elif request.path == '/admin-panel/categories/' %} style="display: block;" {% else %} style="display: none;" {% endif %} >
-                    
-                    <li class="nav-item">  
-                      <a href="{% url 'all_categories' %}" class="nav-link {% if request.path == '/admin-panel/categories/' %}active{% endif %}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>View Category</p>
-                      </a>
-                    </li>
-                  </ul>
+                  
                 </li>
                 <!-- /. Category -->
 
                 <!-- Products -->
                 <li class="nav-item">
-                  <a href="#" class="nav-link {% if request.path == '/admin-panel/add-product/' %}active {% elif request.path == '/admin-panel/products/' %}active {% endif %}">
+                  <a href="{% url 'all_products' %}" class="nav-link {% if request.path == '/admin-panel/add-product/' %}active {% elif request.path == '/admin-panel/products/' %}active {% endif %}">
                     <i class="nav-icon fas fa-boxes"></i>
                     <p>
                       Products
-                      <i class="fas fa-angle-left right"></i>
                     </p>
                   </a>
-                  <ul class="nav nav-treeview" {% if request.path == '/admin-panel/add-product/' %} style="display: block;" {% elif request.path == '/admin-panel/products/' %} style="display: block;" {% else %} style="display: none;" {% endif %}>
+                  {% comment %} <ul class="nav nav-treeview" {% if request.path == '/admin-panel/add-product/' %} style="display: block;" {% elif request.path == '/admin-panel/products/' %} style="display: block;" {% else %} style="display: none;" {% endif %}>
                     
                     <li class="nav-item">
-                      <a href="{% url 'all_products' %}" class="nav-link {% if request.path == '/admin-panel/products/' %}active{% endif %}">
+                      <a  class="nav-link {% if request.path == '/admin-panel/products/' %}active{% endif %}">
                         <i class="far fa-circle nav-icon"></i>
                         <p>View Products</p>
                       </a>
                     </li>
-                  </ul>
+                  </ul> {% endcomment %}
                 </li>
                 <!-- /. Products -->
 
