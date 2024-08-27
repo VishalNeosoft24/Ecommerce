@@ -71,6 +71,7 @@
           responsive: true,
           lengthChange: false,
           autoWidth: false,
+          pageLength: 5,
           dom: 'Bfrtip',
           buttons: [
             {
@@ -92,7 +93,7 @@
             url: "{% url 'get_all_flatpages' %}",
             type: 'GET',
             dataType: 'json',
-            dataSrc: ''
+            dataSrc: 'data'
           },
           columns: [
             { data: 'index', title: 'Sr.No' },
