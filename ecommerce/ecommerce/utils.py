@@ -32,6 +32,7 @@ def paginated_response(request, data):
     data_paginated = list(page.object_list)
 
     response = {
+        "start": start,
         "draw": draw,
         "recordsTotal": len(data),
         "recordsFiltered": paginator.count,
@@ -62,5 +63,4 @@ def build_search_query(request, search_fields):
         for field in search_fields:
             queries |= Q(**{f"{field}__icontains": search_val})
         query = queries
-    print("===============", query)
     return query
