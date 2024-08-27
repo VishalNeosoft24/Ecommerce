@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ subject }}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        color: #333;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        padding-bottom: 20px;
+      }
+      .header h1 {
+        margin: 0;
+        color: #007bff;
+        font-size: 24px;
+      }
+      .content {
+        line-height: 1.6;
+      }
+      .query-response {
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+        border-left: 4px solid #007bff;
+      }
+      .footer {
+        text-align: center;
+        padding-top: 20px;
+        color: #777;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Thank You for Contacting Us</h1>
+      </div>
+      <div class="content">{{ rendered_content|safe }}</div>
+      <div class="footer">
+        <small>© {{ current_year }} Your Company Name. All rights reserved.</small>
+      </div>
+    </div>
+  </body>
+</html>
