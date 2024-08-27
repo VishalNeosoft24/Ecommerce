@@ -20,11 +20,14 @@ from django.db.utils import IntegrityError
 # Third-party imports
 import humanize
 
+from admin_panel.utils import send_admin_reply_email
+
 # Local imports
 from .forms import EmailTemplateForm, BannerForm, UserOrderForm
 from ecommerce.utils import build_search_query, format_datetime, parse_datetimerange
 from .models import (
     Banner,
+    ContactUs,
     Coupon,
     EmailTemplate,
     User,
@@ -352,7 +355,7 @@ def get_all_products(request):
             paginated_products = response.get("data")
 
             products_list = []
-            index = 1
+            index = 1 + response.get("start")
             for product in paginated_products:
                 # Fetch all attributes and their values
                 attributes = ProductAttribute.objects.filter(product=product)
@@ -600,7 +603,11 @@ def add_product(request):
             quantity = int(quantity)
             if price < 0:
                 return JsonResponse(
-                    {"msg": "Price cannot be negative.", "exists": True}, status=400
+                    {
+                        "msg": "Invalid input: The price cannot be negative. Please enter a positive value..",
+                        "exists": True,
+                    },
+                    status=400,
                 )
             if quantity < 0:
                 return JsonResponse(
@@ -927,8 +934,11 @@ def get_all_categories(request):
         return HttpResponse(str(e))
 
 
-def get_categories_list():
+def get_categories_list(exclude_ids=None):
     categories = Category.objects.all()
+    # exclude current ids
+    if exclude_ids:
+        categories = categories.exclude(id__in=exclude_ids)
     categories_list = []
     for category in categories:
         categories_list.append(
@@ -1034,18 +1044,30 @@ def update_category(request, id):
             return JsonResponse({"status": "error", "msg": "Category ID is required."})
 
         category_object = Category.objects.get(id=id)
-        categories_list = get_categories_list()
+        excluded_categories_id = [category_object.id]
+        categories_list = get_categories_list(exclude_ids=excluded_categories_id)
 
         if request.method == "POST":
+
             category_object.name = request.POST.get("category_name", None)
             parent_category_id = request.POST.get("category_parent", None)
+
             if parent_category_id:
+
                 parent_category_instance = get_object_or_404(
                     Category, id=parent_category_id
                 )
+
+                if category_object.name in str(parent_category_instance):
+                    parent_category_instance.parent = category_object.parent
+                    parent_category_instance.save()
+
                 category_object.parent = parent_category_instance
+
             else:
+
                 category_object.parent = None
+
             category_object.description = request.POST.get("category_description")
             category_object.save()
             messages.success(request, "Category Updated successfully!")
@@ -1101,7 +1123,7 @@ def get_all_coupons(request):
             response = paginated_response(request, coupons)
             paginated_coupons = response.get("data")
             coupons_list = []
-            index = 1
+            index = 1 + response.get("start")
             for coupon in paginated_coupons:
                 coupons_list.append(
                     {
@@ -1273,7 +1295,7 @@ def get_all_email_templates(request):
             paginated_email_templates = response.get("data")
 
             email_templatelist = []
-            index = 1
+            index = 1 + response.get("start")
             for email_template in paginated_email_templates:
                 email_templatelist.append(
                     {
@@ -1386,7 +1408,7 @@ def get_all_banners(request):
             response = paginated_response(request, banners)
             paginated_banners = response.get("data")
             bannerlist = []
-            index = 1
+            index = 1 + response.get("start")
             for banner in paginated_banners:
                 bannerlist.append(
                     {
@@ -1509,11 +1531,13 @@ def flatpage_list(request):
 @check_user_permission(permission_codename="flatpages.view_flatpage", type="api")
 def get_all_flatpage(request):
     try:
-        flatpages = FlatPage.objects.all()
-        flagpages_list = []
+        flatpages = FlatPage.objects.all().order_by("id")
+        response = paginated_response(request, flatpages)
+        paginated_flatpages = response.get("data")
+        flatpages_list = []
         index = 1
-        for flatpage in flatpages:
-            flagpages_list.append(
+        for flatpage in paginated_flatpages:
+            flatpages_list.append(
                 {
                     "id": flatpage.id,
                     "index": index,
@@ -1523,7 +1547,8 @@ def get_all_flatpage(request):
                 }
             )
             index += 1
-        return JsonResponse(flagpages_list, safe=False)
+        response["data"] = flatpages_list
+        return JsonResponse(response, safe=False)
 
     except Exception as e:
         return HttpResponse(str(e))
@@ -1548,7 +1573,7 @@ def delete_flatpage(request, flatpage_id):
     if request.method == "POST":
         flatpage.delete()
         return JsonResponse(
-            {"status": "suceess", "msg": "FlatPage Deleted Successfully"}
+            {"status": "success", "msg": "FlatPage Deleted Successfully"}
         )
 
 
@@ -1591,7 +1616,7 @@ def get_all_orders(request):
         paginated_orders = response.get("data")
 
         orders_list = []
-        index = 1
+        index = 1 + response.get("start")
         for order in paginated_orders:
             order_details = [
                 {
@@ -1650,3 +1675,79 @@ def update_order(request, order_id):
 
 
 # ----------------------------------------/Orders---------------------------------------------
+
+
+# ----------------------------------------/Contact Us---------------------------------------------
+def list_all_contact_us(request):
+    try:
+        return render(request, "admin_panel/contact_us.html")
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+@login_required
+def get_all_contact_us_queries(request):
+    # Server-side processing for DataTables
+    contact_us_queries = ContactUs.objects.all().order_by("created_at")
+    response = paginated_response(request, contact_us_queries)
+    paginated_contact_us_queries = response.get("data")
+
+    index = 1 + response.get("start")
+    contact_us_queries_list = []
+    for query in paginated_contact_us_queries:
+        contact_us_queries_list.append(
+            {
+                "id": query.id,
+                "index": index,
+                "first_name": query.first_name,
+                "last_name": query.last_name,
+                "email": query.email,
+                "phone_number": query.phone_number,
+                "message": query.message,
+                "admin_reply": query.note_admin,
+            }
+        )
+        index += 1
+    response["data"] = contact_us_queries_list
+    return JsonResponse(response, safe=False)
+
+
+def contact_us_query_detail(request, id):
+    try:
+        contact_us_query = ContactUs.objects.get(id=id)
+        if request.method == "GET":
+            return render(
+                request,
+                "admin_panel/contact_us_detail.html",
+                {"query": contact_us_query},
+            )
+        else:
+            template = EmailTemplate.objects.filter(title="Contact Us Reply").first()
+            reply = request.POST.get("admin_reply", None)
+            contact_us_query.note_admin = reply
+            contact_us_query.save()
+
+            send_admin_reply_email(
+                contact_us_query,
+                contact_us_query.message,
+                contact_us_query.note_admin,
+                template,
+            )
+            messages.success(request, "Send Reply Successfully!")
+            return JsonResponse({"status": "success", "msg": "Send Reply Successfully"})
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+@check_user_permission(permission_codename="admin_panel.delete_contactus", type="view")
+def delete_contact_us_query(request):
+    query_id = request.POST.get("query_id")
+    if query_id:
+        contact_us = get_object_or_404(ContactUs, pk=query_id)
+        contact_us.delete()
+        return JsonResponse({"status": "success", "msg": "Query deleted successfully"})
+    else:
+        return JsonResponse({"status": "error", "msg": "Invalid request"})
+
+
+# ----------------------------------------/Contact Us---------------------------------------------
