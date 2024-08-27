@@ -100,4 +100,25 @@ urlpatterns = [
         views.update_order,
         name="update_order",
     ),
+    # contact Us
+    path(
+        "contact-us-queries/",
+        views.list_all_contact_us,
+        name="all_contact_us_queries",
+    ),
+    path(
+        "get-contact-us-queries/",
+        views.get_all_contact_us_queries,
+        name="get_all_contact_us_queries",
+    ),
+    path(
+        "contact-us-query/<int:id>/",
+        views.contact_us_query_detail,
+        name="contact_us_query_detail",
+    ),
+    path(
+        "delete-contact-us-query/",
+        views.delete_contact_us_query,
+        name="delete_contact_us_query",
+    ),
 ]
