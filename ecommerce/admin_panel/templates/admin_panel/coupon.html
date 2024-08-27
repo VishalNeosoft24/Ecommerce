@@ -278,6 +278,29 @@
         })
       })
     
+      $('#couponForm').on('submit', function (event) {
+        event.preventDefault()
+    
+        $.ajax({
+          url: $(this).attr('action'),
+          method: 'POST',
+          data: $(this).serialize(),
+          success: function (response) {
+            if (response.success) {
+              toastr.success(response.success)
+              $('#createNewCoupon').modal('hide') // Close the modal
+              $('#couponDataTable').DataTable().ajax.reload()
+            } else if (response.error) {
+              toastr.error(response.error)
+            }
+          },
+          error: function (xhr) {
+            var errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An error occurred.'
+            toastr.error(errorMsg)
+          }
+        })
+      })
+    
       function formatDateTime(dateTimeStr) {
         if (!dateTimeStr) return ''
         var dateTime = new Date(dateTimeStr)
