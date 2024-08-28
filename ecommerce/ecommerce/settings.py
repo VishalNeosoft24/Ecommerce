@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "product_management",
     "order_management",
     "user_management",
+    "customer_portal",
 ]
 
 SITE_ID = 1

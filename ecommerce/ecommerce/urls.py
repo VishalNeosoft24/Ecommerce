@@ -24,5 +24,6 @@ from django.conf import settings
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("admin-panel/", include("admin_panel.urls")),
-    path("pages/", include("django.contrib.flatpages.urls")),  # Change here
+    path("pages/", include("django.contrib.flatpages.urls")),
+    path("", include("customer_portal.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
