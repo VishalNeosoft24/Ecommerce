@@ -4,6 +4,21 @@ from django.db.models import Q
 
 
 def parse_datetimerange(datetimerange):
+    """
+    Parses a date-time range string into two separate datetime objects.
+
+    The input string should be in the format "MM/DD/YYYY HH:MM AM/PM - MM/DD/YYYY HH:MM AM/PM".
+    The function splits this string into start and end date-time strings, converts them into
+    datetime objects, and returns these objects.
+
+    Args:
+        datetimerange (str): A string representing a date-time range in the format
+        "MM/DD/YYYY HH:MM AM/PM - MM/DD/YYYY HH:MM AM/PM".
+
+    Returns:
+        tuple: A tuple containing two datetime objects (start_date, end_date).
+    """
+
     # Split the string into start and end parts
     start_str, end_str = datetimerange.split(" - ")
 
@@ -56,6 +71,21 @@ def format_datetime(datetime_value, format_string="%Y-%m-%d %H:%M"):
 
 
 def build_search_query(request, search_fields):
+    """
+    Builds a search query based on the search value provided in the request.
+
+    The function constructs a Django Q object that can be used to filter querysets based on
+    the search value. The search value is compared against the specified search fields using
+    an `icontains` lookup.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the search value.
+        search_fields (list): A list of field names to be included in the search query.
+
+    Returns:
+        Q: A Django Q object representing the search query.
+    """
+
     search_val = request.GET.get("search[value]", "").strip()
     query = Q()
     if search_val:
