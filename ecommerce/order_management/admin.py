@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PaymentGateway, UserOrder, OrderDetail
+from .models import PaymentGateway, UserOrder, OrderDetail, UserWishList
 
 
 # Register your models here.
@@ -59,3 +59,8 @@ class OrderDetailAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
+
+
+@admin.register(UserWishList)
+class UserWishListAdmin(admin.ModelAdmin):
+    raw_id_fields = ("user", "product")
