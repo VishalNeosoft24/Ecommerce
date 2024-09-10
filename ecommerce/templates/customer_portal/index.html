@@ -1,0 +1,271 @@
+{% extends 'customer_portal/customer_base.html' %}
+{% load static %}
+
+{% block content %}
+  <section id="slider">
+    <!-- slider -->
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <div id="slider-carousel" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+              {% for banner in banners %}
+                <li data-target="#slider-carousel" data-slide-to="{{ forloop.counter0 }}" {% if forloop.counter0 == 0 %} class="active" {% endif %} ></li>
+              {% endfor %}
+            </ol>
+
+            <div class="carousel-inner">
+              {% for banner in banners %}
+                <div class="item {% if forloop.first %}active in{% endif %}">
+                  <div class="row">
+                    <div class="col-lg-12" style="width: 93%; height: 70vh;">
+                      <img src="{{ banner.image.url }}" class="girl img-responsive" style="height: 100%; width: 100%;" onclick="window.location.href = '{{banner.url}}'" />
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+
+            <a href="#slider-carousel" class="left control-carousel hidden-xs" data-slide="prev"><i class="fa fa-angle-left"></i></a>
+            <a href="#slider-carousel" class="right control-carousel hidden-xs" data-slide="next"><i class="fa fa-angle-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- /slider -->
+
+  <section>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+          <div class="left-sidebar">
+            <h2>Category</h2>
+            <div class="panel-group category-products" id="accordian">
+              <!-- Render Categories Recursively -->
+              {% for category in categories_with_subcategories %}
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">
+                      <a data-toggle="collapse" data-parent="#accordian" href="#category-{{ category.id }}">
+                        {% if category.sub_cat %}
+                          <span class="badge pull-right"><i class="fa fa-plus"></i></span>
+                        {% else %}
+                          <span class="badge pull-right"></span>
+                        {% endif %}
+                      </a>
+                      <a onclick="filter_by_category('{{ category.name }}')" style="cursor: pointer;">{{ category.name }}</a>
+                    </h4>
+                  </div>
+                  <div id="category-{{ category.id }}" class="panel-collapse collapse">
+                    <div class="panel-body">
+                      {% if category.sub_cat %}
+                        <ul>
+                          {% include 'customer_portal/category_tree.html' with categories=category.sub_cat %}
+                        </ul>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            <!-- /category-productsr -->
+          </div>
+        </div>
+
+        <div class="col-sm-9 padding-right">
+          <div class="features_items">
+            <!-- features_items -->
+            <h2 class="title text-center">Features Items</h2>
+
+              {% for product in products %}
+                <div class="col-sm-4">
+                  <div class="product-image-wrapper">
+                    <div class="single-products">
+                      <div class="productinfo text-center">
+                        <div class="product-images">
+                          {% if product.first_image %}
+                            <img src="{{ product.first_image.0.image.url }}" alt="{{ product.name }}" height="255.5px" width="237.38px" />
+                          {% else %}
+                            <p>No image available.</p>
+                          {% endif %}
+                        </div>
+
+                        <h2>${{ product.price }}</h2>
+                        <p>{{ product.name }}</p>
+                        <a href="javascript:void(0)" data-product_id="{{product.id}}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                      </div>
+                      <a href="{% url 'product_details' product.id %}">
+                        <div class="product-overlay">
+                          <div class="overlay-content">
+                            <p>{{ product.short_description }}</p>
+                            <h2>${{ product.price }}</h2>
+                            <p>{{ product.name }}</p>
+                            <a href="javascript:void(0)" data-product_id="{{product.id}}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                    
+                    {% if request.user.is_authenticated %}
+                      <div class="choose">
+                        <ul class="nav nav-pills nav-justified">
+                          <li><a href="javascript:void(0)" data-product_id="{{product.id}}" class="add-to-wishlist"><i class="fa fa-plus-square"></i>Add to wishlist</a></li>
+                        </ul>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+          </div>
+          <!-- features_items -->
+
+          <div class="category-tab">
+            <div class="col-sm-12">
+              <ul class="nav nav-tabs">
+                {% for category in categories %}
+                  <li class="{% if forloop.first %}active{% endif %}">
+                    <a href="#{{ category.name|slugify }}" data-category="{{ category.name }}" data-toggle="tab">{{ category.name }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+
+            <div class="tab-content">
+              {% for category in categories %}
+                <div class="tab-pane fade {% if forloop.first %}active in{% endif %}" id="{{ category.name|slugify }}">
+                  {% if category.products %}
+                    {% for product in category.products %}
+                    <a href="{% url 'product_details' product.id %}">
+                      <div class="col-sm-3">
+                        <div class="product-image-wrapper">
+                          <div class="single-products">
+                            <div class="productinfo text-center">
+                              <div class="product-images">
+                                {% if product.first_image %}
+                                  <img src="{{ product.first_image.0.image.url }}" alt="{{ product.name }}" width="100px" height="100px" />
+                                {% else %}
+                                  <p>No image available.</p>
+                                {% endif %}
+                              </div>
+                              <h2>${{ product.price }}</h2>
+                              <p>{{ product.name }}</p>
+                              <a href="javascript:void(0)" data-product_id="{{product.id}}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                    {% endfor %}
+                  {% else %}
+                    <p>No products available in this category.</p>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- /category-tab -->
+            {% include 'customer_portal/recommended_items_carousel.html' with chunked_products=chunked_products image_width='130px' image_height='130px' %}
+          <!-- /recommended_items -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    $(document).ready(function () {
+      // Trigger AJAX when a tab is clicked
+      $('.nav-tabs a').on('click', function (e) {
+        e.preventDefault()
+        var category = $(this).data('category')
+        var tabPane = $(this).attr('href')
+    
+        // Fetch category-wise products
+        $.ajax({
+          url: '/fetch-products/', // URL of the Django view
+          type: 'GET',
+          data: {
+            category: category
+          },
+          success: function (response) {
+            // Update the corresponding tab content with fetched products
+            $(tabPane).html(response.html) // 'html' should be returned from the backend
+          },
+          error: function (xhr, status, error) {
+            console.error('Error fetching products:', error)
+          }
+        })
+      })
+    
+      // Trigger click on the active tab on page load to fetch its products
+      $('.nav-tabs a.active').click()
+    })
+
+    function filter_by_category(categoryName) {
+        console.log('categoryId: ', categoryName)
+        // Construct the new URL with the query parameter
+        const baseUrl = window.location.pathname // Get the base URL without query parameters
+        const queryString = `?cat=${encodeURIComponent(categoryName)}`
+        const newUrl = "{% url 'product_list' %}" + queryString
+      
+        // Set the new URL as the window location
+        window.location.href = newUrl
+      }
+    
+      function removeAllFilter() {
+        window.location.href = baseUrl
+      }
+
+      $(document).ready(function() {
+        $('.add-to-cart').on('click', function() {
+          const productId = $(this).data('product_id')
+          console.log('productId: ', productId)
+
+
+          // Fetch category-wise products
+          $.ajax({
+            url: '/add-cart/'+ productId,
+            type: 'POST',
+            data: {
+              quantity:1,
+              csrfmiddlewaretoken: '{{ csrf_token }}',
+              },
+            success: function (response) {
+              if (response.status=='success'){
+                window.location.href = "{% url 'home_page' %}"
+              }
+            },
+            error: function (xhr, status, error) {
+              console.error('Error fetching products:', error)
+            }
+          })
+        });
+
+        $('.add-to-wishlist').on('click', function() {
+        const productId = $(this).data('product_id')
+        console.log('productId: ', productId)
+
+        // Fetch category-wise products
+        $.ajax({
+          url: '/add-wishlist/'+ productId,
+          type: 'POST',
+          data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+          success: function (response) {
+            if (response.status=='success'){
+              toastr.success(response.msg)
+            }
+          },
+          error: function (xhr, status, error) {
+            toastr.error(response.msg)
+            console.error('Error fetching products:', error)
+          }
+        })
+      });
+
+
+      });
+  </script>
+{% endblock %}

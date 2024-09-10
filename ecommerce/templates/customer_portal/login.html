@@ -1,0 +1,70 @@
+{% extends 'customer_portal/customer_base.html' %}
+{% load static %}
+
+{% block title %}
+  Login
+{% endblock %}
+
+{% block content %}
+  <section style="margin-bottom: 18px; margin-top: 18px;">
+    <!-- form -->
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-4 col-sm-offset-1">
+          <div class="login-form">
+            <!-- login form -->
+            <h2>Login to your account</h2>
+            <form method="post" action="{% url 'login_page' %}">
+              {% csrf_token %}
+              <input type="text" name="username" placeholder="Username" required />
+              <input type="password" name="password" placeholder="Password" required />
+              <p class="mb-1">
+                <a href="{% url 'password_reset' %}">I forgot my password</a>
+              </p>
+              <span><input type="checkbox" class="checkbox" name="keep_signed_in" />Keep me signed in</span>
+              <button type="submit" class="btn btn-default">Login</button>
+              <!-- Display error message if any -->
+            </form>
+          </div>
+          <!-- /login form -->
+        </div>
+        <div class="col-sm-1">
+          <h2 class="or">OR</h2>
+        </div>
+        <div class="col-sm-4">
+          <div class="signup-form">
+            <!-- sign up form -->
+            <h2>New User Signup!</h2>
+            <form method="post" action="{% url 'register_page' %}">
+              {% csrf_token %}
+              <input type="text" name="username" placeholder="Username" />
+              <input type="text" name="email" placeholder="Email Address" />
+              <input type="password" name="password" placeholder="Password" />
+              <input type="password" name="re_password" placeholder="Confirm Password" />
+              <div class="password-requirements">
+                <h5>Password Requirements:</h5>
+                <ul>
+                  <li>Your password must contain at least 8 characters.</li>
+                  <li>Your password should not be a commonly used password.</li>
+                  <li>Your password cannot be entirely numeric.</li>
+                  <li>Your password should not be too similar to your username or personal information.</li>
+                </ul>
+              </div>
+              <button type="submit" class="btn btn-default">Signup</button>
+            </form>
+          </div>
+          <!-- /sign up form -->
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- /form -->
+
+  <script>
+  {% if messages %}
+    {% for message in messages %}
+      toastr.{{ message.tags }}("{{ message }}");
+    {% endfor %}
+  {% endif %}
+  </script>
+{% endblock %}

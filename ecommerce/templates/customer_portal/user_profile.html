@@ -1,0 +1,152 @@
+{% extends 'customer_portal/customer_base.html' %}
+{% load static %}
+
+{% block title %}
+  Profile
+{% endblock %}
+
+{% block content %}
+  <section class="profile-section py-5">
+    <div class="container">
+      <div class="row">
+        <!-- Profile Sidebar -->
+        <div class="col-md-3">
+          <div class="card shadow-sm">
+            <div class="card-body text-center">
+              <!-- Profile icon instead of an image -->
+              <i class="fa fa-user fa-6x" aria-hidden="true"></i>
+              <h4 class="mt-3">{{ user.username }}</h4>
+              <p>
+                <small class="text-muted">Member since {{ user.date_joined|date:'Y' }}</small>
+              </p>
+              <button id="edit-details-btn" class="btn btn-secondary">Edit Details</button>
+              <a href="{% url 'change_password' %}"><button id="edit-details-btn" class="btn btn-secondary">Change Password</button></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Details -->
+        <div class="col-md-9">
+          <div class="card shadow-sm mb-4">
+            <div class="card-header">
+              <h2 class="display-4 text-center">User Details</h2>
+            </div>
+            <div class="card-body">
+              <!-- Display form for updating user details -->
+              <form id="user-details-form" method="post" action="{% url 'profile_page' %}">
+                {% csrf_token %}
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}">First name:</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                      <div class="text-danger mt-2">{{ form.first_name.errors }}</div>
+                    {% endif %}
+                  </div>
+
+                  <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}">Last name:</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                      <div class="text-danger mt-2">{{ form.last_name.errors }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">Email:</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                      <div class="text-danger mt-2">{{ form.email.errors }}</div>
+                    {% endif %}
+                  </div>
+
+                  <div class="form-group">
+                    <label for="{{ form.phone_number.id_for_label }}">Phone Number:</label>
+                    {{ form.phone_number }}
+                    {% if form.phone_number.errors %}
+                      <div class="text-danger mt-2">{{ form.phone_number.errors }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <button type="submit" id="update-btn" class="btn btn-primary">Update</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address Section -->
+        <div class="col-md-12">
+          <div class="card shadow-sm mb-4">
+            <div class="card-header">
+              <a href="{% url 'add_address' %}"><button id="update-btn" class="btn btn-primary">Add Address</button></a>
+            </div>
+            <div class="card-body">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Sr No</th>
+                    <th scope="col">Address Type</th>
+                    <th scope="col">Country</th>
+                    <th scope="col">State</th>
+                    <th scope="col">City</th>
+                    <th scope="col">Pincode</th>
+                    <th scope="col">Street Address</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for address in address %}
+                    <tr>
+                      <td>{{ forloop.counter }}</td>
+                      <td>{{ address.type }}</td>
+                      <td>{{ address.country }}</td>
+                      <td>{{ address.state }}</td>
+                      <td>{{ address.city }}</td>
+                      <td>{{ address.pincode }}</td>
+                      <td>{{ address.street_address }}</td>
+                      <td>
+                        <a href="{% url 'update_address' address.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a href="{% url 'delete_address' address.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="5" class="text-center">No addresses available.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const editButton = document.getElementById('edit-details-btn')
+      const updateButton = document.getElementById('update-btn')
+      const formElements = document.querySelectorAll('#user-details-form input, #user-details-form select')
+    
+      // Initialize form elements to be disabled
+      formElements.forEach((element) => {
+        element.disabled = true
+      })
+      updateButton.disabled = true
+    
+      editButton.addEventListener('click', function () {
+        const isEditing = editButton.textContent === 'Cancel'
+    
+        formElements.forEach((element) => {
+          element.disabled = isEditing
+        })
+        updateButton.disabled = isEditing
+        editButton.textContent = isEditing ? 'Edit Details' : 'Cancel'
+      })
+    })
+  </script>
+{% endblock %}

@@ -1,0 +1,179 @@
+{% extends 'customer_portal/customer_base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}
+  Wishlist
+{% endblock %}
+
+{% block content %}
+  <style>
+    .wishlist-page {
+      padding: 30px 0;
+    }
+    .wishlist-header {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+    .product-card {
+      margin-bottom: 30px;
+      transition: transform 0.3s ease;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .product-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+    .product-card img {
+      width: 100%;
+      height: 200px; /* Fixed height for all images */
+      object-fit: cover; /* Ensures the image covers the area without distortion */
+      display: block;
+    }
+    .product-info {
+      padding: 15px;
+      background-color: #f8f9fa;
+      text-align: center;
+    }
+    .product-info h5 {
+      margin-bottom: 10px;
+    }
+    .btn-view,
+    .btn-remove {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 15px;
+      border-radius: 5px;
+      text-decoration: none;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .btn-view {
+      background-color: #cce5ff; /* Light blue background for "View" button */
+      color: #004085; /* Dark blue text for "View" button */
+      border: 1px solid #b8daff; /* Light blue border */
+    }
+    .btn-view:hover {
+      background-color: #0056b3; /* Darker blue on hover */
+      color: white;
+      border-color: #004085; /* Darker border color on hover */
+    }
+    .btn-remove {
+      background-color: #f8d7da; /* Light red background for "Remove" button */
+      color: #721c24; /* Dark red text for "Remove" button */
+      border: 1px solid #f5c6cb; /* Light red border */
+    }
+    .btn-remove:hover {
+      background-color: #c82333; /* Darker red on hover */
+      color: white;
+      border-color: #bd2130; /* Darker border color on hover */
+    }
+    .btn-remove i {
+      margin-right: 5px;
+    }
+    .wishlist-header {
+      background-color: #f8f9fa; /* Light grey background */
+      border-radius: 8px; /* Rounded corners */
+      padding: 30px; /* Spacing inside the header */
+      margin-bottom: 30px; /* Space below the header */
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    }
+    .wishlist-header h2 {
+      font-size: 2.5rem; /* Larger font size */
+      font-weight: 700; /* Bold text */
+      color: #343a40; /* Dark grey text color */
+      margin-bottom: 10px; /* Space below the heading */
+    }
+    .wishlist-header p {
+      font-size: 1.7rem; /* Slightly larger font size */
+      color: #6c757d; /* Medium grey text color */
+      margin: 0; /* Remove default margin */
+    }
+    .empty-wishlist-container {
+      background-color: #fff; /* White background for a clean look */
+      border-radius: 12px; /* Slightly more rounded corners */
+      padding: 50px; /* Ample padding for visual comfort */
+      margin-top: 30px; /* Increased space from content above */
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* More prominent shadow for depth */
+      text-align: center; /* Center align text and button */
+    }
+    .empty-wishlist-container p {
+      font-size: 3.25rem; /* Slightly larger font size for emphasis */
+      color: #6c757d; /* Medium grey for a soft appearance */
+      margin-bottom: 25px; /* More space below the text */
+    }
+    .empty-wishlist-container .btn-outline-primary {
+      padding: 12px 24px; /* Increased padding for a better button experience */
+      font-size: 1.1rem; /* Larger font size for readability */
+      border-radius: 8px; /* More rounded button corners */
+      border: 2px solid #007bff; /* Solid border color for better visibility */
+      background-color: #fff; /* White background to match container */
+      color: #007bff; /* Primary blue text color */
+      transition: all 0.3s ease; /* Smooth transition effects */
+    }
+    .empty-wishlist-container .btn-outline-primary:hover {
+      background-color: #007bff; /* Primary blue background on hover */
+      color: #fff; /* White text color on hover */
+      border-color: #007bff; /* Matching border color on hover */
+    }
+  </style>
+  <div class="container wishlist-page">
+    {% if wishlist_products %}
+      <div class="wishlist-header">
+        <h2>Your Wishlist</h2>
+        <p>Browse through the products you’ve added to your wishlist.</p>
+      </div>
+    {% endif %}
+
+    <div class="row">
+      {% for wishlist_item in wishlist_products %}
+        <div class="col-md-4">
+          <div class="product-card">
+            {% with image=wishlist_item.product.product_images.first %}
+              <a href="{% url 'product_details' wishlist_item.product.id %}"><img src="{{ image.image.url }}" alt="{{ wishlist_item.product.name }}" class="img-fluid" /></a>
+            {% endwith %}
+            <div class="product-info">
+              <h5>{{ wishlist_item.product.name }}</h5>
+              <p>${{ wishlist_item.product.price|floatformat:2 }}</p>
+              <a href="{% url 'product_details' wishlist_item.product.id %}" class="btn-view">View Details</a>
+              <a href="javascript:void(0)" class="btn-remove" data-product_id="{{ wishlist_item.product.id }}"><i class="fa fa-times"></i> Remove</a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="container">
+          <div class="col-12 text-center empty-wishlist-container">
+            <p>Your wishlist is currently empty.</p>
+            <a href="{% url 'home_page' %}" class="btn btn-outline-primary">Continue Shopping</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <script>
+    $('.btn-remove').on('click', function () {
+      const productId = $(this).data('product_id')
+    
+      $.ajax({
+        url: '/remove-wishlist-item/' + productId + '/',
+        type: 'POST',
+        data: {
+          csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+          if (response.status === 'success') {
+            window.location.href = "{% url 'wishlist' %}"
+          } else {
+            toastr.error('Error: ' + response.message)
+          }
+        },
+        error: function (xhr, status, error) {
+          console.error('AJAX Error:', error)
+          toastr.error(xhr.responseJSON.msg)
+        }
+      })
+    })
+  </script>
+{% endblock %}

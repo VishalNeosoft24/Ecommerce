@@ -1,0 +1,26 @@
+<!-- customer_portal/category_tree.html -->
+{% for category in categories %}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a data-toggle="collapse" data-parent="#accordian" href="#category-{{ category.id }}">
+          {% if category.sub_cat %}
+            <span class="badge pull-right"><i class="fa fa-plus"></i></span>
+          {% else %}
+            <span class="badge pull-right"></span>
+          {% endif %}
+        </a>
+        <a onclick="filter_by_category('{{ category.name }}')" style="cursor: pointer;">{{ category.name }}</a>
+      </h4>
+    </div>
+    <div id="category-{{ category.id }}" class="panel-collapse collapse">
+      <div class="panel-body">
+        {% if category.sub_cat %}
+          <ul>
+            {% include 'customer_portal/category_tree.html' with categories=category.sub_cat %}
+          </ul>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endfor %}

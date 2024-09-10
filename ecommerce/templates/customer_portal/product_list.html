@@ -1,0 +1,285 @@
+{% extends 'customer_portal/customer_base.html' %}
+{% load static %}
+
+{% block title %}
+  Products | E-Shopper
+{% endblock %}
+
+{% block content %}
+  <section id="advertisement">
+    <div class="container">
+      <img src="{% static 'customer_portal/images/shop/advertisement.jpg' %} " alt="" />
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="row" style="margin-bottom: 20px;">
+        <div class="col-sm-3 col-lg-6">
+          <div class="search_box pull-left">
+            <input type="text" id="searchInput" placeholder="Search" style="color: black; border: 1px solid coral;" />
+            <button class="btn btn-secondry" onclick="searchProduct()" id="searchButton">Search</button>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-3">
+          <div class="left-sidebar">
+            <h2>Category</h2>
+            <div class="panel-group category-products" id="accordian">
+              <!-- Render Categories Recursively -->
+              {% for category in categories %}
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">
+                      <a data-toggle="collapse" data-parent="#accordian" href="#category-{{ category.id }}">
+                        {% if category.sub_cat %}
+                          <span class="badge pull-right"><i class="fa fa-plus"></i></span>
+                        {% else %}
+                          <span class="badge pull-right"></span>
+                        {% endif %}
+                      </a>
+                      <a onclick="filter_by_category('{{ category.name }}')" style="cursor: pointer;">{{ category.name }}</a>
+                    </h4>
+                  </div>
+                  <div id="category-{{ category.id }}" class="panel-collapse collapse">
+                    <div class="panel-body">
+                      {% if category.sub_cat %}
+                        <ul>
+                          {% include 'customer_portal/category_tree.html' with categories=category.sub_cat %}
+                        </ul>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+              <div class="text-center">
+                <button onclick="removeCategoryFilter()" class="btn btn-primary">Clear Category Filter</button>
+              </div>
+            </div>
+            <!-- /category-productsr -->
+
+            <h2>Sort By</h2>
+            <p class="text-center">
+              <a onclick="sort_by_price('high-to-low')">Price High to Low</a>
+            </p>
+            <p class="text-center">
+              <a onclick="sort_by_price('low-to-high')">Price Low to High</a>
+            </p>
+
+            <div class="text-center">
+              <button type="submit" onclick="removePriceFilter()" class="btn btn-primary">Clear Price Filter</button>
+            </div>
+
+            <div class="text-center">
+              <button type="submit" onclick="removeAllFilter()" class="btn btn-primary">Clear All Filter</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-9 padding-right">
+          <div class="features_items">
+            <!-- features_items -->
+            <h2 class="title text-center">Features Items</h2>
+            {% for product in products %}
+              <div class="col-sm-4">
+                <div class="product-image-wrapper">
+                  <div class="single-products">
+                    <div class="productinfo text-center">
+                      <div class="product-images">
+                        {% if product.first_image %}
+                          <img src="{{ product.first_image.0.image.url }}" alt="{{ product.name }}" height="255.5px" width="237.38px" />
+                        {% else %}
+                          <p>No image available.</p>
+                        {% endif %}
+                      </div>
+
+                      <h2>${{ product.price }}</h2>
+                      <p>{{ product.name }}</p>
+                      <a href="javascript:void(0)" data-product_id="{{product.id}}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                    </div>
+                    <a href="{% url 'product_details' product.id %}">
+                      <div class="product-overlay">
+                        <div class="overlay-content">
+                          <h2>${{ product.price }}</h2>
+                          <p>{{ product.name }}</p>
+                          <a href="javascript:void(0)" data-product_id="{{product.id}}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                  
+                  {% if request.user.is_authenticated %}
+                    <div class="choose">
+                      <ul class="nav nav-pills nav-justified">
+                        <li><a href="javascript:void(0)" data-product_id="{{product.id}}" class="add-to-wishlist"><i class="fa fa-plus-square"></i>Add to wishlist</a></li>
+                      </ul>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+            <!-- features_items -->
+          </div>
+          <!-- Pagination -->
+          <ul class="pagination">
+            <!-- Previous Page Link -->
+            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                <a class="page-link" {% if page_obj.has_previous %} onclick="navigatePage({{ page_obj.previous_page_number }})" {% else %} style="pointer-events: none;" {% endif %} aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+
+            <!-- Page Number Links -->
+            {% for num in page_obj.paginator.page_range %}
+                {% if num >= page_obj.number|add:'-5' and num <= page_obj.number|add:'5' %}
+                    <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                        <a class="page-link" onclick="navigatePage({{ num }})">
+                            {{ num }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            <!-- Next Page Link -->
+            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                <a class="page-link" {% if page_obj.has_next %} onclick="navigatePage({{ page_obj.next_page_number }})" {% else %} style="pointer-events: none;" {% endif %} aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    $(document).ready(function() {
+      function getQueryParam(param) {
+          const urlParams = new URLSearchParams(window.location.search);
+          return urlParams.get(param);
+      }
+      const searchValue = getQueryParam('search');
+      if (searchValue) {
+          $('#searchInput').val(searchValue);
+      }
+    })
+
+    const queryParams = new URLSearchParams(window.location.search)
+    const baseUrl = window.location.pathname
+
+    function filter_by_category(categoryName, price) {
+      if (categoryName) {
+        queryParams.set('cat', categoryName)
+      }
+      if (price) {
+        queryParams.set('price', price)
+      }
+      const newUrl = `${baseUrl}?${queryParams.toString()}`
+      window.location.href = newUrl
+    }
+    
+    function sort_by_price(price, categoryName) {
+      if (price) {
+        queryParams.set('price', price)
+      }
+      if (categoryName) {
+        queryParams.set('cat', categoryName)
+      }
+      const newUrl = `${baseUrl}?${queryParams.toString()}`
+      window.location.href = newUrl
+    }
+    
+    function removeCategoryFilter() {
+      queryParams.delete('cat')
+      const newUrl = `${baseUrl}?${queryParams.toString()}`
+      window.location.href = newUrl
+    }
+    
+    function removePriceFilter() {
+      queryParams.delete('price')
+      const newUrl = `${baseUrl}?${queryParams.toString()}`
+      window.location.href = newUrl
+    }
+    
+    function removeAllFilter() {
+      window.location.href = "{% url 'product_list' %}"
+    }
+    
+    function searchProduct() {
+      var searchTerm = $('#searchInput').val()
+      console.log('searchTerm: ', searchTerm)
+      if (searchTerm) {
+        queryParams.set('search', searchTerm)
+      }
+      else{
+        queryParams.delete('search')
+      }
+      const newUrl = `${baseUrl}?${queryParams.toString()}`
+      window.location.href = newUrl
+    }
+    
+    function navigatePage(pageNumber) {
+      if (pageNumber < 1) {
+        return;
+      }
+      const queryParams = new URLSearchParams(window.location.search);
+      queryParams.set('page', pageNumber);
+      const newUrl = `${baseUrl}?${queryParams.toString()}`;
+      window.location.href = newUrl;
+    }
+
+    $(document).ready(function() {
+      $('.add-to-cart').on('click', function() {
+        const productId = $(this).data('product_id')
+        console.log('productId: ', productId)
+
+
+        // Fetch category-wise products
+        $.ajax({
+          url: '/add-cart/'+ productId,
+          type: 'POST',
+          data: {
+            quantity:1,
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+          success: function (response) {
+            if (response.status=='success'){
+              window.location.href = "{% url 'product_list' %}"
+            }
+          },
+          error: function (xhr, status, error) {
+            console.error('Error fetching products:', error)
+          }
+        })
+      });
+
+      $('.add-to-wishlist').on('click', function() {
+        const productId = $(this).data('product_id')
+        console.log('productId: ', productId)
+
+        // Fetch category-wise products
+        $.ajax({
+          url: '/add-wishlist/'+ productId,
+          type: 'POST',
+          data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+          success: function (response) {
+            if (response.status=='success'){
+              toastr.success(response.msg)
+            }
+          },
+          error: function (xhr, status, error) {
+            toastr.error(response.msg)
+            console.error('Error fetching products:', error)
+          }
+        })
+      });
+
+
+    });
+
+  </script>
+{% endblock %}

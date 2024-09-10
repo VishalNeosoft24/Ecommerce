@@ -1,0 +1,35 @@
+<!-- recommended_items_carousel.html -->
+
+<div class="recommended_items">
+  <!-- recommended_items -->
+  <h2 class="title text-center">recommended items</h2>
+  <div id="recommended-item-carousel" class="carousel slide" data-ride="carousel">
+    <div class="carousel-inner">
+      {% for product_chunk in chunked_products %}
+        <div class="item {% if forloop.first %}active{% endif %}">
+          <!-- Add 'active' class only for the first item -->
+          {% for product in product_chunk %}
+            <a href="{% url 'product_details' product.id %}">
+              <div class="col-sm-4">
+                <div class="product-image-wrapper">
+                  <div class="single-products">
+                    <div class="productinfo text-center">
+                      <img src="{{ product.first_image.0.image.url }}" alt="{{ product.name }}" width="{{ image_width }}" height="{{ image_height }}" />
+                      <h2>${{ product.price }}</h2>
+                      <p>{{ product.name }}</p>
+                      <a href="javascript:void(0)" data-product_id="{{ product.id }}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Carousel controls -->
+    <a class="left recommended-item-control" href="#recommended-item-carousel" data-slide="prev"><i class="fa fa-angle-left"></i></a>
+    <a class="right recommended-item-control" href="#recommended-item-carousel" data-slide="next"><i class="fa fa-angle-right"></i></a>
+  </div>
+</div>

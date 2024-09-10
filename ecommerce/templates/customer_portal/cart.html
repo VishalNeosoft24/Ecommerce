@@ -1,0 +1,366 @@
+{% extends 'customer_portal/customer_base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}
+  Cart
+{% endblock %}
+
+{% block content %}
+  <style>
+    .total_amount_card {
+      background-color: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .total_amount_card h2 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #28a745; /* Green color for success */
+    }
+    
+    .total_amount_card h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #343a40; /* Dark color for text */
+    }
+  </style>
+  <section id="cart_items">
+    <div class="container">
+      <div class="breadcrumbs">
+        <ol class="breadcrumb">
+          <li>
+            <a href="{% url 'cart' %}">Home</a>
+          </li>
+          <li class="active">Shopping Cart</li>
+        </ol>
+      </div>
+      <div class="table-responsive cart_info">
+        <table class="table table-condensed">
+          <thead>
+            <tr class="cart_menu">
+              <td class="image">Item</td>
+              <td class="description"></td>
+              <td class="price">Price</td>
+              <td class="quantity">Quantity</td>
+              <td class="total">Total</td>
+              <td class="total">Action</td>
+            </tr>
+          </thead>
+          {% if cart_products %}
+            <!-- Existing code to display cart items -->
+            <tbody>
+              {% for cart_product in cart_products %}
+                <tr>
+                  <td class="cart_product">
+                    {% with first_image=cart_product.product.product_images.first %}
+                      {% if first_image %}
+                        <a href=""><img src="{{ first_image.image.url }}" alt="{{ cart_product.product.name }}" width="80px" height="80px" /></a>
+                      {% else %}
+                        <p>No image available</p>
+                      {% endif %}
+                    {% endwith %}
+                  </td>
+                  <td class="cart_description">
+                    <h4><a href="{% url 'product_details' cart_product.product.id %}">{{ cart_product.product.name }}</a></h4>
+                  </td>
+                  <td class="cart_price">
+                    <p id="price_{{ cart_product.product.id }}">${{ cart_product.product.price }}</p>
+                  </td>
+                  <td class="cart_quantity">
+                    <div class="cart_quantity_button">
+                      <a class="cart_quantity_down" href="javascript:void(0)" onclick="cart_quantity_down({{ cart_product.product.id }}, {{ cart_product.product.price }})">-</a>
+                      <input class="cart_quantity_input" type="text" id="quantity_{{ cart_product.product.id }}" name="quantity" value="{{ cart_product.quantity }}" disabled autocomplete="off" size="2" />
+                      <a class="cart_quantity_up" onclick="cart_quantity_up({{ cart_product.product.id }}, {{ cart_product.product.price }})">+</a>
+                    </div>
+                  </td>
+                  <td class="cart_total">
+                    <p id="product_total_price_{{ cart_product.product.id }}">${{ cart_product.product.price|multiply:cart_product.quantity }}</p>
+                  </td>
+                  <td class="cart_delete">
+                    <a class="cart_quantity_delete" data-product_id="{{ cart_product.product.id }}" href="javascript:void(0)"><i class="fa fa-times"></i></a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          {% else %}
+            <tr>
+              <td colspan="6" class="text-center">
+                <div class="empty-cart-message" style="padding: 40px 0;">
+                  <i class="fa fa-shopping-cart" style="font-size: 48px; color: #d3d3d3;"></i>
+                  <h3 style="margin-top: 20px; color: #333;">Your cart is currently empty.</h3>
+                  <p style="color: #777;">Looks like you haven't added anything to your cart yet.</p>
+                  <a href="{% url 'home_page' %}" class="btn btn-primary" style="margin-top: 20px;">Continue Shopping</a>
+                </div>
+              </td>
+            </tr>
+          {% endif %}
+        </table>
+      </div>
+    </div>
+  </section> <!-- /#cart_items -->
+
+  <section id="do_action">
+    <div class="container">
+      <div class="heading">
+        <h3>What would you like to do next?</h3>
+        <p>Choose if you have a discount code or reward points you want to use or would like to estimate your delivery cost.</p>
+      </div>
+      <div class="row">
+        <div class="col-sm-4 chose_area">
+          <div class="p-3 border rounded" style="padding-left: 40px;">
+            <label for="couponCode" class="form-label">Coupon Code:</label>
+            <input type="text" id="couponCode" class="form-control" style="width: 100%;placeholder="Enter your coupon code" />
+            <button class="btn btn-primary" id="apply_coupon_code">Apply</button>
+          </div>
+        </div>
+        <div class="col-sm-8">
+          <div class="total_area">
+            <ul>
+              <li>
+                Cart Sub Total <span class="cart_sub_total">${{ total_amount|floatformat:2 }}</span>
+              </li>
+              {% comment %} <li>
+                Eco Tax <span>$2</span>
+              </li> {% endcomment %}
+              <li>
+                Discount Amount <span id="discount_amount">$0.00</span>
+              </li>
+              <li>
+                Total <span id="totalAmount">${{ total_amount|floatformat:2 }}</span>
+              </li>
+              <p id="demotext"></p>
+            </ul>
+            <a class="btn btn-default check_out" href="">Check Out</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- /#do_action -->
+
+  <script>
+    function cart_quantity_up(productId, unitPrice) {
+      const quantityInput = $('#quantity_' + productId);
+      let currentQuantity = parseInt(quantityInput.val()) || 1; 
+      const productTotalElement = $('#product_total_price_' + productId);
+
+      if (currentQuantity >= 10) {
+        toastr.error('You cannot purchase more than 10 quantity.');
+      } else {
+        const newQuantity = currentQuantity + 1;  
+        quantityInput.val(newQuantity);  
+
+        const newTotalPrice = unitPrice * newQuantity; 
+        productTotalElement.text('$' + newTotalPrice.toFixed(2)); 
+        toastr.success('Quantity Increase successfully!');
+        updateCartQuantity(productId, 1, 'cart_quantity_up');  
+      }
+    }
+
+    function cart_quantity_down(productId, unitPrice) {
+      const quantityInput = $('#quantity_' + productId);
+      let currentQuantity = parseInt(quantityInput.val()) || 1;
+      const productTotalElement = $('#product_total_price_' + productId);
+  
+
+      if (currentQuantity > 1) {
+        const newQuantity = currentQuantity - 1;  
+        quantityInput.val(newQuantity);  
+        const newTotalPrice = unitPrice * newQuantity; 
+
+        productTotalElement.text('$' + newTotalPrice.toFixed(2)); 
+        toastr.success('Quantity Decrease successfully!');
+        updateCartQuantity(productId, 1, 'cart_quantity_down');  
+      } else {
+        toastr.error('Quantity must be at least 1. Use the delete button to remove the product.');
+      }
+    }
+
+    function updateCartQuantity(productId, quantity, type) {
+      if (!productId) {
+        toastr.error('Product ID is missing.')
+        return
+      }
+  
+      if (!quantity) {
+        toastr.error('Quantity is missing.')
+        return
+      }
+      
+      $.ajax({
+        url: '/update-cart/' + productId,
+        type: 'POST',
+        data: {
+          quantity: quantity,
+          operation: type,
+          csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+          if (response.status === 'success') {
+            $('.cart_sub_total').text('$' + response.sub_total_amount.toFixed(2));
+            $('#totalAmount').text('$' + response.total_amount.toFixed(2))
+            $('#discount_amount').text('$' + response.discount_amount.toFixed(2))
+            couponCode = response.coupon_code
+
+            discountPercent = response.discount_percent
+            
+            if (discountPercent > 0) {
+                $('#demotext').html(
+                  '<div class="mt-2 alert alert-success" style="margin-top:10px;">' +
+                  'Coupon "' + couponCode + '" applied successfully! Discount: ' + discountPercent + '%.' +
+                  '<button class="remove-coupon close" type="button" aria-label="Close">' +
+                  '<span aria-hidden="true">&times;</span></button></div>'
+                );
+              } else {
+                $('#demotext').html('');
+              }
+          } 
+        },
+        error: function (xhr, status, error) {
+          console.error('Error updating cart:', error)
+        }
+      })
+    }
+
+    function removeCoupon() {
+    $.ajax({
+        url: '/remove-coupon/',
+        type: 'POST',
+        data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            if (response.status === 'success') {
+                toastr.success('Coupon removed successfully.');
+                $('#demotext').html('');
+                $('.cart_sub_total').text('$' + response.sub_total_amount.toFixed(2));
+                $('#totalAmount').text('$' + response.total_amount.toFixed(2))
+                $('#discount_amount').text('$' + response.discount_amount.toFixed(2))
+                } else {
+                    toastr.error('Failed to remove coupon.');
+                }
+            },
+            error: function () {
+                toastr.error('An error occurred.');
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        // Add event listener to the remove coupon button
+        $(document).on('click', '.remove-coupon', function () {
+            removeCoupon();
+        });
+    });
+
+    $(document).ready(function () {
+      var discountPercent;
+    
+      $('.cart_quantity_delete').on('click', function () {
+        const productId = $(this).data('product_id');
+        const deleteButton = $(this);  
+        
+        $.ajax({
+          url: '/remove-cart/' + productId, 
+          type: 'POST',
+          data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+          },
+          success: function (response) {
+            if (response.status=='success') {
+              // Remove the closest row to the delete button
+              deleteButton.closest('tr').remove();
+              toastr.success('Product removed from cart successfully.');
+              discountPercent = response.discount_percent
+              newTotalAmount = response.total_amount
+              console.log('newTotalAmount: ', newTotalAmount)
+              couponCode = response.coupon_code
+            
+              $('.cart_sub_total').text('$' + response.sub_total_amount.toFixed(2));
+              $('#totalAmount').text('$' + newTotalAmount.toFixed(2))
+              $('#discount_amount').text('$' + response.discount_amount.toFixed(2))
+
+              if (discountPercent > 0 && newTotalAmount > 0) {
+                $('#demotext').html(
+                  '<div class="mt-2 alert alert-success" style="margin-top:10px;">' +
+                  'Coupon "' + couponCode + '" applied successfully! Discount: ' + discountPercent + '%.' +
+                  '<button class="remove-coupon close" type="button" aria-label="Close">' +
+                  '<span aria-hidden="true">&times;</span></button></div>'
+                );
+                toastr.success('Coupon applied successfully! Discount: ' + discountPercent + '%');
+              } else {
+                window.location.href = '{% url "cart" %}'
+              }
+
+            } else {
+              toastr.error('Failed to remove product from cart.');
+            }
+          },
+          error: function (xhr, status, error) {
+            toastr.error('An error occurred while removing the product from the cart.');
+            console.error('Error Removing cart:', error);
+          }
+        });
+      });
+    
+
+      $('#apply_coupon_code').click(function () {
+        var couponCode = $('#couponCode').val()
+        var subtotalAmountText = $('.cart_sub_total').text()
+        var subtotalAmount = parseFloat(subtotalAmountText.replace(/[^\d.-]/g, ''));
+        
+    
+        if (couponCode.trim() === '') {
+          toastr.error('Please enter a coupon code.')
+          return
+        }
+
+        if (subtotalAmount<=0){
+          toastr.error('Please add a product.')
+          return
+        }
+    
+        $.ajax({
+          url: '/apply-coupon/',
+          type: 'POST',
+          data: {
+            coupon_code: couponCode,
+            total_amount: subtotalAmount,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+          },
+          success: function (response) {
+            if (response.status == 'success') {
+              discountPercent = response.discount_percent
+              var newTotalAmount = response.new_total_amount
+    
+              $('#totalAmount').text('$' + newTotalAmount.toFixed(2))
+              $('#discount_amount').text('$' + response.discount_amount.toFixed(2))
+
+              if (discountPercent > 0 && newTotalAmount > 0) {
+                $('#demotext').html(
+                  '<div class="mt-2 alert alert-success" style="margin-top:10px;">' +
+                  'Coupon "' + couponCode + '" applied successfully! Discount: ' + discountPercent + '%.' +
+                  '<button class="remove-coupon close" type="button" aria-label="Close">' +
+                  '<span aria-hidden="true">&times;</span></button></div>'
+                );
+                toastr.success('Coupon "'+couponCode+'" applied successfully! Discount: ' + discountPercent + '%');
+              } else {
+                $('#demotext').html('');
+              }
+            } else {
+              toastr.error(response.msg || 'Failed to apply the coupon.')
+            }
+          },
+          error: function (xhr, status, error) {
+            console.log(xhr.responseJSON.msg)
+            toastr.error(xhr.responseJSON.msg)
+          }
+        })
+      })
+    })
+
+  </script>
+{% endblock %}
