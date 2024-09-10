@@ -8,6 +8,8 @@ class UserAdmin(UserAdmin):
 
     # Define the fields to be used in the user list view and detail view
     list_display = (
+        "id",
+        "date_joined",
         "username",
         "email",
         "first_name",
