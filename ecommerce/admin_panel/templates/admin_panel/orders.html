@@ -99,28 +99,28 @@
             title: 'Order Details',
             render: function (data, type, row, meta) {
               return `
-                                                                                                                <table class="table table-sm table-bordered">
-                                                                                                                  <thead>
-                                                                                                                    <tr>
-                                                                                                                      <th>Product</th>
-                                                                                                                      <th>Quantity</th>
-                                                                                                                    </tr>
-                                                                                                                  </thead>
-                                                                                                                  <tbody>
-                                                                                                                    ${data
-                                                                                                                      .map(function (detail) {
-                                                                                                                        return `
-                                                                                                                          <tr>
-                                                                                                                            <td>${detail.product}</td>
-                                                                                                                            <td>${detail.quantity}</td>
-                                                                                                                            
-                                                                                                                          </tr>
-                                                                                                                        `
-                                                                                                                      })
-                                                                                                                      .join('')}
-                                                                                                                  </tbody>
-                                                                                                                </table>
-                                                                                                              `
+                <table class="table table-sm table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Quantity</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${data
+                      .map(function (detail) {
+                        return `
+                          <tr>
+                            <td>${detail.product}</td>
+                            <td>${detail.quantity}</td>
+                            
+                          </tr>
+                        `
+                      })
+                      .join('')}
+                  </tbody>
+                </table>
+              `
             }
           },
           {
