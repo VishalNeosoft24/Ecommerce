@@ -81,8 +81,8 @@ class BannerForm(forms.ModelForm):
         title = cleaned_data.get("title")
 
         # Check if a Banner with the same URL already exists
-        if Banner.objects.filter(url=url).exists():
-            raise ValidationError(f"A banner with the URL '{url}' already exists.")
+        # if Banner.objects.filter(url=url).exists():
+        #     raise ValidationError(f"A banner with the URL '{url}' already exists.")
 
         return cleaned_data
 
