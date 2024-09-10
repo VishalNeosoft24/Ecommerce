@@ -2,7 +2,6 @@
 from datetime import datetime
 import json
 
-
 # Django imports
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -16,11 +15,14 @@ from django.utils import timezone
 from django.contrib.sites.models import Site
 from django.contrib.flatpages.models import FlatPage
 from django.db.utils import IntegrityError
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Count
+from django.db.models.functions import TruncMonth
 
 # Third-party imports
 import humanize
 
-from admin_panel.utils import send_admin_reply_email
+from admin_panel.utils import send_admin_reply_email, send_user_credentials_email
 
 # Local imports
 from .forms import EmailTemplateForm, BannerForm, UserOrderForm
@@ -44,15 +46,51 @@ from order_management.models import UserOrder
 from .forms import FlatPageForm
 from ecommerce.utils import paginated_response
 from product_management.models import Product
+from order_management.models import UserOrder
 
 
 # -----------------------------------User----------------------------------------------------
-@login_required(login_url="login", redirect_field_name="next")
+@check_user_permission("user_management.view_user", "view")
 def home(request):
+    """
+    Render the home page of the admin panel with total counts of orders, products, and users.
+
+    This view function retrieves the total number of orders, active products, and active users
+    from the database and renders them on the "starter.html" template. The view also includes
+    a hardcoded count for 'queries'. If an exception occurs during data retrieval or rendering,
+    an error message is returned as an HTTP response.
+    """
     try:
         orders = UserOrder.objects.all().count()
         products = Product.objects.filter(is_active=True).all().count()
         users = User.objects.filter(is_active=True).all().count()
+
+        user_data = (
+            User.objects.filter(date_joined__year=datetime.now().year)
+            .annotate(month=TruncMonth("date_joined"))  # Group by month
+            .values("month")  # Select the month
+            .annotate(count=Count("id"))  # Count the number of users per month
+            .order_by("month")  # Order by month
+        )
+
+        # Prepare data for the chart
+        months = [data["month"].strftime("%B") for data in user_data]
+        user_counts = [data["count"] for data in user_data]
+
+        # Fetch order data grouped by month for the current year
+        order_data = (
+            UserOrder.objects.filter(created_at__year=datetime.now().year)
+            .annotate(month=TruncMonth("created_at"))
+            .values("month")
+            .annotate(count=Count("id"))
+            .order_by("month")
+        )
+
+        # Prepare data for the chart
+        order_counts = [data["count"] for data in order_data]
+
+        # List of month names
+        month_labels = [data["month"].strftime("%B") for data in order_data]
 
         return render(
             request,
@@ -62,6 +100,10 @@ def home(request):
                 "total_product": products,
                 "total_user": users,
                 "queries": 10,
+                "months": json.dumps(months),
+                "user_counts": json.dumps(user_counts),
+                "month_labels": json.dumps(month_labels),
+                "order_counts": json.dumps(order_counts),
             },
         )
     except Exception as e:
@@ -69,6 +111,14 @@ def home(request):
 
 
 def auth_user(request):
+    """
+    Authenticate a user based on the provided username and password, and verify user groups.
+
+    This function retrieves the username and password from the POST request data and attempts
+    to authenticate the user. If authentication is successful, it checks the user's group
+    membership using the `check_groups` function. If authentication fails or an exception occurs,
+    an appropriate response is returned.
+    """
     try:
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -83,11 +133,19 @@ def auth_user(request):
 
 
 def check_groups(request, user):
+    """
+    Check the user's group memberships and update the session with the relevant groups.
+
+    This function checks the groups the authenticated user belongs to and adds them to a session
+    variable if they match specific conditions. If the user is not a superuser and belongs to the
+    "order_manager" or "inventory_manager" groups, these groups are added to the session. If no
+    groups are available or an exception occurs, an appropriate response is returned.
+    """
     try:
         available_groups = list(user.groups.values_list("name", flat=True))
         groups = []
 
-        if "customer" in available_groups and not user.is_superuser:
+        if len(available_groups) <= 0:
             return None
 
         if not user.is_superuser and "order_manager" in available_groups:
@@ -103,12 +161,33 @@ def check_groups(request, user):
 
 
 def login_view(request):
+    """
+    Handle user login by authenticating credentials and redirecting based on user roles.
+
+    This function processes a login request by authenticating the user with the provided
+    credentials. If authentication is successful, it logs the user in and redirects them
+    to different pages based on their roles (superuser, order manager, or inventory manager).
+    If authentication fails, an error message is displayed on the login page. The function
+    also handles GET requests by simply rendering the login page.
+    """
     try:
         if request.method == "POST":
             user = auth_user(request)
             if user is not None:
                 login(request, user)
-                return redirect("admin-home")
+                available_groups = list(user.groups.values_list("name", flat=True))
+                if request.user.is_superuser:
+                    return redirect("admin-home")
+                elif "order_manager" in available_groups:
+                    return redirect("all_orders")
+                elif "inventory_manager" in available_groups:
+                    return redirect("all_categories")
+                else:
+                    messages.add_message(
+                        request, messages.ERROR, "Invalid username or password."
+                    )
+                return render(request, "admin_panel/login.html")
+
             else:
                 messages.add_message(
                     request, messages.ERROR, "Invalid username or password."
@@ -120,7 +199,18 @@ def login_view(request):
         return HttpResponse(str(e))
 
 
+@check_user_permission("user_management.add_user", "view")
 def create_user(request):
+    """
+    Handle the creation of a new user by processing form data and saving the user to the database.
+
+    This function processes a POST request to create a new user with provided details such as
+    first name, last name, email, username, and password. It checks if the passwords match and
+    sends a credentials email to the user. If specified, the user is added to one or more groups.
+    On successful creation, a JSON response indicating success is returned. If there is a duplicate
+    username or any other exception, an appropriate error message is returned in a JSON response.
+    GET requests return the user registration form.
+    """
     try:
         if request.method == "POST":
             first_name = request.POST.get("first_name")
@@ -146,6 +236,9 @@ def create_user(request):
                 email=email,
                 username=username,
             )
+
+            send_user_credentials_email(user, password)
+
             user.set_password(password)
             user.save()
 
@@ -156,6 +249,7 @@ def create_user(request):
                 # else:
                 #     customer_group = Group.objects.get(name="customer")
                 user.groups.add(customer_group)
+
             return JsonResponse(
                 {"status": "success", "msg": "User created successfully."}
             )
@@ -176,6 +270,13 @@ def create_user(request):
 
 
 def forgot_password(request):
+    """
+    Render the forgot password page.
+
+    This function handles requests to display the forgot password page where users can
+    initiate the process to recover their password. It renders the "forgot_password.html"
+    template.
+    """
     try:
         return render(request, "admin_panel/forgot_password.html")
     except Exception as e:
@@ -184,11 +285,25 @@ def forgot_password(request):
 
 @login_required(login_url="login")
 def logout_view(request):
+    """
+    Log the user out and redirect to the login page.
+
+    This function logs out the currently authenticated user and redirects them to the
+    login page. It requires the user to be logged in to access this view.
+    """
     logout(request)
     return redirect("login")
 
 
 def format_role(groups):
+    """
+    Formats a list of role names by converting them from snake_case to
+    Title Case. Each role name is converted by replacing underscores with
+    spaces and capitalizing each word. Roles with no underscores are
+    capitalized only in the first letter. Roles named 'customer' are excluded
+    from formatting.
+    """
+
     formatted_groups = {}
     for group in groups:
         if not group in ["customer"]:
@@ -202,39 +317,40 @@ def format_role(groups):
     return formatted_groups
 
 
-def all_users(request):
+def get_all_users(request):
+    """
+    Retrieves and displays a list of users who belong to either the
+    'inventory_manager' or 'order_manager' groups. This function checks for
+    active users in these groups, formats their roles, and prepares data for
+    rendering in the 'admin_panel/users.html' template.
+    """
     try:
-        inventory_manager = Group.objects.filter(name="inventory_manager").exists()
-        order_manager = Group.objects.filter(name="order_manager").exists()
-
-        print(inventory_manager, order_manager)
-        # Check users in the 'inventory_manager' group
-        inventory_manager_users = User.objects.filter(
-            groups__name="inventory_manager", is_active=True
+        search_query = build_search_query(
+            request,
+            [
+                "username",
+                "first_name",
+                "last_name",
+                "email",
+            ],  # Add fields you want to search
         )
-        print(inventory_manager_users)
-
-        # Check users in the 'order_manager' group
-        order_manager_users = User.objects.filter(
-            groups__name="order_manager", is_active=True
-        )
-        print(order_manager_users)
-
-        for user in User.objects.all():
-            groups = [group.name for group in user.groups.all()]
-            print(f"User: {user.username}, Groups: {groups}")
 
         users = (
-            User.objects.prefetch_related("groups")
+            User.objects.filter(search_query)
+            .prefetch_related("groups")
             .filter(
-                Q(groups__name="inventory_manager") | Q(groups__name="order_manager"),
                 is_active=True,
             )
             .distinct()
         )
-        user_list = []
 
-        for user in users:
+        response = paginated_response(request, users)
+        paginated_users = response.get("data")
+
+        user_list = []
+        index = 1 + response.get("start")
+
+        for user in paginated_users:
             time_diff = (
                 datetime.now(timezone.utc) - user.last_login
                 if user.last_login
@@ -244,6 +360,7 @@ def all_users(request):
 
             user_list.append(
                 {
+                    "index": index,
                     "id": user.id,
                     "first_name": user.first_name,
                     "last_name": user.last_name,
@@ -252,15 +369,32 @@ def all_users(request):
                     "last_login": humanize.naturaltime(time_diff),
                     "roles": format_role(user_roles),
                     "role_key": list(user_roles),
+                    "action": str(user),
                 }
             )
+            index += 1
 
+        response["data"] = user_list
+        return JsonResponse(response)
+
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+@check_user_permission("user_management.view_user", "view")
+def all_users(request):
+    """
+    Retrieves and displays a list of users who belong to either the
+    'inventory_manager' or 'order_manager' groups. This function checks for
+    active users in these groups, formats their roles, and prepares data for
+    rendering in the 'admin_panel/users.html' template.
+    """
+    try:
         available_groups = format_role(Group.objects.values_list("name", flat=True))
         return render(
             request,
             "admin_panel/users.html",
             {
-                "users": user_list,
                 "available_groups": available_groups,
             },
         )
@@ -268,7 +402,44 @@ def all_users(request):
         return HttpResponse(str(e))
 
 
+@check_user_permission(permission_codename="user_management.view_user", type="api")
+def get_user_details(request, user_id):
+    """
+    Fetches and returns details of a specific coupon based on the provided ID.
+    """
+
+    try:
+        user = User.objects.get(id=user_id)
+        # Get all group names associated with the user
+        user_groups = user.groups.values_list("name", flat=True)
+
+        # Convert the QuerySet to a list (optional)
+        user_groups_list = list(user_groups)
+        print("==============", list(format_role(user_groups_list).keys()))
+
+        user_details = {
+            "id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "roles": list(format_role(user_groups_list).values()),
+        }
+        return JsonResponse({"status": "success", "data": user_details})
+    except Coupon.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+    except Exception as e:
+        return HttpResponse(str(e), status=500)
+
+
+@check_user_permission("user_management.change", "view")
 def update_user(request):
+    """
+    Updates a user's details based on the provided POST data. This includes
+    updating the user's first name, last name, email, and group memberships.
+    If the request method is POST, the function fetches the user by ID,
+    updates their details, and saves the changes.
+    """
+
     try:
         if request.method == "POST":
             first_name = request.POST.get("first_name")
@@ -276,6 +447,8 @@ def update_user(request):
             email = request.POST.get("email")
             groups = request.POST.getlist("group")
             user_id = request.POST.get("user_id")
+            username = request.POST.get("username")
+            print("username: ", username)
 
             user = User.objects.filter(id=user_id).first()
             user.first_name = first_name
@@ -297,8 +470,14 @@ def update_user(request):
         return HttpResponse(str(e))
 
 
-@login_required(login_url="login", redirect_field_name="next")
+@check_user_permission("user_management.delete_user", "view")
 def delete_user(request):
+    """
+    Deletes a user based on the provided POST data. The function fetches the
+    user by ID and deletes the user if found. Returns a success or error
+    message depending on whether the user was deleted or not.
+    """
+
     try:
         if request.method == "POST":
             user_id = request.POST.get("user_id")
@@ -325,8 +504,13 @@ def delete_user(request):
     permission_codename="product_management.view_product", type="view"
 )
 def list_all_products(request):
+    """
+    Renders the 'admin_panel/products.html' template to display the products
+    page. This view requires a specific permission for viewing products.
+    """
+
     try:
-        return render(request, "product_management/products.html")
+        return render(request, "admin_panel/products.html")
     except Exception as e:
         return HttpResponse(str(e))
 
@@ -335,6 +519,13 @@ def list_all_products(request):
     permission_codename="product_management.view_product", type="api"
 )
 def get_all_products(request):
+    """
+    Retrieves and returns a paginated list of all active products, including
+    their attributes and images. The function performs a search based on
+    provided query fields and returns the results in a JSON response. This view
+    requires a specific permission for accessing product data via API.
+    """
+
     try:
         if request.method == "GET":
 
@@ -405,6 +596,14 @@ def get_all_products(request):
     permission_codename="product_management.add_productimage", type="api"
 )
 def file_upload_view(request):
+    """
+    Handles file uploads for product images. The function processes a POST request
+    to upload an image file associated with a specific product. It creates a
+    ProductImage instance with the uploaded file and returns a JSON response
+    indicating the success of the upload. This view requires a specific permission
+    for adding product images via API.
+    """
+
     try:
         if request.method == "POST":
             product_id = request.POST.get("product_id", None)
@@ -433,6 +632,14 @@ def file_upload_view(request):
     permission_codename="product_management.add_productattribute", type="api"
 )
 def handle_attributes(request):
+    """
+    Handles the creation or updating of product attributes and their values
+    based on the provided POST data. The function parses JSON data to update or
+    add attributes and their corresponding values for a specific product. It
+    requires a valid product ID and processes the attribute data accordingly.
+    This view requires a specific permission for adding product attributes via API.
+    """
+
     if request.method == "POST":
         try:
             # Parse JSON data from the request
@@ -499,6 +706,13 @@ def handle_attributes(request):
     permission_codename="product_management.change_productattribute", type="api"
 )
 def update_attribute(request, id):
+    """
+    Fetches and updates a product attribute based on the provided attribute ID.
+    For GET requests, it retrieves and returns the current details of the attribute.
+    For POST requests, it updates the attribute's name and its associated values.
+    This view requires a specific permission for changing product attributes via API.
+    """
+
     if request.method == "GET":
         try:
             attribute = ProductAttribute.objects.get(pk=id)
@@ -553,6 +767,13 @@ def update_attribute(request, id):
     permission_codename="product_management.delete_productattribute", type="api"
 )
 def delete_attribute(request, attribute_id):
+    """
+    Deletes a product attribute based on the provided attribute ID. The function
+    removes the attribute from the database and returns a JSON response indicating
+    the success of the deletion operation. This view requires a specific permission
+    for deleting product attributes via API.
+    """
+
     try:
         attribute = ProductAttribute.objects.get(pk=attribute_id)
         attribute.delete()
@@ -565,6 +786,15 @@ def delete_attribute(request, attribute_id):
 
 @check_user_permission(permission_codename="product_management.add_product", type="api")
 def add_product(request):
+    """
+    Add a new product to the database.
+
+    This function handles POST requests to create a new product. It validates the required
+    fields and checks for existing products with the same name. It also validates the category
+    and numeric fields before saving the product. On success, it returns a JSON response with
+    the product ID. If there are validation errors or issues, appropriate error messages are
+    returned.
+    """
     if request.method == "POST":
         # Get product details from POST request
         product_name = request.POST.get("product_name")
@@ -666,7 +896,7 @@ def add_product(request):
         categories_list = get_categories_list()
         return render(
             request,
-            "product_management/product_add.html",
+            "admin_panel/product_add.html",
             {"categories": categories_list},
         )
 
@@ -676,6 +906,13 @@ def add_product(request):
     permission_codename="product_management.delete_productimage", type="api"
 )
 def delete_file_view(request):
+    """
+    Delete a product image.
+
+    This function handles POST requests to delete a specific product image based on the provided
+    image ID. It removes the image file from storage and deletes the database entry for the image.
+    Returns a JSON response indicating success or failure of the deletion process.
+    """
     image_id = request.POST.get("image_id")
 
     if not image_id:
@@ -696,6 +933,13 @@ def delete_file_view(request):
     permission_codename="product_management.delete_productimage", type="api"
 )
 def delete_all_files_view(request):
+    """
+    Delete all images associated with a product.
+
+    This function handles POST requests to delete all images related to a specific product based
+    on the provided product ID. It removes each image file from storage and deletes the database
+    entries for the images. Returns a JSON response indicating the success of the operation.
+    """
     product_id = request.POST.get("product_id")
 
     if not product_id:
@@ -718,6 +962,14 @@ def delete_all_files_view(request):
     permission_codename="product_management.change_product", type="view"
 )
 def update_product(request, id):
+    """
+    Update an existing product.
+
+    This function handles both GET and POST requests to update a product's details. For POST requests,
+    it validates and updates the product's name, price, description, quantity, and category. It
+    also checks for validation errors and updates the product if all checks pass. For GET requests,
+    it renders the product update form with existing product details, images, and attributes.
+    """
     try:
         if not id:
             return JsonResponse({"status": "error", "msg": "Product ID is required."})
@@ -815,7 +1067,7 @@ def update_product(request, id):
 
             return render(
                 request,
-                "product_management/product_add.html",
+                "admin_panel/product_add.html",
                 {
                     "update_product": product,
                     "categories": get_categories_list(),
@@ -831,6 +1083,13 @@ def update_product(request, id):
     permission_codename="product_management.delete_product", type="api"
 )
 def delete_product(request):
+    """
+    Deletes a product based on the provided product ID. The function retrieves
+    the product using the given ID and removes it from the database. It returns
+    a JSON response indicating the success or failure of the deletion operation.
+    This view requires a specific permission for deleting products via API.
+    """
+
     try:
         product_id = request.POST.get("product_id", None)
         if not product_id:
@@ -849,19 +1108,26 @@ def delete_product(request):
 
 
 # ----------------------------------------Category---------------------------------------------
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 @check_user_permission(
     permission_codename="product_management.view_category", type="view"
 )
 def list_all_categories(request):
+    """
+    Fetches and renders a paginated list of top-level categories and their
+    subcategories. The function retrieves categories with no parent, applies
+    pagination based on the 'per_page' and 'page' parameters, and includes
+    subcategories for each category. The results are rendered in the
+    'admin_panel/categories.html' template. This view requires a specific
+    permission for viewing categories.
+    """
+
     try:
         # Fetch and order the top-level categories
         categories_list = Category.objects.filter(parent=None).order_by("id")
         # Get the number of items per page from the request, with a default of 5
         per_page = request.GET.get("per_page", 5)
-        print("per_page: ", per_page)
 
         # Pagination settings
         paginator = Paginator(categories_list, per_page)  # Show 5 categories per page
@@ -892,7 +1158,7 @@ def list_all_categories(request):
 
         return render(
             request,
-            "product_management/categories.html",
+            "admin_panel/categories.html",
             {
                 "categories": categories,
                 "categories_with_subcategories": categories_with_subcategories,
@@ -906,6 +1172,14 @@ def list_all_categories(request):
 
 
 def fetch_sub_cat(category):
+    """
+    Recursively fetches subcategories for a given category. The function
+    retrieves all subcategories of the specified category, orders them by name,
+    and constructs a list of dictionaries representing each subcategory. Each
+    subcategory dictionary includes its ID, name, and a recursive call to
+    fetch further subcategories.
+    """
+
     subcategories = Category.objects.filter(parent=category).order_by("name")
 
     subcategories_list = []
@@ -922,19 +1196,28 @@ def fetch_sub_cat(category):
     return subcategories_list
 
 
-@check_user_permission(
-    permission_codename="product_management.view_category", type="api"
-)
-def get_all_categories(request):
-    try:
-        if request.method == "GET":
-            categories_list = fetch_sub_cat()
-            return JsonResponse(categories_list, safe=False)
-    except Exception as e:
-        return HttpResponse(str(e))
+# @check_user_permission(
+#     permission_codename="product_management.view_category", type="api"
+# )
+# def get_all_categories(request):
+#     try:
+#         if request.method == "GET":
+#             categories_list = fetch_sub_cat()
+#             return JsonResponse(categories_list, safe=False)
+#     except Exception as e:
+#         return HttpResponse(str(e))
 
 
 def get_categories_list(exclude_ids=None):
+    """
+    Fetches a list of all categories, optionally excluding certain categories
+    by their IDs. The function retrieves categories from the database, excludes
+    categories with IDs specified in the 'exclude_ids' parameter, and returns a
+    list of dictionaries containing details of each category. Each dictionary
+    includes the category's ID, name, parent (as a string), description, and
+    path (as a string representation).
+    """
+
     categories = Category.objects.all()
     # exclude current ids
     if exclude_ids:
@@ -957,6 +1240,14 @@ def get_categories_list(exclude_ids=None):
     permission_codename="product_management.add_category", type="view"
 )
 def add_category(request):
+    """
+    Handles the addition of a new category. If the request method is POST, it processes
+    the form data to create a new category, performs validation checks, and saves the
+    category to the database. If validation errors are found, they are displayed, and
+    the form is re-rendered with error messages. For GET requests, it renders the form
+    for adding a new category.
+    """
+
     try:
         if request.method == "POST":
             category_name = request.POST.get("category_name", None)
@@ -995,7 +1286,7 @@ def add_category(request):
                 categories_list = get_categories_list()
                 return render(
                     request,
-                    "product_management/category_add.html",
+                    "admin_panel/category_add.html",
                     {
                         "categories": categories_list,
                         "category_name": category_name,
@@ -1028,7 +1319,7 @@ def add_category(request):
             categories_list = get_categories_list()
             return render(
                 request,
-                "product_management/category_add.html",
+                "admin_panel/category_add.html",
                 {"categories": categories_list},
             )
     except Exception as e:
@@ -1039,6 +1330,14 @@ def add_category(request):
     permission_codename="product_management.change_category", type="view"
 )
 def update_category(request, id):
+    """
+    Handles the update of an existing category. If the request method is POST, it processes
+    the form data to update the category's name, parent category, and description. If the
+    parent category is selected, it updates the parent relationship accordingly. For GET
+    requests, it renders the form for updating the category with the current category data
+    and a list of available categories for selection.
+    """
+
     try:
         if not id:
             return JsonResponse({"status": "error", "msg": "Category ID is required."})
@@ -1049,8 +1348,19 @@ def update_category(request, id):
 
         if request.method == "POST":
 
-            category_object.name = request.POST.get("category_name", None)
+            category_name = request.POST.get("category_name", None)
+            if not category_name:
+                messages.error(request, "Category name is required.")
+                return render(
+                    request,
+                    "admin_panel/category_add.html",
+                    {"category": category_object, "categories": categories_list},
+                )
+
             parent_category_id = request.POST.get("category_parent", None)
+            category_description = request.POST.get("category_description", "").strip()
+
+            category_object.name = category_name
 
             if parent_category_id:
 
@@ -1068,7 +1378,7 @@ def update_category(request, id):
 
                 category_object.parent = None
 
-            category_object.description = request.POST.get("category_description")
+            category_object.description = category_description
             category_object.save()
             messages.success(request, "Category Updated successfully!")
 
@@ -1076,7 +1386,7 @@ def update_category(request, id):
         else:
             return render(
                 request,
-                "product_management/category_add.html",
+                "admin_panel/category_add.html",
                 {"category": category_object, "categories": categories_list},
             )
 
@@ -1088,6 +1398,12 @@ def update_category(request, id):
     permission_codename="product_management.delete_category", type="api"
 )
 def delete_category(request):
+    """
+    Handles the deletion of a category. It processes the request to delete a category with
+    the specified ID. If the category is successfully deleted, a success message is returned.
+    If the category ID is not provided or if an error occurs, an error message is returned.
+    """
+
     try:
         category_id = request.POST.get("category_id", None)
         if not category_id:
@@ -1109,6 +1425,10 @@ def delete_category(request):
 # ----------------------------------------Coupon---------------------------------------------
 @check_user_permission(permission_codename="admin_panel.view_coupon", type="view")
 def list_all_coupons(request):
+    """
+    Renders the template for listing all coupons.
+    """
+
     try:
         return render(request, "admin_panel/coupon.html")
     except Exception as e:
@@ -1117,6 +1437,10 @@ def list_all_coupons(request):
 
 @check_user_permission(permission_codename="admin_panel.view_coupon", type="view")
 def get_all_coupons(request):
+    """
+    Fetches and returns a paginated list of active coupons in JSON format. Coupons are ordered by ID.
+    """
+
     try:
         if request.method == "GET":
             coupons = Coupon.objects.filter(is_active=True).order_by("id")
@@ -1148,6 +1472,11 @@ def get_all_coupons(request):
 
 @check_user_permission(permission_codename="admin_panel.add_coupon", type="view")
 def create_coupon(request):
+    """
+    Handles the creation of a new coupon. Processes form data to validate and create a coupon with
+    the specified details. Returns a JSON response indicating success or failure.
+    """
+
     try:
         if request.method == "POST":
             code = request.POST.get("code")
@@ -1210,6 +1539,10 @@ def create_coupon(request):
 
 @check_user_permission(permission_codename="admin_panel.view_coupon", type="api")
 def get_coupon_details(request, coupon_id):
+    """
+    Fetches and returns details of a specific coupon based on the provided ID.
+    """
+
     try:
         coupon = Coupon.objects.get(id=coupon_id)
         coupon_details = {
@@ -1231,8 +1564,52 @@ def get_coupon_details(request, coupon_id):
 
 @check_user_permission(permission_codename="admin_panel.change_coupon", type="api")
 def update_coupon(request):
+    """
+    Updates an existing coupon based on the provided data. Updates fields such as name, code, discount,
+    description, and date range. Returns a JSON response indicating success or failure.
+    """
+
     try:
         coupon_id = request.POST.get("coupon_id")
+
+        name = request.POST.get("name")
+        code = request.POST.get("code")
+        discount = request.POST.get("discount")
+        description = request.POST.get("description")
+        datetimerange = request.POST.get("datetimerange_edit")
+
+        # Basic validations
+        if not code:
+            return JsonResponse({"error": "Coupon code is required."}, status=400)
+        if not name:
+            return JsonResponse({"error": "Coupon name is required."}, status=400)
+        if not discount:
+            return JsonResponse({"error": "Discount value is required."}, status=400)
+        try:
+            discount = float(discount)
+            if discount <= 0:
+                return JsonResponse(
+                    {"error": "Discount must be a positive number."}, status=400
+                )
+        except ValueError:
+            return JsonResponse({"error": "Invalid discount value."}, status=400)
+
+        if not datetimerange:
+            return JsonResponse(
+                {"error": "Date and time range is required."}, status=400
+            )
+        try:
+            start_date, end_date = parse_datetimerange(datetimerange)
+            if start_date >= end_date:
+                return JsonResponse(
+                    {"error": "End date must be after the start date."}, status=400
+                )
+        except Exception as e:
+            return JsonResponse({"error": f"Invalid date range: {e}"}, status=400)
+
+        if not description:
+            return JsonResponse({"error": "Description is required."}, status=400)
+
         coupon = Coupon.objects.get(id=coupon_id)
 
         # Update coupon fields with form data
@@ -1251,7 +1628,7 @@ def update_coupon(request):
         coupon.save()
 
         return JsonResponse(
-            {"status": "success", "msg": "Coupon updated successfully."}
+            {"status": "success", "msg": "Coupon updated successfully."}, status=200
         )
     except Coupon.DoesNotExist:
         return JsonResponse({"status": "error", "msg": "Coupon not found."})
@@ -1261,6 +1638,10 @@ def update_coupon(request):
 
 @check_user_permission(permission_codename="admin_panel.delete_coupon", type="api")
 def delete_coupon(request):
+    """
+    Deletes a coupon based on the provided ID. Returns a JSON response indicating success or failure.
+    """
+
     coupon_id = request.POST.get("coupon_id", None)
     if not coupon_id:
         return JsonResponse({"status": "error", "msg": "Coupon ID is required."})
@@ -1280,6 +1661,10 @@ def delete_coupon(request):
     permission_codename="admin_panel.view_emailtemplate", type="view"
 )
 def list_all_email_templates(request):
+    """
+    Renders the template for listing all email templates.
+    """
+
     try:
         return render(request, "admin_panel/email_templates.html")
     except Exception as e:
@@ -1288,6 +1673,10 @@ def list_all_email_templates(request):
 
 @check_user_permission(permission_codename="admin_panel.view_emailtemplate", type="api")
 def get_all_email_templates(request):
+    """
+    Fetches and returns a paginated list of email templates in JSON format. Templates are ordered by ID.
+    """
+
     try:
         if request.method == "GET":
             email_templates = EmailTemplate.objects.order_by("id")
@@ -1315,6 +1704,11 @@ def get_all_email_templates(request):
 
 @check_user_permission(permission_codename="admin_panel.add_emailtemplate", type="view")
 def create_email_template(request):
+    """
+    Handles the creation of a new email template. Processes form data to validate and create a template
+    with the specified details. Returns a redirect response or renders the form with errors.
+    """
+
     try:
         if request.method == "POST":
             form = EmailTemplateForm(request.POST or None)
@@ -1343,6 +1737,11 @@ def create_email_template(request):
     permission_codename="admin_panel.change_emailtemplate", type="view"
 )
 def update_email_template(request, id):
+    """
+    Updates an existing email template based on the provided data. Processes form data to update template
+    fields and saves the changes. Returns a redirect response or renders the form with errors.
+    """
+
     try:
         email_template = EmailTemplate.objects.get(id=id)
     except EmailTemplate.DoesNotExist:
@@ -1370,6 +1769,10 @@ def update_email_template(request, id):
     permission_codename="admin_panel.delete_emailtemplate", type="api"
 )
 def delete_email_template(request):
+    """
+    Deletes an email template based on the provided ID. Returns a JSON response indicating success or failure.
+    """
+
     if request.method == "POST":
         try:
             email_template_id = request.POST.get("email_template_id")
@@ -1394,6 +1797,10 @@ def delete_email_template(request):
 # ----------------------------------------Banner---------------------------------------------
 @check_user_permission(permission_codename="admin_panel.view_banner", type="view")
 def list_all_banners(request):
+    """
+    Renders a page to list all banners in the admin panel.
+    """
+
     try:
         return render(request, "admin_panel/banners.html")
     except Exception as e:
@@ -1402,6 +1809,11 @@ def list_all_banners(request):
 
 @check_user_permission(permission_codename="admin_panel.view_banner", type="api")
 def get_all_banners(request):
+    """
+    Fetches all active banners from the database and returns them in a paginated JSON response.
+    The response includes banner details like ID, title, image URL, and link.
+    """
+
     try:
         if request.method == "GET":
             banners = Banner.objects.filter(is_active=True).order_by("id")
@@ -1428,6 +1840,12 @@ def get_all_banners(request):
 
 @check_user_permission(permission_codename="admin_panel.add_banner", type="view")
 def create_banner(request):
+    """
+    Handles the creation of a new banner. If the request method is POST, it processes the form data
+    to create a new banner and saves it to the database. If the form is valid, the user is redirected
+    to the list of all banners. If the form is invalid, it re-renders the form with validation errors.
+    """
+
     try:
         if request.method == "POST":
             form = BannerForm(request.POST or None, request.FILES)
@@ -1451,6 +1869,12 @@ def create_banner(request):
 
 @check_user_permission(permission_codename="admin_panel.change_banner", type="view")
 def update_banner(request, id):
+    """
+    Handles the update of an existing banner. If the request method is POST, it processes the form data
+    to update the banner details. If the form is valid, the user is redirected to the list of all banners.
+    For GET requests, it renders the form with the current banner details.
+    """
+
     try:
         banner = Banner.objects.get(id=id)
     except Banner.DoesNotExist:
@@ -1461,6 +1885,7 @@ def update_banner(request, id):
         if form.is_valid():
             banner = form.save(commit=False)
             banner.updated_by = request.user
+            banner.is_active = True
             banner.save()
             return redirect("all_banners")
         else:
@@ -1472,6 +1897,12 @@ def update_banner(request, id):
 
 @check_user_permission(permission_codename="admin_panel.delete_banner", type="api")
 def delete_banner(request):
+    """
+    Handles the deletion of a banner. Processes a POST request to delete the banner with the specified ID.
+    If the banner is successfully deleted, a success message is returned. If the ID is not provided or
+    an error occurs, an error message is returned.
+    """
+
     if request.method == "POST":
         try:
             banner_id = request.POST.get("banner_id")
@@ -1498,6 +1929,13 @@ def delete_banner(request):
 # ----------------------------------------FlatPages---------------------------------------------
 @check_user_permission(permission_codename="flatpages.add_flatpage", type="view")
 def create_flatpage(request):
+    """
+    Handles the creation of a new flatpage. If the request method is POST, it processes the form data
+    to create a new flatpage and saves it to the database. Ensures the current site is included in the
+    sites associated with the flatpage. If the form is valid, the user is redirected to the list of all flatpages.
+    If the form is invalid, it re-renders the form with validation errors.
+    """
+
     if request.method == "POST":
         form = FlatPageForm(request.POST)
         if form.is_valid():
@@ -1522,6 +1960,10 @@ def create_flatpage(request):
 
 @check_user_permission(permission_codename="flatpages.view_flatpage", type="view")
 def flatpage_list(request):
+    """
+    Renders a page to list all flatpages in the admin panel.
+    """
+
     try:
         return render(request, "admin_panel/flatpage_list.html")
     except Exception as e:
@@ -1530,6 +1972,11 @@ def flatpage_list(request):
 
 @check_user_permission(permission_codename="flatpages.view_flatpage", type="api")
 def get_all_flatpage(request):
+    """
+    Fetches all flatpages from the database and returns them in a paginated JSON response.
+    The response includes flatpage details like ID, title, URL, and absolute URL.
+    """
+
     try:
         flatpages = FlatPage.objects.all().order_by("id")
         response = paginated_response(request, flatpages)
@@ -1556,6 +2003,12 @@ def get_all_flatpage(request):
 
 @check_user_permission(permission_codename="flatpages.change_flatpage", type="view")
 def update_flatpage(request, flatpage_id):
+    """
+    Handles the update of an existing flatpage. If the request method is POST, it processes the form data
+    to update the flatpage details. If the form is valid, the user is redirected to the list of all flatpages.
+    For GET requests, it renders the form with the current flatpage details.
+    """
+
     flatpage = get_object_or_404(FlatPage, pk=flatpage_id)
     if request.method == "POST":
         form = FlatPageForm(request.POST, instance=flatpage)
@@ -1569,6 +2022,12 @@ def update_flatpage(request, flatpage_id):
 
 @check_user_permission(permission_codename="flatpages.delete_flatpage", type="api")
 def delete_flatpage(request, flatpage_id):
+    """
+    Handles the deletion of a flatpage. Processes a POST request to delete the flatpage with the specified ID.
+    If the flatpage is successfully deleted, a success message is returned. If the ID is not provided or
+    an error occurs, an error message is returned.
+    """
+
     flatpage = get_object_or_404(FlatPage, pk=flatpage_id)
     if request.method == "POST":
         flatpage.delete()
@@ -1587,6 +2046,10 @@ def delete_flatpage(request, flatpage_id):
     permission_codename="order_management.view_userorder", type="view"
 )
 def list_all_orders(request):
+    """
+    Renders a page to list all orders in the admin panel.
+    """
+
     try:
         print("-----------------------------")
         return render(request, "admin_panel/orders.html")
@@ -1598,6 +2061,12 @@ def list_all_orders(request):
     permission_codename="order_management.view_userorder", type="api"
 )
 def get_all_orders(request):
+    """
+    Fetches all orders from the database based on the search query and returns them in a paginated JSON response.
+    Includes order details such as user, shipping method, AWB number, payment gateway, transaction ID, status,
+    grand total, shipping charges, coupon, and order details.
+    """
+
     try:
         search_query = build_search_query(
             request,
@@ -1655,6 +2124,12 @@ def get_all_orders(request):
     permission_codename="order_management.change_userorder", type="view"
 )
 def update_order(request, order_id):
+    """
+    Handles the update of an existing order. If the request method is POST, it processes the form data
+    to update the order details. If the form is valid, the user is redirected to the list of all orders.
+    For GET requests, it renders the form with the current order details.
+    """
+
     order = UserOrder.objects.prefetch_related(
         "order_details",
     ).get(pk=order_id)
@@ -1679,6 +2154,10 @@ def update_order(request, order_id):
 
 # ----------------------------------------/Contact Us---------------------------------------------
 def list_all_contact_us(request):
+    """
+    Renders a page to list all contact us queries in the admin panel.
+    """
+
     try:
         return render(request, "admin_panel/contact_us.html")
     except Exception as e:
@@ -1687,6 +2166,11 @@ def list_all_contact_us(request):
 
 @login_required
 def get_all_contact_us_queries(request):
+    """
+    Fetches all contact us queries from the database and returns them in a paginated JSON response.
+    Includes details such as first name, last name, email, phone number, message, and admin reply.
+    """
+
     # Server-side processing for DataTables
     contact_us_queries = ContactUs.objects.all().order_by("created_at")
     response = paginated_response(request, contact_us_queries)
@@ -1713,6 +2197,12 @@ def get_all_contact_us_queries(request):
 
 
 def contact_us_query_detail(request, id):
+    """
+    Fetches the details of a specific contact us query. If the request method is GET, it renders the details page.
+    For POST requests, it processes the admin reply, updates the contact us query, and sends an email reply.
+    Returns a success message in JSON format if the reply is successfully sent.
+    """
+
     try:
         contact_us_query = ContactUs.objects.get(id=id)
         if request.method == "GET":
@@ -1741,6 +2231,12 @@ def contact_us_query_detail(request, id):
 
 @check_user_permission(permission_codename="admin_panel.delete_contactus", type="view")
 def delete_contact_us_query(request):
+    """
+    Handles the deletion of a contact us query. Processes a POST request to delete the query with the specified ID.
+    If the query is successfully deleted, a success message is returned. If the ID is not provided or an error occurs,
+    an error message is returned.
+    """
+
     query_id = request.POST.get("query_id")
     if query_id:
         contact_us = get_object_or_404(ContactUs, pk=query_id)
