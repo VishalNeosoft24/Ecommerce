@@ -92,6 +92,10 @@ scratch. This page gets rid of all links and provides the needed markup only.   
 
     <!-- Summernote -->
     <script src="{% static 'plugins/summernote/summernote-bs4.min.js' %}"></script>
+
+    <!-- ChartJS -->
+    <script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
+
   </head>
 
   <body class="hold-transition sidebar-mini">
@@ -144,14 +148,14 @@ scratch. This page gets rid of all links and provides the needed markup only.   
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
               <!--              Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library              -->
-              <li class="nav-item">
-                <a href="{% url 'admin-home' %}" class="nav-link {% if request.path == '/admin-panel/' %}active{% endif %}">
-                  <i class="nav-icon fas fa-th"></i>
-                  <p>Home</p>
-                </a>
-              </li>
+               {% if request.user.is_superuser %}
+                <li class="nav-item">
+                  <a href="{% url 'admin-home' %}" class="nav-link {% if request.path == '/admin-panel/' %}active{% endif %}">
+                    <i class="nav-icon fas fa-th"></i>
+                    <p>Home</p>
+                  </a>
+                </li>
               
-              {% if request.user.is_superuser %}
                 <li class="nav-item">
                   <a href="{% url 'users' %}" class="nav-link {% if request.path == '/admin-panel/users/' %}active{% endif %}">
                     <i class="nav-icon fa fa-users"></i>
