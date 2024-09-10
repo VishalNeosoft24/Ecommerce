@@ -25,5 +25,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("admin-panel/", include("admin_panel.urls")),
     path("pages/", include("django.contrib.flatpages.urls")),
-    path("", include("customer_portal.urls")),
+    path("", include("user_management.urls")),
+    path("", include("product_management.urls")),
+    path("", include("order_management.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
