@@ -94,6 +94,34 @@
             </div>
           </div>
           <!-- ./col -->
+
+          <div class="col-lg-6 col-12">
+            <!-- Users Created CHART -->
+            <div class="card card-success">
+              <div class="card-header">
+                <h3 class="card-title">Users Created Per Month</h3>
+              </div>
+              <div class="card-body">
+                <div class="chart">
+                  <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                </div>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <div class="col-lg-6 col-12">
+            <div class="card card-success">
+              <div class="card-header">
+                <h3 class="card-title">Orders by Month</h3>
+              </div>
+              <div class="card-body">
+                <div class="chart">
+                  <canvas id="orderChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <!-- /.row -->
       </div>
@@ -101,4 +129,60 @@
     </div>
     <!-- /.content -->
   </div>
+
+  <script>
+    $(function () {
+      // Function to initialize a chart
+      function initializeChart(ctx, labels, data, label, backgroundColor) {
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: label,
+                data: data,
+                backgroundColor: backgroundColor,
+                borderColor: backgroundColor,
+                borderWidth: 1
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                grid: {
+                  display: false
+                }
+              },
+              y: {
+                grid: {
+                  display: false
+                },
+                beginAtZero: true
+              }
+            }
+          }
+        })
+      }
+    
+      // Get context with jQuery - using jQuery's .get() method.
+      var barChartCanvas = $('#barChart').get(0).getContext('2d')
+      var orderChartCanvas = $('#orderChart').get(0).getContext('2d')
+    
+      // Get data passed from the Django view
+      var months = JSON.parse('{{ months|safe }}')
+      var userCounts = JSON.parse('{{ user_counts|safe }}')
+      var monthLabels = JSON.parse('{{ month_labels|safe }}')
+      var orderCounts = JSON.parse('{{ order_counts|safe }}')
+    
+      // Initialize User Created Per Month Chart
+      initializeChart(barChartCanvas, months, userCounts, 'Users Created', 'rgba(60,141,188,0.9)')
+    
+      // Initialize Orders by Month Chart
+      initializeChart(orderChartCanvas, monthLabels, orderCounts, 'Orders per Month', 'rgba(60,141,188,0.9)')
+    })
+  </script>
 {% endblock %}
