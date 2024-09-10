@@ -20,7 +20,6 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -49,7 +48,6 @@ INSTALLED_APPS = [
     "product_management",
     "order_management",
     "user_management",
-    "customer_portal",
 ]
 
 SITE_ID = 1
@@ -79,6 +77,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "product_management.context_processors.recommended_product",
+                "order_management.context_processors.cart_item_count",
             ],
         },
     },
@@ -145,6 +145,12 @@ STATICFILES_DIRS = [
 
 STATIC_URL = "static/"
 
+# URL to access media files
+MEDIA_URL = "/media/"
+
+# Directory where media files are stored
+MEDIA_ROOT = BASE_DIR / "media"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -159,3 +165,9 @@ EMAIL_HOST = os.environ.get("EMAIL_HOST")
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = os.environ.get("EMAIL_PORT")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+
+PASSWORD_RESET_EMAIL_TEMPLATE_NAME = "registration/password_reset_email.html"
+SESSION_COOKIE_AGE = 1209600  # 2 weeks, in seconds
