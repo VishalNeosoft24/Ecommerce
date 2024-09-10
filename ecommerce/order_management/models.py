@@ -139,3 +139,40 @@ class OrderDetail(BaseModel):
 
     def __str__(self):
         return f"Order {self.order.id} - Product {self.product.name}"
+
+
+class UserWishList(BaseModel):
+    user = models.ForeignKey(
+        User, related_name="user_wishlist", on_delete=models.CASCADE
+    )
+    product = models.ForeignKey(
+        Product, related_name="wishlist_product", on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.product.name
+
+    def save(self, *args, **kwargs):
+        """Override save method to set awb_no before saving the instance."""
+        self.created_by = self.user
+        self.updated_by = self.user
+        super().save(*args, **kwargs)
+
+
+# class Cart(models.Model):
+#     """Represents an cart details of user with various details."""
+
+#     user = models.ForeignKey(
+#         User,
+#         on_delete=models.DO_NOTHING,
+#         related_name="user_cart",
+#         null=True,
+#         blank=True,
+#     )
+#     product = models.ForeignKey(
+#         Product, on_delete=models.CASCADE, related_name="cart_product"
+#     )
+#     quantity = models.IntegerField(verbose_name="Quantity")
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+#     deleted_at = models.DateTimeField(null=True, blank=True)
