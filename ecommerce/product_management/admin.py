@@ -18,13 +18,13 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
+    raw_id_fields = ("category",)
     list_display = [
         "id",
         "name",
         "short_description",
         "long_description",
         "price",
-        "category",
         "quantity",
         "is_active",
         "created_by",
@@ -37,10 +37,10 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
+    raw_id_fields = ("product",)
     list_display = [
         "id",
         "image",
-        "product",
         "is_active",
         "created_by",
         "created_at",
