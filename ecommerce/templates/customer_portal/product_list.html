@@ -16,8 +16,8 @@
     <div class="container">
       <div class="row" style="margin-bottom: 20px;">
         <div class="col-sm-3 col-lg-6">
-          <div class="search_box pull-left">
-            <input type="text" id="searchInput" placeholder="Search" style="color: black; border: 1px solid coral;" />
+          <div class="search_box pull-left" style="display: flex;">
+            <input type="text" id="searchInput" placeholder="Search" style="color: black; margin-right: 5px;" />
             <button class="btn btn-secondry" onclick="searchProduct()" id="searchButton">Search</button>
           </div>
         </div>
@@ -59,12 +59,21 @@
             </div>
             <!-- /category-productsr -->
 
+            <div class="price-range"><!--price-range-->
+							<h2>Price Range</h2>
+							<div class="well">
+								 <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="60000" data-slider-step="5" data-slider-value="[0,50000]" id="sl2" ><br />
+								 <b>$<span id="min-value">0</span></b>
+                  <b class="pull-right">$<span id="max-value">60000</span></b>
+							</div>
+						</div><!--/price-range-->
+
             <h2>Sort By</h2>
             <p class="text-center">
-              <a onclick="sort_by_price('high-to-low')">Price High to Low</a>
+              <a href="javascript:void(0)" onclick="sort_by_price('high-to-low')">Price High to Low</a>
             </p>
             <p class="text-center">
-              <a onclick="sort_by_price('low-to-high')">Price Low to High</a>
+              <a href="javascript:void(0)" onclick="sort_by_price('low-to-high')">Price Low to High</a>
             </p>
 
             <div class="text-center">
@@ -72,7 +81,7 @@
             </div>
 
             <div class="text-center">
-              <button type="submit" onclick="removeAllFilter()" class="btn btn-primary">Clear All Filter</button>
+              <button type="submit" onclick="removeAllFilter()" style="margin-bottom: 10px;" class="btn btn-primary">Clear All Filter</button>
             </div>
           </div>
         </div>
@@ -96,14 +105,14 @@
 
                       <h2>${{ product.price }}</h2>
                       <p>{{ product.name }}</p>
-                      <a href="javascript:void(0)" data-product_id="{{product.id}}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                      <a href="javascript:void(0)" onclick="addToCart({{ product.id }})" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
                     </div>
                     <a href="{% url 'product_details' product.id %}">
                       <div class="product-overlay">
                         <div class="overlay-content">
                           <h2>${{ product.price }}</h2>
                           <p>{{ product.name }}</p>
-                          <a href="javascript:void(0)" data-product_id="{{product.id}}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                          <a href="javascript:void(0)" onclick="addToCart({{ product.id }})" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
                         </div>
                       </div>
                     </a>
@@ -112,7 +121,7 @@
                   {% if request.user.is_authenticated %}
                     <div class="choose">
                       <ul class="nav nav-pills nav-justified">
-                        <li><a href="javascript:void(0)" data-product_id="{{product.id}}" class="add-to-wishlist"><i class="fa fa-plus-square"></i>Add to wishlist</a></li>
+                        <li><a href="javascript:void(0)" onclick="addToWishlist({{ product.id }})" class="add-to-wishlist"><i class="fa fa-plus-square"></i>Add to wishlist</a></li>
                       </ul>
                     </div>
                   {% endif %}
@@ -154,132 +163,140 @@
     </div>
   </section>
 
-  <script>
-    $(document).ready(function() {
-      function getQueryParam(param) {
-          const urlParams = new URLSearchParams(window.location.search);
-          return urlParams.get(param);
-      }
-      const searchValue = getQueryParam('search');
-      if (searchValue) {
-          $('#searchInput').val(searchValue);
-      }
-    })
+<script>
+  const queryParams = new URLSearchParams(window.location.search);
+  const baseUrl = window.location.pathname;
 
-    const queryParams = new URLSearchParams(window.location.search)
-    const baseUrl = window.location.pathname
+  function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+  }
 
-    function filter_by_category(categoryName, price) {
-      if (categoryName) {
-        queryParams.set('cat', categoryName)
-      }
-      if (price) {
-        queryParams.set('price', price)
-      }
-      const newUrl = `${baseUrl}?${queryParams.toString()}`
-      window.location.href = newUrl
+  $(document).ready(function () {
+    const searchValue = getQueryParam('search');
+    if (searchValue) {
+      $('#searchInput').val(searchValue);
     }
-    
-    function sort_by_price(price, categoryName) {
-      if (price) {
-        queryParams.set('price', price)
-      }
-      if (categoryName) {
-        queryParams.set('cat', categoryName)
-      }
-      const newUrl = `${baseUrl}?${queryParams.toString()}`
-      window.location.href = newUrl
+
+    // Initialize the slider
+    $('#sl2')
+      .slider({
+        tooltip: 'always',
+        min: 0,
+        max: 60000,
+        step: 5,
+      })
+      .on('slide', function (event) {
+        updatePriceDisplay(event.value[0], event.value[1]);
+      })
+      .on('slideStop', function (event) {
+        filterByPrice(event.value[0], event.value[1]);
+      });
+
+    function updatePriceDisplay(min, max) {
+      $('#min-value').text(min);
+      $('#max-value').text(max);
     }
-    
-    function removeCategoryFilter() {
-      queryParams.delete('cat')
-      const newUrl = `${baseUrl}?${queryParams.toString()}`
-      window.location.href = newUrl
-    }
-    
-    function removePriceFilter() {
-      queryParams.delete('price')
-      const newUrl = `${baseUrl}?${queryParams.toString()}`
-      window.location.href = newUrl
-    }
-    
-    function removeAllFilter() {
-      window.location.href = "{% url 'product_list' %}"
-    }
-    
-    function searchProduct() {
-      var searchTerm = $('#searchInput').val()
-      console.log('searchTerm: ', searchTerm)
-      if (searchTerm) {
-        queryParams.set('search', searchTerm)
+
+    // Filter by price function
+    function filterByPrice(minPrice, maxPrice) {
+      if (minPrice !== undefined && maxPrice !== undefined) {
+        queryParams.set('min_price', minPrice);
+        queryParams.set('max_price', maxPrice);
       }
-      else{
-        queryParams.delete('search')
-      }
-      const newUrl = `${baseUrl}?${queryParams.toString()}`
-      window.location.href = newUrl
-    }
-    
-    function navigatePage(pageNumber) {
-      if (pageNumber < 1) {
-        return;
-      }
-      const queryParams = new URLSearchParams(window.location.search);
-      queryParams.set('page', pageNumber);
       const newUrl = `${baseUrl}?${queryParams.toString()}`;
       window.location.href = newUrl;
     }
 
-    $(document).ready(function() {
-      $('.add-to-cart').on('click', function() {
-        const productId = $(this).data('product_id')
-        console.log('productId: ', productId)
+    const min_price = getQueryParam('min_price');
+    const max_price = getQueryParam('max_price');
+    if (min_price && max_price) {
+      $('#sl2').slider('setValue', [parseInt(min_price), parseInt(max_price)]);
+      $('#min-value').text(min_price);
+      $('#max-value').text(max_price);
+    }
+  });
 
+  function filter_by_category(categoryName, price) {
+    if (categoryName) {
+      queryParams.set('cat', categoryName);
+    }
+    if (price) {
+      queryParams.set('price', price);
+    }
+    const newUrl = `${baseUrl}?${queryParams.toString()}`;
+    window.location.href = newUrl;
+  }
 
-        // Fetch category-wise products
-        $.ajax({
-          url: '/add-cart/'+ productId,
-          type: 'POST',
-          data: {
-            quantity:1,
-            csrfmiddlewaretoken: '{{ csrf_token }}',
-            },
-          success: function (response) {
-            if (response.status=='success'){
-              window.location.href = "{% url 'product_list' %}"
-            }
-          },
-          error: function (xhr, status, error) {
-            console.error('Error fetching products:', error)
+  function sort_by_price(price, categoryName) {
+    if (price) {
+      queryParams.set('price', price);
+    }
+    if (categoryName) {
+      queryParams.set('cat', categoryName);
+    }
+    const newUrl = `${baseUrl}?${queryParams.toString()}`;
+    window.location.href = newUrl;
+  }
+
+  function removeCategoryFilter() {
+    queryParams.delete('cat');
+    const newUrl = `${baseUrl}?${queryParams.toString()}`;
+    window.location.href = newUrl;
+  }
+
+  function removePriceFilter() {
+    queryParams.delete('price');
+    const newUrl = `${baseUrl}?${queryParams.toString()}`;
+    window.location.href = newUrl;
+  }
+
+  function removeAllFilter() {
+    window.location.href = "{% url 'product_list' %}";
+  }
+
+  function searchProduct() {
+    const searchTerm = $('#searchInput').val();
+    if (searchTerm) {
+      queryParams.set('search', searchTerm);
+    } else {
+      queryParams.delete('search');
+    }
+    const newUrl = `${baseUrl}?${queryParams.toString()}`;
+    window.location.href = newUrl;
+  }
+
+  function navigatePage(pageNumber) {
+    if (pageNumber < 1) {
+      return;
+    }
+    queryParams.set('page', pageNumber);
+    const newUrl = `${baseUrl}?${queryParams.toString()}`;
+    window.location.href = newUrl;
+  }
+
+  $(document).ready(function () {
+    $('.add-to-wishlist').on('click', function () {
+      const productId = $(this).data('product_id');
+      $.ajax({
+        url: '/add-wishlist/' + productId,
+        type: 'POST',
+        data: {
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+        },
+        success: function (response) {
+          if (response.status == 'success') {
+            $('.wishlist-badge').text(response.wishlist_item_count);
+            toastr.success(response.msg);
           }
-        })
+        },
+        error: function (xhr, status, error) {
+          toastr.error(response.msg);
+          console.error('Error fetching products:', error);
+        },
       });
-
-      $('.add-to-wishlist').on('click', function() {
-        const productId = $(this).data('product_id')
-        console.log('productId: ', productId)
-
-        // Fetch category-wise products
-        $.ajax({
-          url: '/add-wishlist/'+ productId,
-          type: 'POST',
-          data: {
-            csrfmiddlewaretoken: '{{ csrf_token }}',
-            },
-          success: function (response) {
-            if (response.status=='success'){
-              toastr.success(response.msg)
-            }
-          },
-          error: function (xhr, status, error) {
-            toastr.error(response.msg)
-            console.error('Error fetching products:', error)
-          }
-        })
-      });
-
-
     });
+  });
+</script>
 
-  </script>
 {% endblock %}
