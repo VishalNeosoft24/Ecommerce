@@ -21,12 +21,6 @@
 }
 
 
-.attribute-value-item:hover{
-  color: white;
-  background-color: #007bff;
-}
-
-
 
 </style>
   <section>
@@ -72,8 +66,7 @@
                 <div class="d-flex align-items-center mb-3 quantity">
                   {% if product.quantity > 0 %}
                   <label for="quantity" class="me-2 fw-bold">Quantity:</label>
-                  <input type="number" style="width: 50%;" class="form-control w-25 me-3" value="1" min="1" id="quantity" />
-
+                  <input type="number" style="width: 50%;" class="form-control w-25 me-3" value="1" step="1" min="1" max="10" id="quantity" />
                   <button type="button" name="add_to_cart_btn" class="btn btn-primary d-flex align-items-center">
                     <i class="fa fa-shopping-cart me-2"></i>Add to cart
                   </button>
@@ -85,7 +78,6 @@
                           fa-heart-o
                       {% endif %} fa-2x"></i>
                   </span>
-
                   {% endif %} 
                 </div>
 
@@ -96,22 +88,19 @@
 
                 <!-- Product Details -->
                 <p><b>Availability:</b> 
-                {% if product.quantity > 0 and product.quantity <= 5 %}
-                    <span class="text-warning">Only a few left in stock!</span>
-                {% elif product.quantity > 0 %}
-                  <span class="text-success">In Stock</span>
-                {% else %}
-                  <span class="text-danger">Out of Stock</span>
-                {% endif %}
-              </p>
-
+                  {% if product.quantity > 0 and product.quantity <= 5 %}
+                      <span class="text-warning">Only a few left in stock!</span>
+                  {% elif product.quantity > 0 %}
+                    <span class="text-success">In Stock</span>
+                  {% else %}
+                    <span class="text-danger">Out of Stock</span>
+                  {% endif %}
+                </p>
                 {% if product.created_at|timesince < "10 days" %}
-                    <p><b>Condition:</b> New</p>
+                  <p><b>Condition:</b> New</p>
                 {% else %}
-                    <p><b>Condition:</b> Old</p>
+                  <p><b>Condition:</b> Old</p>
                 {% endif %}
-
-
                 <!-- Product Attributes -->
                   <div class="row">
                     {% for attribute in product.product_attribute.all %}
@@ -121,7 +110,7 @@
                         </h4>
                         <div class="attribute-values" style="display: flex; flex-wrap: wrap;">
                           {% for attribute_value in attribute.product_attribute_key.all %}
-                            <div class="attribute-value-item" style="border: 1px solid #ddd; border-radius: 5px; padding: 8px 15px; margin: 5px; font-size: 14px;">
+                            <div class="attribute-value-item" style="border: 1px solid #ddd; border-radius: 5px; padding: 8px 15px; margin: 5px; font-size: 14px; color: #FFFFFF; background-color: cadetblue;">
                               {{ attribute_value }}
                             </div>
                           {% endfor %}
@@ -129,248 +118,61 @@
                       </div>
                     {% endfor %}
                   </div>
-
-
-
               </div>
             </div>
               <!-- /product-information -->
             </div>
           </div>
-          <!-- /product-details -->
-          {% comment %} <div class="category-tab shop-details-tab">
-            <!-- category-tab -->
-            <div class="col-sm-12">
-              <ul class="nav nav-tabs">
-                <li>
-                  <a href="#details" data-toggle="tab">Details</a>
-                </li>
-                <li>
-                  <a href="#companyprofile" data-toggle="tab">Company Profile</a>
-                </li>
-                <li>
-                  <a href="#tag" data-toggle="tab">Tag</a>
-                </li>
-                <li class="active">
-                  <a href="#reviews" data-toggle="tab">Reviews (5)</a>
-                </li>
-              </ul>
-            </div>
-            <div class="tab-content">
-              <div class="tab-pane fade" id="details">
-                <div class="col-sm-3">
-                  <div class="product-image-wrapper">
-                    <div class="single-products">
-                      <div class="productinfo text-center">
-                        <img src="{% static 'customer_portal/images/home/gallery1.jpg' %}" alt="" />
-                        <h2>$56</h2>
-                        <p>Easy Polo Black Edition</p>
-                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-3">
-                  <div class="product-image-wrapper">
-                    <div class="single-products">
-                      <div class="productinfo text-center">
-                        <img src="{% static 'customer_portal/images/home/gallery2.jpg' %}" alt="" />
-                        <h2>$56</h2>
-                        <p>Easy Polo Black Edition</p>
-                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-3">
-                  <div class="product-image-wrapper">
-                    <div class="single-products">
-                      <div class="productinfo text-center">
-                        <img src="{% static 'customer_portal/images/home/gallery3.jpg' %}" alt="" />
-                        <h2>$56</h2>
-                        <p>Easy Polo Black Edition</p>
-                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-3">
-                  <div class="product-image-wrapper">
-                    <div class="single-products">
-                      <div class="productinfo text-center">
-                        <img src="{% static 'customer_portal/images/home/gallery4.jpg' %}" alt="" />
-                        <h2>$56</h2>
-                        <p>Easy Polo Black Edition</p>
-                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="tab-pane fade" id="companyprofile">
-                <div class="col-sm-3">
-                  <div class="product-image-wrapper">
-                    <div class="single-products">
-                      <div class="productinfo text-center">
-                        <img src="{% static 'customer_portal/images/home/gallery1.jpg' %}" alt="" />
-                        <h2>$56</h2>
-                        <p>Easy Polo Black Edition</p>
-                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-3">
-                  <div class="product-image-wrapper">
-                    <div class="single-products">
-                      <div class="productinfo text-center">
-                        <img src="{% static 'customer_portal/images/home/gallery3.jpg' %}" alt="" />
-                        <h2>$56</h2>
-                        <p>Easy Polo Black Edition</p>
-                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-3">
-                  <div class="product-image-wrapper">
-                    <div class="single-products">
-                      <div class="productinfo text-center">
-                        <img src="{% static 'customer_portal/images/home/gallery2.jpg' %}" alt="" />
-                        <h2>$56</h2>
-                        <p>Easy Polo Black Edition</p>
-                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-3">
-                  <div class="product-image-wrapper">
-                    <div class="single-products">
-                      <div class="productinfo text-center">
-                        <img src="{% static 'customer_portal/images/home/gallery4.jpg' %}" alt="" />
-                        <h2>$56</h2>
-                        <p>Easy Polo Black Edition</p>
-                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="tab-pane fade" id="tag">
-                <div class="col-sm-3">
-                  <div class="product-image-wrapper">
-                    <div class="single-products">
-                      <div class="productinfo text-center">
-                        <img src="{% static 'customer_portal/images/home/gallery1.jpg' %}" alt="" />
-                        <h2>$56</h2>
-                        <p>Easy Polo Black Edition</p>
-                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-3">
-                  <div class="product-image-wrapper">
-                    <div class="single-products">
-                      <div class="productinfo text-center">
-                        <img src="{% static 'customer_portal/images/home/gallery2.jpg' %}" alt="" />
-                        <h2>$56</h2>
-                        <p>Easy Polo Black Edition</p>
-                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-3">
-                  <div class="product-image-wrapper">
-                    <div class="single-products">
-                      <div class="productinfo text-center">
-                        <img src="{% static 'customer_portal/images/home/gallery3.jpg' %}" alt="" />
-                        <h2>$56</h2>
-                        <p>Easy Polo Black Edition</p>
-                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-3">
-                  <div class="product-image-wrapper">
-                    <div class="single-products">
-                      <div class="productinfo text-center">
-                        <img src="{% static 'customer_portal/images/home/gallery4.jpg' %}" alt="" />
-                        <h2>$56</h2>
-                        <p>Easy Polo Black Edition</p>
-                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="tab-pane fade active in" id="reviews">
-                <div class="col-sm-12">
-                  <ul>
-                    <li>
-                      <a href=""><i class="fa fa-user"></i>EUGEN</a>
-                    </li>
-                    <li>
-                      <a href=""><i class="fa fa-clock-o"></i>12:41 PM</a>
-                    </li>
-                    <li>
-                      <a href=""><i class="fa fa-calendar-o"></i>31 DEC 2014</a>
-                    </li>
-                  </ul>
-                  <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-                  <p>
-                    <b>Write Your Review</b>
-                  </p>
-
-                  <form action="#">
-                    <span>
-                      <input type="text" placeholder="Your Name" />
-                      <input type="email" placeholder="Email Address" />
-                    </span>
-                    <textarea name=""></textarea>
-                    <b>Rating:</b> <img src="{% static 'customer_portal/images/product-details/rating.png' %}" alt="" />
-                    <button type="button" class="btn btn-default pull-right">Submit</button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div> {% endcomment %}
-          <!-- /category-tab -->
-
-          <!-- /recommended_items -->
         </div>
         {% include 'customer_portal/recommended_items_carousel.html' with chunked_products=chunked_products image_width='160px' image_height='160px' %}
       </div>
     </div>
   </section>
 
-  <script>
+  <script>  
     $(document).ready(function() {
       $('button[name="add_to_cart_btn"]').on('click', function() {
         const quantity = document.getElementById('quantity').value;
         
-        const path = window.location.pathname;
-        const segments = path.split('/');
-        const id = segments[segments.length - 1];
+        function isValidQuantity(value) {
+          const number = parseInt(value, 10);
+          return !isNaN(number) && number > 0;
+        }
+
+        if (!isValidQuantity(quantity)) {
+          toastr.error('Please enter a valid positive number for quantity.');
+          return;
+        }
+
+        // Check for float
+        function isFloat(value) {
+            const num = Number(value);
+            // Check if it's a number and if it has a decimal part
+            return !isNaN(num) && num % 1 !== 0;
+        }
+
+        if (isFloat(quantity)) {
+          toastr.error('Please enter a valid number for quantity, not a decimal.');
+          return;
+        }
+
+        const productId = {{ product.id }};
 
         // Fetch category-wise products
         $.ajax({
-          url: '/add-cart/'+ id,
+          url: '/add-cart/'+ productId,
           type: 'POST',
           data: {
-            quantity:quantity,
+            quantity:parseInt(quantity, 10),
             csrfmiddlewaretoken: '{{ csrf_token }}',
             },
           success: function (response) {
             if (response.status=='success'){
-              var productDetailsUrl = "{% url 'product_details' 0 %}".replace('0', id);
-              window.location.href = productDetailsUrl;
+              var productDetailsUrl = "{% url 'product_details' 0 %}".replace('0', productId);
+              toastr.success(response.msg);
+              setTimeout(function(){window.location.href = productDetailsUrl;},1000)
+            }else{
+              toastr.error(response.msg)
             }
           },
           error: function (xhr, status, error) {
@@ -390,19 +192,18 @@
         const newIconClass = action === 'add' ? 'fa-heart' : 'fa-heart-o';
         const newColor = action === 'add' ? 'red' : 'grey';
 
-        // Make the AJAX request
         $.ajax({
             url: url,
             type: 'POST',
             dataType: 'json',
-            headers: {'X-CSRFToken': '{{ csrf_token }}'},  // Include CSRF token for security
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},  
             success: function(response) {
                 if (response.status === 'success') {
                     $(iconElement).removeClass('fa-heart fa-heart-o').addClass(newIconClass);  // Toggle heart icon
-                    $(iconElement).closest('span').css('color', newColor);  // Change color
-                    toastr.success(successMsg);  // Optional: Show success message
+                    $(iconElement).closest('span').css('color', newColor); 
+                    toastr.success(successMsg); 
                 } else {
-                    toastr.error(response.msg);  // Show error message
+                    toastr.error(response.msg); 
                 }
             },
             error: function(xhr, status, error) {
@@ -411,17 +212,14 @@
         });
     }
 
-    // jQuery to toggle the heart icon and call the handleWishlist function
     $('#wishlist-icon').on('click', function() {
-        var icon = $(this).find('i');  // Find the <i> element inside the span
+        var icon = $(this).find('i');  
         var productId = {{product.id}}
 
         if (icon.hasClass('fa-heart')) {
-            // Call the function to remove from wishlist
-            handleWishlist('remove', productId, icon);
+          handleWishlist('remove', productId, icon);
         } else {
-            // Call the function to add to wishlist
-            handleWishlist('add', productId, icon);
+          handleWishlist('add', productId, icon);
         }
     });
   </script>
