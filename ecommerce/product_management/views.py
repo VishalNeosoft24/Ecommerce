@@ -138,24 +138,21 @@ def get_products_by_category(request):
 def product_details(request, id):
     """
     Fetches and renders details for a specific product.
-    Currently, it does not include recommended products but is set up for future enhancements.
-
     Args:
         request (HttpRequest): The HTTP request object.
         id (int): The ID of the product to display.
 
     Returns:
-        HttpResponse: Renders the 'product_detail.html' template with the product details.
+        HttpResponse: Renders the 'product_detail.html' template with product details.
     """
     product = get_object_or_404(Product, id=id)
-    in_wishlist = UserWishList.objects.filter(
-        user=request.user, product=product
-    ).exists()
-    # Fetch recommended products based on the product ID
-    products = Product.objects.filter(is_active=True)
-    product_category = product.category
+    in_wishlist = (
+        UserWishList.objects.filter(user=request.user, product=product).exists()
+        if request.user.is_authenticated
+        else None
+    )
     recommended_products = (
-        products.filter(category=product_category)
+        Product.objects.filter(is_active=True, category=product.category)
         .exclude(id=id)
         .select_related("category")
         .prefetch_related(
@@ -172,7 +169,6 @@ def product_details(request, id):
     chunked_products = [
         random_products[i : i + 3] for i in range(0, len(random_products), 3)
     ]
-
     context = {
         "product": product,
         "chunked_products": chunked_products,
@@ -197,8 +193,8 @@ def product_list(request):
         category_id = request.GET.get("cat")
         sort_by = request.GET.get("price")
         search_term = request.GET.get("search", "")
-
-        print("sort_by: ", sort_by)
+        min_price = request.GET.get("min_price")
+        max_price = request.GET.get("max_price")
 
         products = (
             Product.objects.filter(is_active=True)
@@ -217,6 +213,10 @@ def product_list(request):
             products = products.order_by("-price")  # Descending order
         elif sort_by == "low-to-high":
             products = products.order_by("price")  # Ascending order
+
+        # Filter products based on the price range
+        if min_price and max_price:
+            products = products.filter(price__gte=min_price, price__lte=max_price)
 
         if category_id:
             products = products.filter(category__name=category_id)
