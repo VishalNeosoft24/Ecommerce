@@ -78,47 +78,90 @@
         </div>
 
         <!-- Address Section -->
-        <div class="col-md-12">
+        <div class="col-md-12 col-sm-12">
           <div class="card shadow-sm mb-4">
             <div class="card-header">
               <a href="{% url 'add_address' %}"><button id="update-btn" class="btn btn-primary">Add Address</button></a>
             </div>
             <div class="card-body">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th scope="col">Sr No</th>
-                    <th scope="col">Address Type</th>
-                    <th scope="col">Country</th>
-                    <th scope="col">State</th>
-                    <th scope="col">City</th>
-                    <th scope="col">Pincode</th>
-                    <th scope="col">Street Address</th>
-                    <th scope="col">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for address in address %}
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
                     <tr>
-                      <td>{{ forloop.counter }}</td>
-                      <td>{{ address.type }}</td>
-                      <td>{{ address.country }}</td>
-                      <td>{{ address.state }}</td>
-                      <td>{{ address.city }}</td>
-                      <td>{{ address.pincode }}</td>
-                      <td>{{ address.street_address }}</td>
-                      <td>
-                        <a href="{% url 'update_address' address.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
-                        <a href="{% url 'delete_address' address.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
-                      </td>
+                      <th scope="col">Sr No</th>
+                      <th scope="col">Address Type</th>
+                      <th scope="col">Country</th>
+                      <th scope="col">State</th>
+                      <th scope="col">City</th>
+                      <th scope="col">Pincode</th>
+                      <th scope="col">Street Address</th>
+                      <th scope="col">Action</th>
                     </tr>
-                  {% empty %}
+                  </thead>
+                  <tbody>
+                    {% for address in address %}
+                      <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ address.type }}</td>
+                        <td>{{ address.country }}</td>
+                        <td>{{ address.state }}</td>
+                        <td>{{ address.city }}</td>
+                        <td>{{ address.pincode }}</td>
+                        <td>{{ address.street_address }}</td>
+                        <td>
+                          <a href="{% url 'update_address' address.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                          <a href="{% url 'delete_address' address.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </td>
+                      </tr>
+                    {% empty %}
+                      <tr>
+                        <td colspan="8" class="text-center">No addresses available.</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="col-md-12 col-sm-12">
+          <div class="card shadow-sm mb-4">
+            <div class="card-header">
+              <h2 class="display-4">Recent Orders</h2>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
                     <tr>
-                      <td colspan="5" class="text-center">No addresses available.</td>
+                      <th scope="col">Order ID</th>
+                      <th scope="col">Order Date</th>
+                      <th scope="col">Total</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Actions</th>
                     </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {% for order in orders %}
+                      <tr>
+                        <td>{{ order.awb_no }}</td>
+                        <td>{{ order.created_at|date:'Y-m-d' }}</td>
+                        <td>{{ order.grand_total }}</td>
+                        <td>{{ order.get_status_display }}</td>
+                        <td>
+                          <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                        </td>
+                      </tr>
+                    {% empty %}
+                      <tr>
+                        <td colspan="5" class="text-center">No orders found.</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
