@@ -18,6 +18,11 @@ class PaymentGatewayAdmin(admin.ModelAdmin):
     ordering = ("-created_at",)
 
 
+class OrderDetailInline(admin.StackedInline):
+    model = OrderDetail
+    extra = 1
+
+
 @admin.register(UserOrder)
 class UserOrderAdmin(admin.ModelAdmin):
     list_display = (
@@ -46,6 +51,7 @@ class UserOrderAdmin(admin.ModelAdmin):
         "updated_by",
     )
     ordering = ("-created_at",)
+    inlines = [OrderDetailInline]
 
 
 @admin.register(OrderDetail)
