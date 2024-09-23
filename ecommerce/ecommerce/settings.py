@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.flatpages",
     "background_task",
+    "django_weasyprint",
     "admin_panel",
     "product_management",
     "order_management",
@@ -79,6 +80,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "product_management.context_processors.recommended_product",
                 "order_management.context_processors.cart_item_count",
+                "order_management.context_processors.wishlist_item_count",
             ],
         },
     },
@@ -171,3 +173,6 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 PASSWORD_RESET_EMAIL_TEMPLATE_NAME = "registration/password_reset_email.html"
 SESSION_COOKIE_AGE = 1209600  # 2 weeks, in seconds
+
+RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET")
