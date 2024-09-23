@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Confirmation</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 600px;
+        background-color: #ffffff;
+        padding: 20px;
+        margin: 0 auto;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        border-bottom: 1px solid #eeeeee;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+      }
+      .content {
+        line-height: 1.6;
+      }
+      .order-summary {
+        margin-top: 20px;
+        padding: 15px;
+        border: 1px solid #dddddd;
+        border-radius: 5px;
+        background-color: #fafafa;
+      }
+      .order-summary h3 {
+        margin-top: 0;
+        color: #007bff;
+      }
+      .order-summary ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .order-summary li {
+        padding: 8px 0;
+        border-bottom: 1px solid #eeeeee;
+      }
+      .order-summary li:last-child {
+        border-bottom: none;
+      }
+      .order-summary strong {
+        display: inline-block;
+        width: 200px;
+        color: #555555;
+      }
+      .product-list {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #eeeeee;
+        border-radius: 5px;
+        background-color: #fafafa;
+      }
+      .product-item {
+        margin-bottom: 10px;
+      }
+      .footer {
+        margin-top: 30px;
+        font-size: 12px;
+        color: #777;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>{{ rendered_content|safe }}</body>
+</html>
