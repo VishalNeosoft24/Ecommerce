@@ -1,0 +1,619 @@
+{% extends 'customer_portal/customer_base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}
+  Checkout
+{% endblock %}
+
+{% block content %}
+
+
+<style>
+    .shopper-informations {
+        padding: 1rem;
+    }
+    .address-card {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    .address-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .address-card.default-address {
+        border-color: #5bc0de;
+        box-shadow: 0 2px 4px rgba(91, 192, 222, 0.3);
+    }
+    .form-check-input:checked {
+        background-color: #337ab7;
+        border-color: #337ab7;
+    }
+    .form-check-label {
+        margin-left: 0.75rem;
+        font-size: 1.1rem;
+    }
+    .badge-primary {
+        background-color: #337ab7;
+    }
+
+    .payment-options {
+        padding: 1.5rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 1rem;
+        background-color: #f9f9f9;
+    }
+    .payment-options h3 {
+        margin-bottom: 1rem;
+    }
+    .payment-methods {
+        margin-bottom: 1.5rem;
+    }
+    .payment-option {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        padding: 0.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    .payment-option:hover {
+        background-color: #e9ecef;
+    }
+    .payment-option input[type="radio"] {
+        margin-right: 12px;
+        cursor: pointer;
+    }
+    .payment-label {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        font-size: 1.2rem;
+        padding: 12px 20px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+</style>
+
+  <section id="cart_items">
+    <div class="container">
+      <div class="breadcrumbs">
+        <ol class="breadcrumb">
+          <li>
+            <a href="{% url 'cart' %}">Home</a>
+          </li>
+          <li class="active">Check out</li>
+        </ol>
+      </div>
+      <!-- /breadcrums -->
+
+      <div class="shopper-informations">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+              <h3>Billing Address</h3>
+              {% for address in user.address_set.all %}
+                  <div 
+                      class="panel panel-default address-card {% if address.default %}default-address{% endif %}" 
+                      data-address-id="{{ address.id }}"
+                      onclick="BillingAddress({{ address.id }})"
+                  >
+                      <div class="panel-body">
+                        {% if address.default %}
+                              <span class="badge badge-primary">Default</span>
+                          {% endif %}
+                          <div class="checkbox">
+                              <label>
+                                  <input 
+                                      class="form-check-input" 
+                                      type="radio" 
+                                      name="billing_selected_address" 
+                                      id="billing_address{{ address.id }}" 
+                                      value="{{ address.id }}" 
+                                      {% if address.default %}checked{% endif %}>
+                                  <strong>{{ address }}</strong>
+                              </label>
+                          </div>
+                          
+                      </div>
+                  </div>
+              {% endfor %}
+          </div>
+
+        <div class="col-md-6 mb-3">
+            <h3>Shipping Address</h3>
+            {% for address in user.address_set.all %}
+                <div 
+                    class="panel panel-default address-card {% if address.default %}default-address{% endif %}" 
+                    data-address-id="{{ address.id }}"
+                    onclick="ShippingAddress({{ address.id }})"
+                >
+                    <div class="panel-body">
+                      {% if address.default %}
+                            <span class="badge badge-primary">Default</span>
+                        {% endif %}
+                        <div class="checkbox">
+                            <label>
+                                <input 
+                                    class="form-check-input" 
+                                    type="radio" 
+                                    name="shipping_selected_address" 
+                                    id="shipping_address{{ address.id }}" 
+                                    value="{{ address.id }}" 
+                                    {% if address.default %}checked{% endif %}>
+                                <strong>{{ address }}</strong>
+                            </label>
+                        </div>
+                        
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="container mt-5">
+    <!-- Add Address Button -->
+    <div class="row mb-4">
+      <div class="col-12 text-center">
+        <button class="btn btn-primary" data-toggle="modal" data-target="#addressModal">Add Address</button>
+      </div>
+    </div>
+
+    <!-- Address Modal -->
+    <div class="modal fade" id="addressModal" tabindex="-1" role="dialog" aria-labelledby="addressModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addressModalLabel">Add New Address</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- Form for adding/updating address details -->
+            <form id="address-form" method="post">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="{{ form.type.id_for_label }}">Address Type:</label>
+                {{ form.type }}
+                {% if form.type.errors %}
+                  <div class="text-danger mt-2">{{ form.type.errors }}</div>
+                {% endif %}
+              </div>
+
+              <div class="form-group">
+                <label for="{{ form.country.id_for_label }}">Country:</label>
+                {{ form.country }}
+                {% if form.country.errors %}
+                  <div class="text-danger mt-2">{{ form.country.errors }}</div>
+                {% endif %}
+              </div>
+
+              <div class="form-group">
+                <label for="{{ form.state.id_for_label }}">State:</label>
+                {{ form.state }}
+                {% if form.state.errors %}
+                  <div class="text-danger mt-2">{{ form.state.errors }}</div>
+                {% endif %}
+              </div>
+
+              <div class="form-group">
+                <label for="{{ form.city.id_for_label }}">City:</label>
+                {{ form.city }}
+                {% if form.city.errors %}
+                  <div class="text-danger mt-2">{{ form.city.errors }}</div>
+                {% endif %}
+              </div>
+
+              <div class="form-group">
+                <label for="{{ form.pincode.id_for_label }}">Pincode:</label>
+                {{ form.pincode }}
+                {% if form.pincode.errors %}
+                  <div class="text-danger mt-2">{{ form.pincode.errors }}</div>
+                {% endif %}
+              </div>
+
+              <div class="form-group">
+                <label for="{{ form.street_address.id_for_label }}">Street Address:</label>
+                {{ form.street_address }}
+                {% if form.street_address.errors %}
+                  <div class="text-danger mt-2">{{ form.street_address.errors }}</div>
+                {% endif %}
+              </div>
+
+              <div class="form-group">
+                <label for="{{ form.apartment_number.id_for_label }}">Apartment Number:</label>
+                {{ form.apartment_number }}
+                {% if form.apartment_number.errors %}
+                  <div class="text-danger mt-2">{{ form.apartment_number.errors }}</div>
+                {% endif %}
+              </div>
+
+              <div class="form-group">
+                <label for="{{ form.phone_number.id_for_label }}">Phone Number:</label>
+                {{ form.phone_number }}
+                {% if form.phone_number.errors %}
+                  <div class="text-danger mt-2">{{ form.phone_number.errors }}</div>
+                {% endif %}
+              </div>
+
+              <div class="form-group form-check">
+                {{ form.default }}
+                <label class="form-check-label" for="{{ form.default.id_for_label }}">Default Address</label>
+                {% if form.default.errors %}
+                  <div class="text-danger mt-2">{{ form.default.errors }}</div>
+                {% endif %}
+              </div>
+
+              <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">
+                  {% if form.instance.pk %}
+                    Update Address
+                  {% else %}
+                    Save Address
+                  {% endif %}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content for cart or checkout -->
+    <!-- ... -->
+  </div>
+
+      <div class="review-payment">
+        <h2>Review & Payment</h2>
+      </div>
+
+      <div class="table-responsive cart_info">
+        <table class="table table-condensed">
+          <thead>
+            <tr class="cart_menu">
+              <td class="image">Item</td>
+              <td class="description"></td>
+              <td class="price">Price</td>
+              <td class="quantity">Quantity</td>
+              <td class="total">Total</td>
+              {% comment %} <td class="total">Action</td> {% endcomment %}
+            </tr>
+          </thead>
+          {% if cart_products %}
+            <!-- Existing code to display cart items -->
+            <tbody>
+              {% for cart_product in cart_products %}
+                <tr>
+                  <td class="cart_product">
+                    {% with first_image=cart_product.product.product_images.first %}
+                      {% if first_image %}
+                        <a href=""><img src="{{ first_image.image.url }}" alt="{{ cart_product.product.name }}" width="80px" height="80px" /></a>
+                      {% else %}
+                        <p>No image available</p>
+                      {% endif %}
+                    {% endwith %}
+                  </td>
+                  <td class="cart_description" style="padding-left: 60px;">
+                    <h4><a href="{% url 'product_details' cart_product.product.id %}">{{ cart_product.product.name }}</a></h4>
+                  </td>
+                  <td class="cart_price">
+                    <p id="price_{{ cart_product.product.id }}">${{ cart_product.product.price }}</p>
+                  </td>
+                  <td class="cart_quantity">
+                    <div class="cart_quantity_button">
+                      <label for="">{{ cart_product.quantity }}</label>
+                      {% comment %} <a class="cart_quantity_down" href="javascript:void(0)" onclick="cart_quantity_down({{ cart_product.product.id }}, {{ cart_product.product.price }})">-</a>
+                      <input class="cart_quantity_input" type="text" id="quantity_{{ cart_product.product.id }}" name="quantity" value="{{ cart_product.quantity }}" disabled autocomplete="off" size="2" />
+                      <a class="cart_quantity_up" onclick="cart_quantity_up({{ cart_product.product.id }}, {{ cart_product.product.price }})">+</a> {% endcomment %}
+                    </div>
+                  </td>
+                  <td class="cart_total">
+                    <p id="product_total_price_{{ cart_product.product.id }}">${{ cart_product.product.price|multiply:cart_product.quantity }}</p>
+                  </td>
+                  {% comment %} <td class="cart_delete">
+                    <a class="cart_quantity_delete" data-product_id="{{ cart_product.product.id }}" href="javascript:void(0)"><i class="fa fa-times"></i></a>
+                  </td> {% endcomment %}
+                </tr>
+              {% endfor %}
+
+              {% if coupon_code %}
+                <tr>
+                  <td colspan="5">
+                    <div class="alert alert-success">
+                      Coupon "<strong>{{ coupon_code }}</strong>" applied successfully! Discount: {{ discount_percent|floatformat:0 }}%.
+                      <button class="remove-coupon close" title="Remove Coupon Code" type="button" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                  </td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="5">
+                    <div class="input-group mb-3" style="display: flex; margin: 10px;">
+                      <input type="text" id="couponCode" name="coupon_code" class="form-control" placeholder="Enter Coupon Code" aria-label="Coupon Code" required />
+                      <button type="button" class="btn btn-success" style="margin-left: 10px;" id="apply_coupon_code">Apply Coupon</button>
+                    </div>
+                  </td>
+                </tr>
+              {% endif %}
+
+              {% comment %} <tr>
+                <td colspan="3">&nbsp;</td>
+                <td colspan="2">
+                  <table class="table table-condensed total-result">
+                    <tr>
+                      <td>Cart Sub Total</td>
+                      <td class="cart_sub_total">${{ sub_total_amount|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                      <td>Discount Amount</td>
+                      <td>${{ discount_amount|floatformat:2 }}</td>
+                    </tr>
+                    <tr class="shipping-cost">
+                      <td>Shipping Cost</td>
+                      <td>Free</td>
+                    </tr>
+                    <tr>
+                      <td>Total</td>
+                      <td>
+                        <span>${{ total_amount|floatformat:2 }}</span>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr> {% endcomment %}
+            </tbody>
+          {% else %}
+            <tr>
+              <td colspan="6" class="text-center">
+                <div class="empty-cart-message" style="padding: 40px 0;">
+                  <i class="fa fa-shopping-cart" style="font-size: 48px; color: #d3d3d3;"></i>
+                  <h3 style="margin-top: 20px; color: #333;">Your cart is currently empty.</h3>
+                  <p style="color: #777;">Looks like you haven't added anything to your cart yet.</p>
+                  <a href="{% url 'home_page' %}" class="btn btn-primary" style="margin-top: 20px;">Continue Shopping</a>
+                </div>
+              </td>
+            </tr>
+          {% endif %}
+        </table>
+      </div>
+
+
+      {% comment %} {% if sub_total_amount > 0 %}
+        <div class="payment-options">
+            <h3>Select Payment Method</h3>
+            <div class="payment-methods">
+                <label class="payment-option">
+                    <input type="radio" name="payment" id="payment_cash" />
+                    <span class="payment-label">Cash On Delivery</span>
+                </label>
+                <label class="payment-option">
+                    <input type="radio" name="payment" id="payment_paypal" />
+                    <span class="payment-label">Paypal</span>
+                </label>
+            </div>
+            <button id="place_order" class="btn btn-primary btn-lg">Place Order</button>
+        </div>
+      {% endif %} {% endcomment %}
+
+      {% if sub_total_amount > 0 %}
+  <div class="container mt-5">
+    <!-- Payment Options -->
+    <div class="row">
+      <div class="col-md-6">
+        <!-- Subtotal and Total Section -->
+        <div class="total-result">
+          <h3>Cart Summary</h3>
+          <table class="table table-condensed">
+            <tbody>
+              <tr>
+                <td>Cart Sub Total</td>
+                <td class="cart_sub_total">${{ sub_total_amount|floatformat:2 }}</td>
+              </tr>
+              <tr>
+                <td>Discount Amount</td>
+                <td>${{ discount_amount|floatformat:2 }}</td>
+              </tr>
+              <tr class="shipping-cost">
+                <td>Shipping Cost</td>
+                <td>Free</td>
+              </tr>
+              <tr>
+                <td>Total</td>
+                <td>${{ total_amount|floatformat:2 }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <!-- Payment Methods -->
+          <h3>Select Payment Method</h3>
+          <div class="payment-methods">
+            <label class="payment-option">
+              <input type="radio" value="payment_cash" name="payment" id="payment_cash" checked />
+              <span class="payment-label">Cash On Delivery</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" value="payment_razorpay" name="payment" id="payment_razorpay" />
+              <span class="payment-label">Razorpay</span>
+            </label>
+          </div>
+          <button id="place_order" class="btn btn-primary btn-lg mt-3">Place Order</button>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+
+  </div>
+  </section> <!-- /#cart_items -->
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script>
+    let selectedBillingAddressId = "";
+    let selectedShippingAddressId = "";
+
+    // Initialize default address selection
+    document.addEventListener('DOMContentLoaded', function () {
+        // Set default billing address
+        const defaultBillingAddress = document.querySelector('input[name="billing_selected_address"][checked]');
+        if (defaultBillingAddress) {
+            selectedBillingAddressId = defaultBillingAddress.value;
+        }
+
+        // Set default shipping address
+        const defaultShippingAddress = document.querySelector('input[name="shipping_selected_address"][checked]');
+        if (defaultShippingAddress) {
+            selectedShippingAddressId = defaultShippingAddress.value;
+        }
+    });
+
+    function BillingAddress(addressId) {
+        var radioInput = document.getElementById('billing_address' + addressId);
+        radioInput.checked = true;
+        selectedBillingAddressId = addressId;
+    }
+
+    function ShippingAddress(addressId) {
+        var radioInput = document.getElementById('shipping_address' + addressId);
+        radioInput.checked = true;
+        selectedShippingAddressId = addressId;
+    }
+
+
+    $(document).on('click', '#place_order', function () {
+    const paymentRadios = document.querySelectorAll('input[name="payment"]');
+    let selectedPayment = '';
+    paymentRadios.forEach(radio => {
+      if (radio.checked) {
+        selectedPayment = radio.value;
+      }
+    });
+
+    if (selectedPayment === "payment_razorpay") {
+        // Trigger Razorpay payment if Razorpay is selected
+        $.ajax({
+            url: "{% url 'place_order' %}",
+            type: 'POST',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                billing_address_id: selectedBillingAddressId,
+                shipping_address_id: selectedShippingAddressId,
+                selected_payment: selectedPayment,
+            },
+            success: function (response) {
+                if (response.status === 'success') {
+                    razorpayOrderId = response.razorpay_order_id;
+                    let options = {
+                        "key": response.key_id, // Razorpay key_id from settings
+                        "amount": response.amount * 100, // Amount in paise
+                        "currency": response.currency,
+                        "name": "E-Shopper",
+                        "description": "Order Payment",
+                        "order_id": razorpayOrderId,
+                        "handler": function (paymentResponse) {
+                            // On successful payment
+                            OrderId = response.order_id;
+                              handleRazorpaySuccess(paymentResponse.razorpay_payment_id, OrderId, razorpayOrderId, paymentResponse.razorpay_signature);                        },
+                        "prefill": {
+                            "name": "{{ request.user.get_full_name }}",
+                            "email": "{{ request.user.email }}",
+                            "contact": "{{ request.user.profile.phone_number }}",
+                        },
+                        "theme": {
+                            "color": "#3399cc"
+                        }
+                    };
+                    let rzp = new Razorpay(options);
+                    rzp.open();
+                } else {
+                    toastr.error(response.msg);
+                }
+            },
+            error: function () {
+                toastr.error('An error occurred.');
+            }
+        });
+    } else {
+        // Handle other payment methods (COD, etc.)
+        $.ajax({
+            url: "{% url 'place_order' %}",
+            type: 'POST',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                billing_address_id: selectedBillingAddressId,
+                shipping_address_id: selectedShippingAddressId,
+                selected_payment: selectedPayment
+            },
+            success: function (response) {
+                if (response.status === 'success') {
+                    toastr.success(response.msg);
+                    OrderId = response.order_id;
+                    if (OrderId) {
+                        var Url = "{% url 'order_successful' 0 %}".replace('0', OrderId);
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
+                        window.location.href = Url;
+                    }
+                } else {
+                    toastr.error(response.msg);
+                }
+            },
+            error: function () {
+                toastr.error('An error occurred.');
+            }
+        });
+    }
+
+
+    function handleRazorpaySuccess(paymentId, OrderId, razorpayOrderId, signature) {
+    $.ajax({
+        url: "{% url 'paymenthandler' %}",  // Backend endpoint to handle successful payment
+        type: 'POST',
+        data: {
+            razorpay_payment_id: paymentId,
+            razorpay_order_id: razorpayOrderId,
+            order_id: OrderId,
+            razorpay_signature: signature, // Include the signature here
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            if (response.status === 'success') {
+                toastr.success(response.msg);
+                var Url = "{% url 'order_successful' 0 %}".replace('0', OrderId);
+                setTimeout(function () {
+                    window.location.href = Url;
+                }, 1000);
+            } else {
+                toastr.error('Error completing the payment.');
+            }
+        },
+        error: function () {
+            toastr.error('Payment could not be completed.');
+        }
+    });
+    }
+});
+
+</script>
+
+{% endblock %}
