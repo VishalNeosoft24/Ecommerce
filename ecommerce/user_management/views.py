@@ -9,10 +9,12 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db import IntegrityError
-from django.db.models import Prefetch
+from django.core.paginator import Paginator
+
 
 # Local app imports
 from admin_panel.models import Address
+from order_management.models import UserOrder
 from user_management.forms import AddressForm, UpdateUserForm
 from .models import User
 from django.contrib.auth.forms import PasswordChangeForm
@@ -200,6 +202,7 @@ def profile_page(request):
     try:
         user = get_object_or_404(User, id=request.user.id)
         address = Address.objects.filter(user_id=request.user.id)
+        orders = UserOrder.objects.filter(user=user).order_by("-created_at")[:5]
 
         if request.method == "POST":
             form = UpdateUserForm(request.POST, instance=user)
@@ -210,15 +213,19 @@ def profile_page(request):
                 render(
                     request,
                     "customer_portal/user_profile.html",
-                    {"form": form, "user": user, "address": address},
+                    {
+                        "form": form,
+                        "user": user,
+                        "address": address,
+                        "orders": orders,
+                    },
                 )
         else:
             form = UpdateUserForm(instance=user)
-            print("-----------", address)
         return render(
             request,
             "customer_portal/user_profile.html",
-            {"form": form, "user": user, "address": address},
+            {"form": form, "user": user, "address": address, "orders": orders},
         )
     except Exception as e:
         return HttpResponse(str(e))
