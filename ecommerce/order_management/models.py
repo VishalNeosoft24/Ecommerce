@@ -6,6 +6,7 @@ from django.utils import timezone
 from admin_panel.models import Address, Coupon, BaseModel
 from product_management.models import Product
 from user_management.models import User
+from django.db.models import Sum
 
 
 class PaymentGateway(BaseModel):
@@ -80,9 +81,7 @@ class UserOrder(BaseModel):
         max_length=100, blank=True, null=True, verbose_name="Transaction ID"
     )
     status = models.CharField(
-        max_length=1,
-        choices=STATUS_CHOICES,
-        verbose_name="Status",
+        max_length=1, choices=STATUS_CHOICES, verbose_name="Status", default="P"
     )
     billing_address = models.ForeignKey(
         Address,
@@ -114,6 +113,15 @@ class UserOrder(BaseModel):
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
 
+    def get_sub_total(self):
+        sub_total = OrderDetail.objects.filter(order=self).aggregate(
+            sub_total=Sum("amount")
+        )
+        return float(sub_total["sub_total"] or 0)
+
+    def get_status_display(self):
+        return dict(self.STATUS_CHOICES).get(self.status, "")
+
 
 class OrderDetail(BaseModel):
     """
@@ -138,7 +146,7 @@ class OrderDetail(BaseModel):
     amount = models.FloatField(null=True, blank=True)
 
     def __str__(self):
-        return f"Order {self.order.id} - Product {self.product.name}"
+        return f"Order {self.id} - Product {self.product.name}"
 
 
 class UserWishList(BaseModel):
