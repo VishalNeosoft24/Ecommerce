@@ -17,7 +17,7 @@
                       <img src="{{ product.first_image.0.image.url }}" alt="{{ product.name }}" width="{{ image_width }}" height="{{ image_height }}" />
                       <h2>${{ product.price }}</h2>
                       <p>{{ product.name }}</p>
-                      <a href="javascript:void(0)" data-product_id="{{ product.id }}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                      <a href="javascript:void(0)" onclick="addToCart({{ product.id }})" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
                     </div>
                   </div>
                 </div>
