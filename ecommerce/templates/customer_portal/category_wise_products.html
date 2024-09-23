@@ -12,8 +12,10 @@
               {% endif %}
             </div>
             <h2>${{ product.price }}</h2>
-            <p>{{ product.name }}</p>
-            <a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+            <p style="margin-bottom: 15px;">{{ product.name }}</p>
+            <div class="row" style="display: flex; margin:0px 20px; justify-content: space-between;">
+              <a href="javascript:void(0)" onclick="addToCart({{ product.id }})" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a><br />
+            </div>
           </div>
         </div>
       </div>
