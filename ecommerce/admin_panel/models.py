@@ -81,6 +81,11 @@ class Address(BaseModel):
     active = models.BooleanField(default=True)
     default = models.BooleanField(default=True)
 
+    def save(self, *args, **kwargs):
+        if self.default:
+            Address.objects.filter(user=self.user).update(default=False)
+        super(Address, self).save(*args, **kwargs)
+
     def __str__(self):
         address_parts = [
             f"{self.street_address}",
