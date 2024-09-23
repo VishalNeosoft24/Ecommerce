@@ -1,0 +1,202 @@
+{% load custom_filters %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Order Summary</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      h1,
+      h3 {
+        color: #333;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      h1 {
+        font-size: 24px;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+      h3 {
+        font-size: 18px;
+        color: #007bff;
+        margin-top: 20px;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 5px;
+      }
+      p {
+        margin: 5px 0;
+        color: #555;
+      }
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+      }
+      .table th,
+      .table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+      }
+      .table th {
+        background-color: #007bff;
+        color: #fff;
+      }
+      .table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+      .text-success {
+        color: #28a745;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -10px;
+      }
+      .col {
+        flex: 1;
+        padding: 0 10px;
+        box-sizing: border-box;
+      }
+      .col-6 {
+        width: 50%;
+      }
+      .panel {
+        margin-bottom: 20px;
+        border-radius: 5px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      .panel-heading {
+        background-color: #007bff;
+        color: white;
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+      }
+      .panel-body {
+        padding: 15px;
+        background-color: #fff;
+      }
+      .footer {
+        margin-top: 30px;
+        padding-top: 10px;
+        border-top: 1px solid #ddd;
+        text-align: center;
+        font-size: 12px;
+        color: #777;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Order Summary</h1>
+      <p>
+        <strong>Order Number:</strong> {{ order_number }}
+      </p>
+      <p>
+        <strong>Order Date:</strong> {{ order.created_at|date:'F j, Y' }}
+      </p>
+
+      <h3>User Details</h3>
+      <p>
+        <strong>Username:</strong> {{ user.username }}
+      </p>
+      <p>
+        <strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}
+      </p>
+      <p>
+        <strong>Email:</strong> {{ user.email }}
+      </p>
+
+      <h3>Products</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in order.order_details.all %}
+            <tr>
+              <td>{{ item.product.name }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>${{ item.product.price|floatformat:2 }}</td>
+              <td>${{ item.quantity|multiply:item.product.price|floatformat:2 }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <h3>Order Totals</h3>
+      <p>
+        <strong>Subtotal:</strong> ${{ sub_total|floatformat:2 }}
+      </p>
+      <p>
+        <strong>Discount:</strong> ${{ discount_amount|floatformat:2 }}
+      </p>
+      <p>
+        <strong>Total:</strong> <span class="text-success">${{ order_total|floatformat:2 }}</span>
+      </p>
+
+      <div class="row">
+        <div class="col col-6">
+          <h3>Shipping Information</h3>
+          <p>
+            <strong>Name:</strong> {{ order.user.first_name }} {{ order.user.last_name }}
+          </p>
+          <p>
+            <strong>Address:</strong> {{ order.shipping_address }}
+          </p>
+          <p>
+            <strong>City:</strong> {{ order.shipping_address.city }}
+          </p>
+          <p>
+            <strong>Postal Code:</strong> {{ order.shipping_address.pincode }}
+          </p>
+          <p>
+            <strong>Country:</strong> {{ order.shipping_address.country }}
+          </p>
+        </div>
+        <div class="col col-6">
+          <h3>Billing Information</h3>
+          <p>
+            <strong>Name:</strong> {{ order.user.first_name }} {{ order.user.last_name }}
+          </p>
+          <p>
+            <strong>Address:</strong> {{ order.billing_address }}
+          </p>
+          <p>
+            <strong>City:</strong> {{ order.billing_address.city }}
+          </p>
+          <p>
+            <strong>Postal Code:</strong> {{ order.billing_address.pincode }}
+          </p>
+          <p>
+            <strong>Country:</strong> {{ order.billing_address.country }}
+          </p>
+        </div>
+      </div>
+      <div class="footer">Thank you for your business! If you have any questions, please contact us.</div>
+    </div>
+  </body>
+</html>
