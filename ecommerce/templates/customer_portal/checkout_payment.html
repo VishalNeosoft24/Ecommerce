@@ -1,0 +1,14 @@
+<form action="/paymenthandler/" method="POST">
+    <script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        data-key="{{ razorpay_key_id }}"  # Your Razorpay API Key
+        data-amount="{{ amount }}"  # Amount is in paise
+        data-currency="INR"
+        data-order_id="{{ order_id }}"  # Razorpay order ID
+        data-buttontext="Pay with Razorpay"
+        data-name="E-shopper"
+        data-description="Order #12345"
+        data-theme.color="#F37254"
+    ></script>
+    <input type="hidden" name="order_id" value="{{ order_id }}">
+</form>
