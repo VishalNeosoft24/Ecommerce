@@ -1,0 +1,141 @@
+{% extends 'customer_portal/customer_base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}
+  Order Details
+{% endblock %}
+
+{% block content %}
+  <section id="order-items" class="container" style="padding: 40px 0;">
+    <div class="row">
+      <div class="col-12 text-center mb-5">
+        <h1 class="display-3 font-weight-bold" style="color: #28a745;">Order Details</h1>
+      </div>
+    </div>
+
+    <!-- Order Details -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading" style="background-color: #007bff; color: white;">
+            <h3 class="panel-title">Order Summary</h3>
+          </div>
+          <div class="panel-body">
+            <!-- Order Number and Date -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <p>
+                  <strong>Order Number:</strong> {{ order.awb_no }}
+                </p>
+              </div>
+              <div class="col-md-6 text-right">
+                <p>
+                  <strong>Order Date:</strong> {{ order.created_at|date:'F j, Y' }}
+                </p>
+              </div>
+            </div>
+            <!-- Order Items -->
+            <div class="table-responsive mb-4">
+              <table class="table">
+                <thead style="background-color: #f8f9fa;">
+                  <tr>
+                    <th>Product</th>
+                    <th></th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in order.order_details.all %}
+                    <tr>
+                      <td>
+                        {% with first_image=item.product.product_images.first %}
+                          {% if first_image %}
+                            <img src="{{ first_image.image.url }}" alt="{{ cart_product.product.name }}" width="80px" height="80px" />
+                          {% else %}
+                            <p>No image available</p>
+                          {% endif %}
+                        {% endwith %}
+                      </td>
+                      <td>{{ item.product.name }}</td>
+                      <td>{{ item.quantity }}</td>
+                      <td>${{ item.amount|floatformat:2 }}</td>
+                      <td>${{ item.quantity|multiply:item.amount|floatformat:2 }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <!-- Order Totals -->
+            <div class="row" style="margin-right: 5px;">
+              <div class="col-12 text-right">
+                <h5 class="font-weight-bold mb-2"><span class="text-muted">Status:</span> <span class="label label-warning">{{ order.get_status_display }}</span></h5>
+                <h5 class="font-weight-bold mb-2"><span class="text-muted">Subtotal:</span> ${{ sub_total|floatformat:2 }}</h5>
+                <h5 class="font-weight-bold mb-2"><span class="text-muted">Discount:</span> ${{ discount_amount|floatformat:2 }}</h5>
+                <h4 class="font-weight-bold text-success"><strong>Total:</strong> ${{ order.grand_total|floatformat:2 }}</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping and Billing Details -->
+        <div class="row">
+          <!-- Shipping Details -->
+          <div class="col-md-6">
+            <div class="panel panel-default">
+              <div class="panel-heading" style="background-color: #ffc107; color: white;">
+                <h3 class="panel-title">Shipping Information</h3>
+              </div>
+              <div class="panel-body">
+                <p>
+                  <strong>Name:</strong> {{ order.user.first_name }} {{ order.user.last_name }}
+                </p>
+                <p>
+                  <strong>Address:</strong> {{ order.shipping_address }}
+                </p>
+                <p>
+                  <strong>City:</strong> {{ order.shipping_address.city }}
+                </p>
+                <p>
+                  <strong>Postal Code:</strong> {{ order.shipping_address.pincode }}
+                </p>
+                <p>
+                  <strong>Country:</strong> {{ order.shipping_address.country }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Billing Details -->
+          <div class="col-md-6">
+            <div class="panel panel-default">
+              <div class="panel-heading" style="background-color: #28a745; color: white;">
+                <h3 class="panel-title">Billing Information</h3>
+              </div>
+              <div class="panel-body">
+                <p>
+                  <strong>Name:</strong> {{ order.user.first_name }} {{ order.user.last_name }}
+                </p>
+                <p>
+                  <strong>Address:</strong> {{ order.billing_address }}
+                </p>
+                <p>
+                  <strong>City:</strong> {{ order.billing_address.city }}
+                </p>
+                <p>
+                  <strong>Postal Code:</strong> {{ order.billing_address.pincode }}
+                </p>
+                <p>
+                  <strong>Country:</strong> {{ order.billing_address.country }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a href="{% url 'order_pdf' order.id %}" class="btn btn-primary" target="_blank">Download Order Summary as PDF</a>
+    </div>
+  </section>
+{% endblock %}
