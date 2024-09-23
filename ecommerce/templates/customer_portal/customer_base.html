@@ -42,54 +42,58 @@
 
     <!-- Toastr -->
     <script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
+
+    <!-- common scripts -->
+    <script>
+      function addToCart(productId, quantity = 1) {
+        $.ajax({
+          url: '/add-cart/' + productId,
+          type: 'POST',
+          data: {
+            quantity: parseInt(quantity),
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+          },
+          success: function (response) {
+            if (response.status == 'success') {
+              $('.cart-badge').text(response.cart_item_count)
+              toastr.success(response.msg)
+            } else {
+              toastr.error(response.msg)
+            }
+          },
+          error: function (xhr, status, error) {
+            console.error('Error adding to cart:', error)
+          }
+        })
+      }
+      
+      function addToWishlist(productId) {
+        $.ajax({
+          url: '/add-wishlist/' + productId,
+          type: 'POST',
+          data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+          },
+          success: function (response) {
+            if (response.status == 'success') {
+              console.log('response.wishlist_item_count==', response.wishlist_item_count)
+              $('.wishlist-badge').text(response.wishlist_item_count)
+              toastr.success(response.msg)
+            }
+          },
+          error: function (xhr, status, error) {
+            toastr.error(response.msg)
+            console.error('Error fetching products:', error)
+          }
+        })
+      }
+    </script>
   </head>
   <!-- /head -->
 
   <body>
     <header id="header">
       <!-- header -->
-      <div class="header_top">
-        <!-- header_top -->
-        <div class="container">
-          <div class="row">
-            <div class="col-sm-6">
-              <div class="contactinfo">
-                <ul class="nav nav-pills">
-                  <li>
-                    <a href="#"><i class="fa fa-phone"></i> +2 95 01 88 821</a>
-                  </li>
-                  <li>
-                    <a href="#"><i class="fa fa-envelope"></i> info@domain.com</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div class="col-sm-6">
-              <div class="social-icons pull-right">
-                <ul class="nav navbar-nav">
-                  <li>
-                    <a href="#"><i class="fa fa-facebook"></i></a>
-                  </li>
-                  <li>
-                    <a href="#"><i class="fa fa-twitter"></i></a>
-                  </li>
-                  <li>
-                    <a href="#"><i class="fa fa-linkedin"></i></a>
-                  </li>
-                  <li>
-                    <a href="#"><i class="fa fa-dribbble"></i></a>
-                  </li>
-                  <li>
-                    <a href="#"><i class="fa fa-google-plus"></i></a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- /header_top -->
-
       <div class="header-bottom">
         <!-- header-middle -->
         <div class="container">
@@ -115,54 +119,30 @@
                     <a href="{% url 'contact_us' %}" class="{% if request.get_full_path == '/contact-us/' %} active {% endif %}">Contact Us</a>
                   </li>
                   <li>
-                    <a href="{% url 'product_list' %}" class="{% if request.get_full_path == '/products/' %} active {% endif %}">Shop</a>
+                    <a href="{% url 'product_list' %}" class="{% if 'products' in request.get_full_path %} active {% endif %}">Shop</a>
                   </li>
                   <li>
                     <a href="{% url 'cart' %}" class="{% if request.path == '/cart/' %}active{% endif %}">
-                      <i class="fa fa-shopping-cart"></i> Cart{% if cart_item_count > 0 %}
-                        <span class="badge badge-pill badge-primary">{{ cart_item_count }}</span>
-                      {% endif %}
+                      <i class="fa fa-shopping-cart"></i>
+                      <span class="badge cart-badge badge-pill badge-primary">{{ cart_item_count }}</span>
                     </a>
                   </li>
                   {% if user.is_authenticated %}
                     <li>
-                      <a href="{% url 'wishlist' %}"><i class="fa fa-star"></i> Wishlist</a>
-                    </li>
-                    <li class="dropdown">
-                      <a class="{% if request.get_full_path == '/profile/' %}
-                          
-                          
-                          
-                          
-                          
-                          
-                           active
-
-
-
-
-
-
-                        {% elif request.get_full_path == '/change-password/' %}
-                          
-                          
-                          
-                          
-                          
-                          
-                           active
-
-
-
-
-
-
-                        {% endif %}">
-                        {{ request.user.first_name }} {{ request.user.last_name }}<i class="fa fa-angle-down"></i>
+                      <a href="{% url 'wishlist' %}" title="Wishlist" class="{% if request.path == '/wishlist/' %}active{% endif %}">
+                        <i class="fa fa-heart"></i>
+                        <span class="badge wishlist-badge badge-pill badge-primary">{{ wishlist_item_count }}</span>
                       </a>
-                      <ul role="menu" class="sub-menu">
+                    </li>
+
+                    <li class="dropdown">
+                      <a class="{% if request.get_full_path == '/profile/' or request.get_full_path == '/change-password/' %}active{% endif %}">{{ request.user.first_name }}<i class="fa fa-angle-down"></i></a>
+                      <ul role="menu" class="sub-menu" style="left: -100px !important;">
                         <li>
                           <a href="{% url 'profile_page' %}"><i class="fa fa-user"></i> Profile</a>
+                        </li>
+                        <li>
+                          <a href="{% url 'my_orders' %}"><i class="fa fa-key"></i> My Orders</a>
                         </li>
                         <li>
                           <a href="{% url 'change_password' %}"><i class="fa fa-key"></i> Change Password</a>
