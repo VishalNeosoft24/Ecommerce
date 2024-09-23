@@ -1,6 +1,27 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from order_management.models import UserOrder, UserWishList
 from .models import User
+
+
+class UserWishListInline(admin.TabularInline):
+    model = UserWishList
+    extra = 1
+    fk_name = "user"
+    # fields = ("product",)
+    # readonly_fields = ("product",)
+
+
+class UserOrderInline(admin.TabularInline):
+    model = UserOrder
+    extra = 1
+    fk_name = "user"
+    fields = (
+        "grand_total",
+        "awb_no",
+        "status",
+        "shipping_method",
+    )
 
 
 class UserAdmin(UserAdmin):
@@ -61,6 +82,7 @@ class UserAdmin(UserAdmin):
     )
     search_fields = ("email", "username")
     ordering = ("email",)
+    inlines = [UserOrderInline, UserWishListInline]
 
 
 admin.site.register(User, UserAdmin)
