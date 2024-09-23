@@ -95,3 +95,32 @@ def send_user_credentials_email(user, password):
         to_email,
         html_message=html_message,
     )
+
+
+def send_order_confirmation_email(customer_email, context, template):
+    # Render the HTML template with context data
+
+    # Render the template content with the context
+    rendered_content = Template(template.content).render(Context(context))
+
+    html_content = render_to_string(
+        "customer_portal/order_confirmation_email.html",
+        {
+            "rendered_content": rendered_content,
+        },
+    )
+    plain_message = strip_tags(html_content)  # Convert HTML to plain text
+
+    # Prepare email details
+    subject = f"Order Confirmation - {context['order_number']}"
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to_email = customer_email
+
+    # Schedule the email sending task
+    send_email_task(
+        subject=subject,
+        plain_message=plain_message,
+        from_email=from_email,
+        to=to_email,
+        html_message=html_content,
+    )
