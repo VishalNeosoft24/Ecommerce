@@ -93,7 +93,7 @@
 
                         <h2>${{ product.price }}</h2>
                         <p>{{ product.name }}</p>
-                        <a href="javascript:void(0)" data-product_id="{{product.id}}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                        <a href="javascript:void(0)" onclick="addToCart({{ product.id }})" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
                       </div>
                       <a href="{% url 'product_details' product.id %}">
                         <div class="product-overlay">
@@ -101,7 +101,7 @@
                             <p>{{ product.short_description }}</p>
                             <h2>${{ product.price }}</h2>
                             <p>{{ product.name }}</p>
-                            <a href="javascript:void(0)" data-product_id="{{product.id}}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                            <a href="javascript:void(0)" onclick="addToCart({{ product.id }})" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
                           </div>
                         </div>
                       </a>
@@ -110,7 +110,7 @@
                     {% if request.user.is_authenticated %}
                       <div class="choose">
                         <ul class="nav nav-pills nav-justified">
-                          <li><a href="javascript:void(0)" data-product_id="{{product.id}}" class="add-to-wishlist"><i class="fa fa-plus-square"></i>Add to wishlist</a></li>
+                          <li><a href="javascript:void(0)" onclick="addToWishlist({{ product.id }})" class="add-to-wishlist"><i class="fa fa-plus-square"></i>Add to wishlist</a></li>
                         </ul>
                       </div>
                     {% endif %}
@@ -149,13 +149,16 @@
                                 {% endif %}
                               </div>
                               <h2>${{ product.price }}</h2>
-                              <p>{{ product.name }}</p>
-                              <a href="javascript:void(0)" data-product_id="{{product.id}}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                              <p style="margin-bottom: 15px;">{{ product.name }}</p>
+                              <div class="row" style="display: flex; margin:0px 20px; justify-content: space-between;">
+                                <a href="javascript:void(0)" onclick="addToCart({{ product.id }})" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a><br>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </a>
+                    
                     {% endfor %}
                   {% else %}
                     <p>No products available in this category.</p>
@@ -203,69 +206,17 @@
     })
 
     function filter_by_category(categoryName) {
-        console.log('categoryId: ', categoryName)
-        // Construct the new URL with the query parameter
-        const baseUrl = window.location.pathname // Get the base URL without query parameters
-        const queryString = `?cat=${encodeURIComponent(categoryName)}`
-        const newUrl = "{% url 'product_list' %}" + queryString
-      
-        // Set the new URL as the window location
-        window.location.href = newUrl
-      }
+      // Construct the new URL with the query parameter
+      const baseUrl = window.location.pathname // Get the base URL without query parameters
+      const queryString = `?cat=${encodeURIComponent(categoryName)}`
+      const newUrl = "{% url 'product_list' %}" + queryString
     
-      function removeAllFilter() {
-        window.location.href = baseUrl
-      }
-
-      $(document).ready(function() {
-        $('.add-to-cart').on('click', function() {
-          const productId = $(this).data('product_id')
-          console.log('productId: ', productId)
-
-
-          // Fetch category-wise products
-          $.ajax({
-            url: '/add-cart/'+ productId,
-            type: 'POST',
-            data: {
-              quantity:1,
-              csrfmiddlewaretoken: '{{ csrf_token }}',
-              },
-            success: function (response) {
-              if (response.status=='success'){
-                window.location.href = "{% url 'home_page' %}"
-              }
-            },
-            error: function (xhr, status, error) {
-              console.error('Error fetching products:', error)
-            }
-          })
-        });
-
-        $('.add-to-wishlist').on('click', function() {
-        const productId = $(this).data('product_id')
-        console.log('productId: ', productId)
-
-        // Fetch category-wise products
-        $.ajax({
-          url: '/add-wishlist/'+ productId,
-          type: 'POST',
-          data: {
-            csrfmiddlewaretoken: '{{ csrf_token }}',
-            },
-          success: function (response) {
-            if (response.status=='success'){
-              toastr.success(response.msg)
-            }
-          },
-          error: function (xhr, status, error) {
-            toastr.error(response.msg)
-            console.error('Error fetching products:', error)
-          }
-        })
-      });
-
-
-      });
+      // Set the new URL as the window location
+      window.location.href = newUrl
+    }
+    
+    function removeAllFilter() {
+      window.location.href = baseUrl
+    }
   </script>
 {% endblock %}
