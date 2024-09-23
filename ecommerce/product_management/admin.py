@@ -8,7 +8,21 @@ from .models import (
     ProductImage,
 )
 
+
 # Register your models here.
+class ProductAttributeValueInline(admin.StackedInline):
+    model = ProductAttributeValue
+    extra = 1
+
+
+class ProductAttributeInline(admin.StackedInline):
+    model = ProductAttribute
+    extra = 1
+
+
+class ProductImageInline(admin.StackedInline):
+    model = ProductImage
+    extra = 1
 
 
 @admin.register(Category)
@@ -33,6 +47,7 @@ class ProductAdmin(admin.ModelAdmin):
         "updated_at",
         "deleted_at",
     ]
+    inlines = [ProductAttributeInline, ProductImageInline]
 
 
 @admin.register(ProductImage)
@@ -60,6 +75,7 @@ class ProductAttributeAdmin(admin.ModelAdmin):
         "updated_by",
         "updated_at",
     ]
+    inlines = [ProductAttributeValueInline]
 
 
 @admin.register(ProductAttributeValue)
