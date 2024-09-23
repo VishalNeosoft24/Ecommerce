@@ -30,49 +30,70 @@
               <div class="card-body">
                 <!-- Order Detail Section -->
                 <div class="row">
-                  <!-- Order Information and Order Details in One Row -->
-                  <div class="col-md-6">
+                  <!-- Order Information Table -->
+                  <div class="col-md-12">
                     <div class="card card-outline card-success mb-3">
                       <div class="card-header">
                         <h5 class="card-title">Order Information</h5>
                       </div>
-                      <div class="card-body">
-                        <p>
-                          <strong>Order ID:</strong> {{ order.id }}
-                        </p>
-                        <p>
-                          <strong>User:</strong> {{ order.user }}
-                        </p>
-                        <p>
-                          <strong>Shipping Method:</strong> {{ order.get_shipping_method_display }}
-                        </p>
-                        <p>
-                          <strong>Shipping Charges:</strong> {{ order.shipping_charges }}
-                        </p>
-                        <p>
-                          <strong>AWB Number:</strong> {{ order.awb_no }}
-                        </p>
+                      <div class="card-body p-0">
+                        <table class="table table-hover table-striped table-sm mb-0">
+                          <tbody>
+                            <tr>
+                              <th scope="row">Order ID:</th>
+                              <td>{{ order.id }}</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">User:</th>
+                              <td>{{ order.user }}</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Shipping Method:</th>
+                              <td>{{ order.get_shipping_method_display }}</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Shipping Charges:</th>
+                              <td>{{ order.shipping_charges }}</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">AWB Number:</th>
+                              <td>{{ order.awb_no }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>
-                  <div class="col-md-6">
+                </div>
+
+                <div class="row">
+                  <!-- Order Details Table -->
+                  <div class="col-md-12">
                     <div class="card card-outline card-success mb-3">
                       <div class="card-header">
                         <h5 class="card-title">Order Details</h5>
                       </div>
-                      <div class="card-body">
-                        <p>
-                          <strong>Coupon:</strong> {{ order.coupon }}
-                        </p>
-                        <p>
-                          <strong>Payment Gateway:</strong> {{ order.payment_gateway }}
-                        </p>
-                        <p>
-                          <strong>Transaction ID:</strong> {{ order.transaction_id }}
-                        </p>
-                        <p>
-                          <span class="bg-warning text-dark"><strong>Status:</strong> {{ order.get_status_display }}</span>
-                        </p>
+                      <div class="card-body p-0">
+                        <table class="table table-hover table-striped table-sm mb-0">
+                          <tbody>
+                            <tr>
+                              <th scope="row">Coupon:</th>
+                              <td>{{ order.coupon }}</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Payment Gateway:</th>
+                              <td>{{ order.payment_gateway }}</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Transaction ID:</th>
+                              <td>{{ order.transaction_id }}</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Status:</th>
+                              <td class="bg-warning text-dark">{{ order.get_status_display }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>
