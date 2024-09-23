@@ -9,7 +9,7 @@
 {% block content %}
   <style>
     .wishlist-page {
-      padding: 30px 0;
+      padding: 30px 15px;
     }
     .wishlist-header {
       margin-bottom: 40px;
@@ -41,7 +41,8 @@
       margin-bottom: 10px;
     }
     .btn-view,
-    .btn-remove {
+    .btn-remove,
+    .btn-add-to-cart {
       display: inline-block;
       margin-top: 10px;
       padding: 8px 15px;
@@ -59,6 +60,18 @@
       color: white;
       border-color: #004085; /* Darker border color on hover */
     }
+    .btn-add-to-cart {
+      background-color: #d4edda; /* Light green background for "Add to Cart" button */
+      color: #155724; /* Dark green text for "Add to Cart" button */
+      border: 1px solid #c3e6cb; /* Light green border */
+    }
+    
+    .btn-add-to-cart:hover {
+      background-color: #55f179; /* Slightly darker green on hover */
+      color: #155724; /* Dark green text */
+      border-color: #a3d5a7; /* Matching border color on hover */
+    }
+    
     .btn-remove {
       background-color: #f8d7da; /* Light red background for "Remove" button */
       color: #721c24; /* Dark red text for "Remove" button */
@@ -118,17 +131,37 @@
       color: #fff; /* White text color on hover */
       border-color: #007bff; /* Matching border color on hover */
     }
+    #clear-wishlist {
+      background-color: #dc3545; /* Bootstrap danger color */
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      margin-bottom: 15px;
+    }
+    
+    #clear-wishlist:hover {
+      background-color: #c82333; /* Darker red on hover */
+    }
+    .justify-content-end {
+      display: flex;
+      justify-content: flex-end; /* Aligns the button to the right */
+    }
   </style>
   <div class="container wishlist-page">
-    {% if wishlist_products %}
+    {% if page_obj.object_list %}
       <div class="wishlist-header">
         <h2>Your Wishlist</h2>
         <p>Browse through the products you’ve added to your wishlist.</p>
       </div>
+      <div class="justify-content-end">
+        <button id="clear-wishlist" class="btn btn-danger">Clear Wishlist</button>
+      </div>
     {% endif %}
-
     <div class="row">
-      {% for wishlist_item in wishlist_products %}
+      {% for wishlist_item in page_obj.object_list %}
         <div class="col-md-4">
           <div class="product-card">
             {% with image=wishlist_item.product.product_images.first %}
@@ -139,6 +172,7 @@
               <p>${{ wishlist_item.product.price|floatformat:2 }}</p>
               <a href="{% url 'product_details' wishlist_item.product.id %}" class="btn-view">View Details</a>
               <a href="javascript:void(0)" class="btn-remove" data-product_id="{{ wishlist_item.product.id }}"><i class="fa fa-times"></i> Remove</a>
+              <button class="btn-add-to-cart" data-product_id="{{ wishlist_item.product.id }}"><i class="fa fa-shopping-cart"></i> Add to Cart</button>
             </div>
           </div>
         </div>
@@ -151,6 +185,57 @@
         </div>
       {% endfor %}
     </div>
+
+    {% if page_obj.paginator.count > 6 %}
+      <!-- Pagination Controls -->
+      <nav aria-label="Page navigation">
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page=1" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">&laquo;&laquo;</span>
+            </li>
+            <li class="page-item disabled">
+              <span class="page-link">&laquo;</span>
+            </li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active" aria-current="page">
+                <span class="page-link">{{ num }}</span>
+              </li>
+            {% else %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">&raquo;</span>
+            </li>
+            <li class="page-item disabled">
+              <span class="page-link">&raquo;&raquo;</span>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
   </div>
   <script>
     $('.btn-remove').on('click', function () {
@@ -172,6 +257,53 @@
         error: function (xhr, status, error) {
           console.error('AJAX Error:', error)
           toastr.error(xhr.responseJSON.msg)
+        }
+      })
+    })
+    
+    $('#clear-wishlist').on('click', function () {
+      $.ajax({
+        url: '/clear-wishlist/',
+        type: 'POST',
+        data: {
+          csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+          if (response.status === 'success') {
+            toastr.success(response.message)
+            setTimeout(function () {
+              window.location.href = "{% url 'wishlist' %}"
+            }, 1000)
+          } else {
+            toastr.error('Error: ' + response.message)
+          }
+        },
+        error: function (xhr, status, error) {
+          console.error('AJAX Error:', error)
+          toastr.error(xhr.responseJSON.msg)
+        }
+      })
+    })
+    
+    $('.btn-add-to-cart').on('click', function () {
+      const productId = $(this).data('product_id')
+    
+      // Fetch category-wise products
+      $.ajax({
+        url: '/add-cart/' + productId,
+        type: 'POST',
+        data: {
+          quantity: 1,
+          csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+          if (response.status == 'success') {
+            $('.cart-badge').text(response.cart_item_count)
+            toastr.success(response.msg)
+          }
+        },
+        error: function (xhr, status, error) {
+          console.error('Error fetching products:', error)
         }
       })
     })
