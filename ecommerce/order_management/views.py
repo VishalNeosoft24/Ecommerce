@@ -72,6 +72,16 @@ def add_to_cart(request, product_id):
         product_id_str = str(product_id)
         current_quantity = cart.get(product_id_str, 0)
 
+        product = Product.objects.get(id=product_id)
+
+        if current_quantity + quantity > product.quantity:
+            return JsonResponse(
+                {
+                    "status": "error",
+                    "msg": "Not enough stock available.",
+                }
+            )
+
         # Check for quantity limits
         if quantity > 10 or current_quantity + quantity > 10:
             available_quantity = 10 - current_quantity
@@ -111,14 +121,40 @@ def update_cart_product_quantity(request, product_id):
     try:
         if request.method == "POST":
             quantity = int(request.POST.get("quantity"))
+            if quantity <= 0:
+                return JsonResponse({"status": "error", "msg": "Quantity is required."})
+
             operation = request.POST.get("operation")
             cart = request.session.get("cart", {})
             product_id_str = str(product_id)
+            product = Product.objects.get(id=product_id)
 
             if operation == "cart_quantity_up":
-                cart[product_id_str] = cart.get(product_id_str, 0) + quantity
-            else:
-                cart[product_id_str] = cart.get(product_id_str, 0) - quantity
+                # Check if adding the quantity exceeds stock
+                new_quantity = cart.get(product_id_str, 0) + quantity
+                if cart.get(product_id_str, 0) >= 10:
+                    return JsonResponse(
+                        {
+                            "status": "error",
+                            "msg": "You cannot purchase more than 10 quantity.",
+                        }
+                    )
+                elif new_quantity > product.quantity:
+                    return JsonResponse(
+                        {"status": "error", "msg": "Not enough stock available."}
+                    )
+                response_message = "Quantity Increase successfully!"
+                cart[product_id_str] = new_quantity
+
+            elif operation == "cart_quantity_down":
+                # Prevent quantity from going below 1
+                new_quantity = cart.get(product_id_str, 0) - quantity
+                if new_quantity < 1:
+                    return JsonResponse(
+                        {"status": "error", "msg": "Minimum quantity is 1."}
+                    )
+                cart[product_id_str] = new_quantity
+                response_message = "Quantity Decrease successfully!"
             request.session["cart"] = cart
 
             sub_total_amount = 0
@@ -149,6 +185,9 @@ def update_cart_product_quantity(request, product_id):
                     "discount_amount": discount_amount,
                     "discount_percent": discount_percent,
                     "coupon_code": coupon_code,
+                    "operation": operation,
+                    "cart_quantity": cart.get(product_id_str, 1),
+                    "msg":response_message
                 }
             )
 
@@ -478,7 +517,6 @@ def place_order(request):
                     }
                 )
                 razorpay_order_id = razorpay_order["id"]
-                
 
                 payment_response = {
                     "status": "success",
