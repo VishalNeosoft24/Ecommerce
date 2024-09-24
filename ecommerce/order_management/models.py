@@ -100,7 +100,7 @@ class UserOrder(BaseModel):
 
     def generate_awb_no(self):
         """Generate AWB number using current timestamp and shipping method."""
-        timestamp = timezone.now().strftime("%Y%m%d%H%M")
+        timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
         method = self.shipping_method
         return f"ORD{timestamp}{method}"
 
