@@ -93,7 +93,11 @@
 
                         <h2>${{ product.price }}</h2>
                         <p>{{ product.name }}</p>
-                        <a href="javascript:void(0)" onclick="addToCart({{ product.id }})" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                        
+                        {% if product.quantity > 0 %}
+                          <a href="javascript:void(0)" onclick="addToCart({{ product.id }})" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                        {% endif %}
+
                       </div>
                       <a href="{% url 'product_details' product.id %}">
                         <div class="product-overlay">
@@ -101,7 +105,9 @@
                             <p>{{ product.short_description }}</p>
                             <h2>${{ product.price }}</h2>
                             <p>{{ product.name }}</p>
-                            <a href="javascript:void(0)" onclick="addToCart({{ product.id }})" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                            {% if product.quantity > 0 %}
+                              <a href="javascript:void(0)" onclick="addToCart({{ product.id }})" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                            {% endif %}
                           </div>
                         </div>
                       </a>
