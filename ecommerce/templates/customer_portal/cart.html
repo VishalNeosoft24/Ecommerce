@@ -114,9 +114,9 @@
                   </td>
                   <td class="cart_quantity">
                     <div class="cart_quantity_button">
-                      <a class="cart_quantity_down" style="text-decoration: none;" href="javascript:void(0)" onclick="cart_quantity_down({{ cart_product.product.id }}, {{ cart_product.product.price }})">-</a>
+                      <a class="cart_quantity_down" style="text-decoration: none;" href="javascript:void(0)" onclick="updateCartQuantity({{ cart_product.product.id }}, 1, 'cart_quantity_down')">-</a>
                       <input class="cart_quantity_input" type="text" id="quantity_{{ cart_product.product.id }}" name="quantity" value="{{ cart_product.quantity }}" disabled autocomplete="off" size="2" />
-                      <a class="cart_quantity_up" style="text-decoration: none;" href="javascript:void(0)" onclick="cart_quantity_up({{ cart_product.product.id }}, {{ cart_product.product.price }})">+</a>
+                      <a class="cart_quantity_up" style="text-decoration: none;" href="javascript:void(0)" onclick="updateCartQuantity({{ cart_product.product.id }}, 1, 'cart_quantity_up')">+</a>
                     </div>
                   </td>
                   <td class="cart_total">
@@ -189,52 +189,17 @@
 
   <script>
     function cart_quantity_up(productId, unitPrice) {
-      const quantityInput = $('#quantity_' + productId);
-      let currentQuantity = parseInt(quantityInput.val()) || 1; 
-      const productTotalElement = $('#product_total_price_' + productId);
-
-      if (currentQuantity >= 10) {
-        toastr.error('You cannot purchase more than 10 quantity.');
-      } else {
-        const newQuantity = currentQuantity + 1;  
-        quantityInput.val(newQuantity);  
-
-        const newTotalPrice = unitPrice * newQuantity; 
-        productTotalElement.text('$' + newTotalPrice.toFixed(2)); 
-        toastr.success('Quantity Increase successfully!');
-        updateCartQuantity(productId, 1, 'cart_quantity_up');  
-      }
+      console.log(productId, unitPrice)
+      updateCartQuantity(productId, 1, "cart_quantity_up")
     }
 
     function cart_quantity_down(productId, unitPrice) {
-      const quantityInput = $('#quantity_' + productId);
-      let currentQuantity = parseInt(quantityInput.val()) || 1;
-      const productTotalElement = $('#product_total_price_' + productId);
-  
+      console.log(productId, unitPrice)
+      updateCartQuantity(productId, 1, "cart_quantity_down")
 
-      if (currentQuantity > 1) {
-        const newQuantity = currentQuantity - 1;  
-        quantityInput.val(newQuantity);  
-        const newTotalPrice = unitPrice * newQuantity; 
-
-        productTotalElement.text('$' + newTotalPrice.toFixed(2)); 
-        toastr.success('Quantity Decrease successfully!');
-        updateCartQuantity(productId, 1, 'cart_quantity_down');  
-      } else {
-        toastr.error('Quantity must be at least 1. Use the delete button to remove the product.');
-      }
     }
 
     function updateCartQuantity(productId, quantity, type) {
-      if (!productId) {
-        toastr.error('Product ID is missing.')
-        return
-      }
-  
-      if (!quantity) {
-        toastr.error('Quantity is missing.')
-        return
-      }
       
       $.ajax({
         url: '/update-cart/' + productId,
@@ -246,24 +211,30 @@
         },
         success: function (response) {
           if (response.status === 'success') {
+            let quantityInput = $('#quantity_' + productId);
+            quantityInput.val(response.cart_quantity);
+
             $('.cart_sub_total').text('$' + response.sub_total_amount.toFixed(2));
             $('#totalAmount').text('$' + response.total_amount.toFixed(2))
             $('#discount_amount').text('$' + response.discount_amount.toFixed(2))
-            couponCode = response.coupon_code
 
+            couponCode = response.coupon_code
             discountPercent = response.discount_percent
-            
+
             if (discountPercent > 0) {
-                $('#demotext').html(
-                  '<div class="mt-2 alert alert-success" style="margin-top:10px;">' +
-                  'Coupon "' + couponCode + '" applied successfully! Discount: ' + discountPercent + '%.' +
-                  '<button class="remove-coupon close" type="button" aria-label="Close">' +
-                  '<span aria-hidden="true">&times;</span></button></div>'
-                );
-              } else {
-                $('#demotext').html('');
-              }
-          } 
+              $('#demotext').html(
+                '<div class="mt-2 alert alert-success" style="margin-top:10px;">' +
+                'Coupon "' + couponCode + '" applied successfully! Discount: ' + discountPercent + '%.' +
+                '<button class="remove-coupon close" type="button" aria-label="Close">' +
+                '<span aria-hidden="true">&times;</span></button></div>'
+              );
+            } else {
+              $('#demotext').html('');
+            }
+            toastr.success(response.msg)
+          }else{
+            toastr.error(response.msg)
+          }
         },
         error: function (xhr, status, error) {
           console.error('Error updating cart:', error)
