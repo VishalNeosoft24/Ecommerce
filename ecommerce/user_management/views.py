@@ -13,12 +13,12 @@ from django.core.paginator import Paginator
 
 
 # Local app imports
-from admin_panel.models import Address
+from admin_panel.models import Address, NewsLetter
 from order_management.models import UserOrder
 from user_management.forms import AddressForm, UpdateUserForm
 from .models import User
 from django.contrib.auth.forms import PasswordChangeForm
-from .forms import ContactUsForm
+from .forms import ContactUsForm, NewsLetterForm
 
 
 def register_page(request):
@@ -201,7 +201,7 @@ def profile_page(request):
 
     try:
         user = get_object_or_404(User, id=request.user.id)
-        address = Address.objects.filter(user_id=request.user.id)
+        address = Address.objects.filter(user_id=request.user.id, active=True).all()
         orders = UserOrder.objects.filter(user=user).order_by("-created_at")[:5]
 
         if request.method == "POST":
@@ -421,3 +421,19 @@ def contact_us(request):
             return render(request, "customer_portal/contact_us.html", {"form": form})
     except Exception as e:
         return HttpResponse(str(e))
+
+
+def subscribe_newsletter(request):
+    if request.method == "POST":
+        form = NewsLetterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse(
+                {"message": "You have subscribed successfully!"}, status=200
+            )
+        else:
+            return JsonResponse(
+                {"message": form.errors.get("email", ["An error occurred"])[0]},
+                status=400,
+            )
+    return JsonResponse({"message": "Invalid request method."}, status=405)
