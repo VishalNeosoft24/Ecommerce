@@ -274,8 +274,8 @@ class ReportExtraction:
             "table_headers": [
                 "First Name",
                 "Last Name",
+                "Email",
                 "Total Orders",
-                "Total Products",
                 "Total Coupon Used",
                 "Total Discount",
                 "Total Spent",
@@ -283,8 +283,8 @@ class ReportExtraction:
             "table_fields": [
                 "first_name",
                 "last_name",
+                "email",
                 "total_orders",
-                "total_products",
                 "total_used_coupon",
                 "total_discount",
                 "total_spent",
@@ -397,8 +397,28 @@ class ReportExtraction:
         )
 
         writer = csv.writer(response)
+
+        # If filters or search value exist, include them in the CSV file
+        filters = []
+        if data.get("start_date"):
+            filters.append(f"Start Date: {data['start_date']}")
+        if data.get("end_date"):
+            filters.append(f"End Date: {data['end_date']}")
+        if data.get("search_value"):
+            filters.append(f"Search Value: {data['search_value']}")
+
+        # Write filters as the first row in CSV if any
+        if filters:
+            writer.writerow([])
+            writer.writerow([])
+            writer.writerow(["Applied Filters:"] + filters)
+            writer.writerow([])
+            writer.writerow([])
+
+        # Write table headers
         writer.writerow(data["table_headers"])
 
+        # Write the actual data
         for item in data["page_obj"]:
             writer.writerow([getattr(item, field) for field in data["table_fields"]])
 
