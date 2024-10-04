@@ -3,7 +3,7 @@ from .models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator
 from django.utils.translation import gettext_lazy as _
-from admin_panel.models import Address, ContactUs
+from admin_panel.models import Address, ContactUs, NewsLetter
 
 
 class UpdateUserForm(forms.ModelForm):
@@ -169,4 +169,22 @@ class ContactUsForm(forms.ModelForm):
             validator(email)
         except ValidationError:
             raise ValidationError(_("Enter a valid email address."))
+        return email
+
+
+class NewsLetterForm(forms.ModelForm):
+    email = forms.EmailField(
+        max_length=254,
+        widget=forms.EmailInput(attrs={"placeholder": "Your email address"}),
+        error_messages={"required": "Please enter your email address"},
+    )
+
+    class Meta:
+        model = NewsLetter
+        fields = ["email"]
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        if NewsLetter.objects.filter(email=email).exists():
+            raise forms.ValidationError("You are already subscribed.")
         return email
