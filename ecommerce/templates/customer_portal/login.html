@@ -36,6 +36,8 @@
             <h2>New User Signup!</h2>
             <form method="post" action="{% url 'register_page' %}">
               {% csrf_token %}
+              <input type="text" name="first_name" placeholder="First Name" />
+              <input type="text" name="last_name" placeholder="Last Name" />
               <input type="text" name="username" placeholder="Username" />
               <input type="text" name="email" placeholder="Email Address" />
               <input type="password" name="password" placeholder="Password" />
