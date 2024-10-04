@@ -19,7 +19,6 @@
       </div>
       <!-- /.container-fluid -->
     </section>
-
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
@@ -31,10 +30,10 @@
                 <!-- Order Detail Section -->
                 <div class="row">
                   <!-- Order Information Table -->
-                  <div class="col-md-12">
-                    <div class="card card-outline card-success mb-3">
+                  <div class="col-lg-6 col-md-12">
+                    <div class="card card-outline card-success mb-3" style="overflow: hidden;">
                       <div class="card-header">
-                        <h5 class="card-title">Order Information</h5>
+                        <h5 class="card-title">Order Details</h5>
                       </div>
                       <div class="card-body p-0">
                         <table class="table table-hover table-striped table-sm mb-0">
@@ -44,8 +43,14 @@
                               <td>{{ order.id }}</td>
                             </tr>
                             <tr>
-                              <th scope="row">User:</th>
-                              <td>{{ order.user }}</td>
+                              <th scope="row">Coupon:</th>
+                              <td>
+                                {% if order.coupon %}
+                                  {{ order.coupon }} ({{ order.coupon.code }})
+                                {% else %}
+                                  Not Applied
+                                {% endif %}
+                              </td>
                             </tr>
                             <tr>
                               <th scope="row">Shipping Method:</th>
@@ -56,41 +61,43 @@
                               <td>{{ order.shipping_charges }}</td>
                             </tr>
                             <tr>
-                              <th scope="row">AWB Number:</th>
+                              <th scope="row" title="Reference Number">AWB Number:</th>
                               <td>{{ order.awb_no }}</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Order Status:</th>
+                              <td class="bg-warning text-dark">{{ order.get_status_display }}</td>
                             </tr>
                           </tbody>
                         </table>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div class="row">
-                  <!-- Order Details Table -->
-                  <div class="col-md-12">
-                    <div class="card card-outline card-success mb-3">
+                  <!-- Payment Details Table -->
+                  <div class="col-lg-6 col-md-12">
+                    <div class="card card-outline card-success mb-3" style="overflow: hidden;">
                       <div class="card-header">
-                        <h5 class="card-title">Order Details</h5>
+                        <h5 class="card-title">Payment Details</h5>
                       </div>
                       <div class="card-body p-0">
                         <table class="table table-hover table-striped table-sm mb-0">
                           <tbody>
                             <tr>
-                              <th scope="row">Coupon:</th>
-                              <td>{{ order.coupon }}</td>
-                            </tr>
-                            <tr>
                               <th scope="row">Payment Gateway:</th>
-                              <td>{{ order.payment_gateway }}</td>
+                              <td>{{ order.payment_gateway.name }}</td>
                             </tr>
                             <tr>
-                              <th scope="row">Transaction ID:</th>
+                              <th scope="row">Payment ID:</th>
+                              <td>{{ order.payment_id }}</td>
+                            </tr>
+                            <tr>
+                              <th scope="row" style="word-break: break-all;">Transaction ID:</th>
                               <td>{{ order.transaction_id }}</td>
                             </tr>
                             <tr>
-                              <th scope="row">Status:</th>
-                              <td class="bg-warning text-dark">{{ order.get_status_display }}</td>
+                              <th scope="row">Payment Status:</th>
+                              <td class="bg-success text-dark">{{ order.get_payment_status_display }}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -102,23 +109,48 @@
 
                 <!-- Addresses in One Row -->
                 <div class="row">
-                  <div class="col-md-6">
-                    <div class="card card-outline card-primary mb-3">
+                  <div class="col-lg-6 col-md-12">
+                    <div class="card card-outline card-danger mb-4 shadow-sm">
                       <div class="card-header">
-                        <h5 class="card-title">Billing Address</h5>
+                        <h5 class="card-title mb-0">User Details</h5>
                       </div>
                       <div class="card-body">
-                        <p>{{ order.billing_address }}</p>
+                        <p>
+                          <strong>First Name:</strong> {{ order.user.first_name }}
+                        </p>
+                        <p>
+                          <strong>Last Name:</strong> {{ order.user.last_name }}
+                        </p>
+                        <p>
+                          <strong>Username:</strong> {{ order.user.username }}
+                        </p>
+                        <p>
+                          <strong>Email:</strong> {{ order.user.email }}
+                        </p>
                       </div>
                     </div>
                   </div>
-                  <div class="col-md-6">
-                    <div class="card card-outline card-primary mb-3">
-                      <div class="card-header">
-                        <h5 class="card-title">Shipping Address</h5>
+                  <div class="col-lg-6 col-md-12">
+                    <div class="row">
+                      <div class="col-12">
+                        <div class="card card-outline card-primary mb-3">
+                          <div class="card-header">
+                            <h5 class="card-title">Billing Address</h5>
+                          </div>
+                          <div class="card-body">
+                            <p>{{ order.billing_address }}</p>
+                          </div>
+                        </div>
                       </div>
-                      <div class="card-body">
-                        <p>{{ order.shipping_address }}</p>
+                      <div class="col-12">
+                        <div class="card card-outline card-primary mb-3">
+                          <div class="card-header">
+                            <h5 class="card-title">Shipping Address</h5>
+                          </div>
+                          <div class="card-body">
+                            <p>{{ order.shipping_address }}</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -132,7 +164,7 @@
                       <div class="card-header">
                         <h5 class="card-title mb-0">Product Details</h5>
                       </div>
-                      <div class="card-body p-0">
+                      <div class="card-body table-responsive p-0">
                         <table class="table table-hover table-striped table-sm mb-0">
                           <thead class="thead-light">
                             <tr>
@@ -167,46 +199,36 @@
                         <h5 class="card-title mb-0">Grand Total</h5>
                       </div>
                       <div class="card-body text-center">
-                        <h3 class="font-weight-bold mb-0 text-danger">{{ order.grand_total }}</h3>
-                        <p class="lead text-muted">Total Amount</p>
+                        <p class="text-muted">Subtotal: {{ order.get_sub_total|floatformat:2 }}</p>
+                        <p class="text-success">Discount: {{ order.get_discount_amount|floatformat:2 }}</p>
+                        <h3 class="text-danger">Grand Total: {{ order.grand_total|floatformat:2 }}</h3>
                       </div>
                     </div>
                   </div>
+                  <!-- End Grand Total Card -->
 
                   <div class="col-md-6">
-                    <div class="card card-outline card-danger mb-4 shadow-sm">
+                    <div class="card card-outline card-danger shadow-sm">
                       <div class="card-header">
-                        <h5 class="card-title mb-0">User Details</h5>
+                        <h5 class="card-title">Update Order Status</h5>
                       </div>
-                      <div class="card-body">
-                        <p>
-                          <strong>First Name:</strong> {{ order.user.first_name }}
-                        </p>
-                        <p>
-                          <strong>Last Name:</strong> {{ order.user.last_name }}
-                        </p>
-                        <p>
-                          <strong>Username:</strong> {{ order.user.username }}
-                        </p>
-                        <p>
-                          <strong>Email:</strong> {{ order.user.email }}
-                        </p>
+                      <div class="card-body text-center">
+                        <!-- Form Section -->
+                        <form method="post">
+                          {% csrf_token %}
+                          <div class="form-group text-left">
+                            {{ form.as_p }}
+                            <div class="card-footer">
+                              <button class="btn btn-primary" type="submit">Save</button>
+                              <a href="{% url 'all_orders' %}" class="btn btn-secondary">Cancel</a>
+                            </div>
+                          </div>
+                          <!-- End Form Section -->
+                        </form>
                       </div>
                     </div>
                   </div>
                 </div>
-                <!-- End Grand Total Card -->
-                <hr />
-                <!-- Form Section -->
-                <form method="post">
-                  {% csrf_token %}
-                  {{ form.as_p }}
-                  <div class="card-footer">
-                    <button class="btn btn-primary" type="submit">Save</button>
-                    <a href="{% url 'all_orders' %}" class="btn btn-secondary">Cancel</a>
-                  </div>
-                </form>
-                <!-- End Form Section -->
               </div>
               <!-- /.card-body -->
             </div>
