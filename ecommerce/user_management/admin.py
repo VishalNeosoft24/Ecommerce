@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from order_management.models import UserOrder, UserWishList
+from order_management.models import UserOrder, UserWishList, Address
 from .models import User
 
 
@@ -24,6 +24,13 @@ class UserOrderInline(admin.TabularInline):
     )
 
 
+class UserAddressInline(admin.TabularInline):
+    model = Address
+    extra = 1
+    fk_name = "user"
+    fields = ("type", "country", "city", "pincode", "active")
+
+
 class UserAdmin(UserAdmin):
     model = User
 
@@ -40,7 +47,7 @@ class UserAdmin(UserAdmin):
         "is_staff",
         "is_active",
     )
-    list_filter = ("is_staff", "is_active", "gender")
+    list_filter = ("is_staff", "is_active", "gender", "groups")
     fieldsets = (
         (None, {"fields": ("username", "password")}),
         (
@@ -82,7 +89,7 @@ class UserAdmin(UserAdmin):
     )
     search_fields = ("email", "username")
     ordering = ("email",)
-    inlines = [UserOrderInline, UserWishListInline]
+    inlines = [UserOrderInline, UserWishListInline, UserAddressInline]
 
 
 admin.site.register(User, UserAdmin)
