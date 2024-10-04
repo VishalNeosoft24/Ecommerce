@@ -1,0 +1,66 @@
+{% load get_obj_custom_filters %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sales Report</title>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid black;
+      }
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+      }
+      h3 {
+        text-align: center;
+      }
+      @page {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>{{ report_name }}</h3>
+    {% if start_date or end_date or search_value %}
+      <p>Filters Applied:</p>
+      <ul>
+        {% if start_date %}
+          <li>Start Date: {{ start_date }}</li>
+        {% endif %}
+        {% if end_date %}
+          <li>End Date: {{ end_date }}</li>
+        {% endif %}
+        {% if search_value %}
+          <li>Search Term: {{ search_value }}</li>
+        {% endif %}
+      </ul>
+    {% endif %}
+    <table>
+      <thead>
+        <tr>
+          <th>Sr No</th>
+          {% for header in table_headers %}
+            <th>{{ header }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in data %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            {% for field in table_fields %}
+              <td>{{ item|get_field_value:field }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>
