@@ -16,6 +16,7 @@ class PaymentGateway(BaseModel):
     """
 
     name = models.CharField(max_length=255, unique=True)
+    is_active = models.BooleanField(default=True, verbose_name="Is Active")
 
     def __str__(self):
         return self.name
@@ -38,6 +39,13 @@ class UserOrder(BaseModel):
         ("O", "Processing"),
         ("S", "Shipped"),
         ("D", "Delivered"),
+    ]
+
+    PAYMENT_STATUS_CHOICES = [
+        ("P", "Pending"),
+        ("S", "Successful"),
+        ("F", "Failed"),
+        ("C", "Cancelled"),
     ]
 
     user = models.ForeignKey(
@@ -68,6 +76,15 @@ class UserOrder(BaseModel):
         null=True,
         blank=True,
         verbose_name="Coupon",
+    )
+    payment_status = models.CharField(
+        max_length=1,
+        choices=PAYMENT_STATUS_CHOICES,
+        default="P",
+        verbose_name="Payment Status",
+    )
+    payment_id = models.CharField(
+        max_length=100, blank=True, null=True, verbose_name="Payment ID"
     )
     payment_gateway = models.ForeignKey(
         PaymentGateway,
@@ -108,6 +125,8 @@ class UserOrder(BaseModel):
         """Override save method to set awb_no before saving the instance."""
         if not self.awb_no:
             self.awb_no = self.generate_awb_no()
+        self.created_by = self.user
+        self.updated_by = self.user
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -118,6 +137,15 @@ class UserOrder(BaseModel):
             sub_total=Sum("amount")
         )
         return float(sub_total["sub_total"] or 0)
+
+    def get_discount_amount(self):
+        """Calculate the discount amount."""
+        if self.coupon:
+            sub_total = self.get_sub_total()
+            # Assuming `self.coupon.discount_percentage` exists
+            discount_amount = sub_total * (self.coupon.discount / 100)
+            return discount_amount
+        return 0
 
     def get_status_display(self):
         return dict(self.STATUS_CHOICES).get(self.status, "")
@@ -148,6 +176,12 @@ class OrderDetail(BaseModel):
     def __str__(self):
         return f"Order {self.id} - Product {self.product.name}"
 
+    def save(self, *args, **kwargs):
+        """Override save method"""
+        self.created_by = self.order.user
+        self.updated_by = self.order.user
+        super().save(*args, **kwargs)
+
 
 class UserWishList(BaseModel):
     user = models.ForeignKey(
@@ -167,20 +201,12 @@ class UserWishList(BaseModel):
         super().save(*args, **kwargs)
 
 
-# class Cart(models.Model):
-#     """Represents an cart details of user with various details."""
+class PaymentLogs(models.Model):
+    """webhook response data"""
 
-#     user = models.ForeignKey(
-#         User,
-#         on_delete=models.DO_NOTHING,
-#         related_name="user_cart",
-#         null=True,
-#         blank=True,
-#     )
-#     product = models.ForeignKey(
-#         Product, on_delete=models.CASCADE, related_name="cart_product"
-#     )
-#     quantity = models.IntegerField(verbose_name="Quantity")
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-#     deleted_at = models.DateTimeField(null=True, blank=True)
+    pay_ord_id = models.CharField(max_length=50, verbose_name="Payment Order Id")
+    pay_status = models.CharField(max_length=50, verbose_name="Payment Status")
+    response_dict = models.TextField(verbose_name="Response In Str Form")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
