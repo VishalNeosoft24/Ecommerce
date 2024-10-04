@@ -1,0 +1,175 @@
+{% extends 'admin_panel/base.html' %}
+{% load get_obj_custom_filters %}
+
+{% block title %}
+  {{ report_name }}
+{% endblock %}
+
+{% block content %}
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>{{ report_name }}</h1>
+          </div>
+        </div>
+      </div>
+      <!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card table-responsive">
+              <!-- /.card-header -->
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-3">
+                    <label for="start_date">Start Date:</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ start_date }}" class="form-control" />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="end_date">End Date:</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ end_date }}" class="form-control" />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="search">Search:</label>
+                    <input type="text" id="search" name="search" value="{{ search_value }}" class="form-control" placeholder="Search by Product Name" />
+                  </div>
+                  <div class="col-md-3" style="margin-top: 31px;">
+                    <button class="btn btn-primary" onclick="filterReport()">Filter</button>
+                    {% if request.GET.start_date or request.GET.end_date or request.GET.search %}
+                      <button class="btn btn-primary" id="clear-filters-btn" onclick="clearFilters()">Clear Filters</button>                  
+                    {% endif %}
+                  </div>
+                </div>
+
+                <div class="table-responsive mt-4">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Sr No</th> <!-- Static header for serial number -->
+                        {% for header in table_headers %}
+                          <th>{{ header }}</th>
+                        {% endfor %}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in page_obj %}
+                        <tr>
+                          <td>{{ forloop.counter }}</td> <!-- Serial number managed by Django -->
+                          {% for field in table_fields %}
+                            <td>{{ item|get_field_value:field }}</td>
+                          {% endfor %}
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Pagination and Export Buttons -->
+                <div class="row">
+                  <!-- Pagination: Full width on mobile, inline on larger screens -->
+                  <div class="col-12 col-md-auto mb-3 mb-md-0">
+                    <nav class="mt-3 mt-md-0">
+                      <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                          <li class="page-item">
+                            <a class="page-link" href="?page=1{% if search_value %}&search={{ search_value }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">First</a>
+                          </li>
+                          <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_value %}&search={{ search_value }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Previous</a>
+                          </li>
+                        {% endif %}
+                        {% for num in page_obj.paginator.page_range %}
+                          {% if page_obj.number == num %}
+                            <li class="page-item active">
+                              <span class="page-link">{{ num }}</span>
+                            </li>
+                          {% else %}
+                            <li class="page-item">
+                              <a class="page-link" href="?page={{ num }}{% if search_value %}&search={{ search_value }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">{{ num }}</a>
+                            </li>
+                          {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                          <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_value %}&search={{ search_value }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Next</a>
+                          </li>
+                          <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_value %}&search={{ search_value }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Last</a>
+                          </li>
+                        {% endif %}
+                      </ul>
+                    </nav>
+                  </div>
+
+                  <!-- Export Buttons: Full width on mobile, inline on larger screens -->
+                  <div class="col-12 col-md-auto">
+                    <a href="{% url 'export_dynamic_system_reports' report_name %}?type=csv{% if search_value %}&search={{ search_value }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" class="btn btn-success mb-2">Export CSV</a>
+                    <a href="{% url 'export_dynamic_system_reports' report_name %}?type=pdf{% if search_value %}&search={{ search_value }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" class="btn btn-primary mb-2">Export PDF</a>
+                  </div>
+                </div>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+
+
+  <script>
+    function filterReport() {
+      const startDate = document.getElementById('start_date').value;
+      const endDate = document.getElementById('end_date').value;
+      const search = document.getElementById('search').value;
+      
+      // Initialize an empty array to store query parameters
+      let queryParams = [];
+
+      // Add each query parameter only if it has a value
+      if (startDate) {
+        queryParams.push(`start_date=${encodeURIComponent(startDate)}`);
+      }
+      if (endDate) {
+        queryParams.push(`end_date=${encodeURIComponent(endDate)}`);
+      }
+      if (search) {
+        queryParams.push(`search=${encodeURIComponent(search)}`);
+      }
+
+      // Join the query parameters with '&' and construct the URL
+      const queryString = queryParams.length > 0 ? '?' + queryParams.join('&') : '';
+
+      console.log("queryString = == ", queryString)
+
+      if (queryString) {
+        window.location.href = window.location.pathname + queryString;
+      } else {
+        // Clear filters and load the base page with no filters
+        window.location.href = window.location.pathname;
+      }
+    }
+
+    function clearFilters() {
+      console.log("=-----------===========-----------")
+      // Redirect to the base URL without any query parameters
+      window.location.href = window.location.pathname;
+    }
+
+    
+
+
+  </script>
+{% endblock %}
