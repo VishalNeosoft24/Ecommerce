@@ -44,4 +44,6 @@ urlpatterns = [
     ),
     # contact Us
     path("contact-us/", views.contact_us, name="contact_us"),
+    # News-Letter
+    path("subscribe/", views.subscribe_newsletter, name="subscribe_newsletter"),
 ]
