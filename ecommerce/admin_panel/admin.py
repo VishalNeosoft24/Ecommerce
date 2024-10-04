@@ -1,5 +1,13 @@
 from django.contrib import admin
-from .models import ContactUs, Coupon, Banner, Address, EmailTemplate, Banner
+from .models import (
+    ContactUs,
+    Coupon,
+    Banner,
+    Address,
+    EmailTemplate,
+    Banner,
+    NewsLetter,
+)
 from django.contrib.auth.models import Permission
 
 
@@ -59,6 +67,7 @@ class CouponAdmin(admin.ModelAdmin):
         "id",
         "code",
         "name",
+        "count",
         "is_active",
         "description",
         "discount",
@@ -87,3 +96,9 @@ class EmailTemplateAdmin(admin.ModelAdmin):
 class PermissionAdmin(admin.ModelAdmin):
     list_display = ("name", "content_type", "codename")
     search_fields = ("name", "codename")
+
+
+@admin.register(NewsLetter)
+class NewsLetterAdmin(admin.ModelAdmin):
+    list_display = ["id", "email", "created_at"]
+    search_fields = ("email",)
