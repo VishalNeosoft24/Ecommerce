@@ -1,0 +1,73 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}
+  News Letter
+{% endblock %}
+
+{% block content %}
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>News Letter</h1>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <!-- /.card-header -->
+              <div class="card-body">
+                <table id="newsLetterDataTable" class="table table-bordered table-striped">
+                  <thead></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      let bannerIdToDelete = null // Initialize variable for storing the ID to delete
+    
+      // Initialize DataTable
+      const table = $('#newsLetterDataTable').DataTable({
+        responsive: true,
+        lengthChange: false,
+        autoWidth: false,
+        pageLength: 10,
+        processing: true,
+        serverSide: true,
+        dom: 'Bfrtip',
+    
+        ajax: {
+          url: "{% url 'get_all_news_letters' %}",
+          type: 'GET',
+          dataType: 'json',
+          dataSrc: 'data'
+        },
+        columns: [
+          { data: 'index', title: 'Sr.No' },
+          { data: 'email', title: 'Email' }
+        ]
+      })
+    })
+  </script>
+{% endblock %}
