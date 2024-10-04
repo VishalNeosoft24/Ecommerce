@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PaymentGateway, UserOrder, OrderDetail, UserWishList
+from .models import PaymentGateway, PaymentLogs, UserOrder, OrderDetail, UserWishList
 
 
 # Register your models here.
@@ -8,6 +8,7 @@ class PaymentGatewayAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "name",
+        "is_active",
         "created_by",
         "created_at",
         "updated_by",
@@ -70,3 +71,8 @@ class OrderDetailAdmin(admin.ModelAdmin):
 @admin.register(UserWishList)
 class UserWishListAdmin(admin.ModelAdmin):
     raw_id_fields = ("user", "product")
+
+
+@admin.register(PaymentLogs)
+class PaymentLogsAdmin(admin.ModelAdmin):
+    list_display = ["id", "pay_ord_id", "pay_status", "response_dict"]
