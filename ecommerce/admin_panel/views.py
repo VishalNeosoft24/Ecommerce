@@ -10,19 +10,22 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib.auth.models import Group
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Sum, Count
 from django.utils import timezone
 from django.contrib.sites.models import Site
 from django.contrib.flatpages.models import FlatPage
 from django.db.utils import IntegrityError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Count
 from django.db.models.functions import TruncMonth
 
 # Third-party imports
 import humanize
 
-from admin_panel.utils import send_admin_reply_email, send_user_credentials_email
+from admin_panel.utils import (
+    ReportExtraction,
+    send_admin_reply_email,
+    send_user_credentials_email,
+)
 
 # Local imports
 from .forms import EmailTemplateForm, BannerForm, UserOrderForm
@@ -32,6 +35,7 @@ from .models import (
     ContactUs,
     Coupon,
     EmailTemplate,
+    NewsLetter,
     User,
 )
 from product_management.models import (
@@ -2051,7 +2055,6 @@ def list_all_orders(request):
     """
 
     try:
-        print("-----------------------------")
         return render(request, "admin_panel/orders.html")
     except Exception as e:
         return HttpResponse(str(e))
@@ -2134,9 +2137,6 @@ def update_order(request, order_id):
         "order_details",
     ).get(pk=order_id)
 
-    for ord in order.order_details.all():
-        print(ord)
-    # order = get_object_or_404(UserOrder, pk=order_id)
     if request.method == "POST":
         form = UserOrderForm(request.POST, instance=order)
         if form.is_valid():
@@ -2247,3 +2247,143 @@ def delete_contact_us_query(request):
 
 
 # ----------------------------------------/Contact Us---------------------------------------------
+
+
+# ----------------------------------------Reports---------------------------------------------
+def report(request):
+    try:
+        STATUS_CHOICES = {
+            "P": "Pending",
+            "O": "Processing",
+            "S": "Shipped",
+            "D": "Delivered",
+        }
+        total_orders_count = UserOrder.objects.count()
+        order_status_counts = (
+            UserOrder.objects.values("status")
+            .annotate(count=Count("id"))
+            .order_by("status")
+        )
+        order_status_summary = [
+            {"status": STATUS_CHOICES[status["status"]], "count": status["count"]}
+            for status in order_status_counts
+        ]
+
+        total_user_count = User.objects.count()
+        user_group_counts = Group.objects.annotate(
+            user_count=Count("user", filter=Q(user__is_active=True))
+        ).values("name", "user_count")
+
+        coupon_used_counts = Coupon.objects.filter(is_active=True)
+        total_coupon_usage = coupon_used_counts.aggregate(total_used=Sum("count"))
+        each_coupon_used_counts = coupon_used_counts.values("code", "count")
+        total_coupon_count = coupon_used_counts.count()
+
+        for coupon in each_coupon_used_counts:
+            print(f"Coupon: {coupon['code']}, Used Count: {coupon['count']}")
+
+        context = {
+            "order_status_summary": order_status_summary,
+            "total_orders_count": total_orders_count,
+            "user_group_counts": user_group_counts,
+            "total_user_count": total_user_count,
+            "total_coupon_usage": total_coupon_usage,
+            "each_coupon_used_counts": each_coupon_used_counts,
+            "total_coupon_count": total_coupon_count,
+        }
+        return render(request, "admin_panel/reports.html", context)
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+def dynamic_system_reports(request, report_name):
+    try:
+        report_name_for_template = {
+            "sales-report": "Sales Report",
+            "user-report": "User Report",
+            "coupon-report": "Coupon Report",
+        }
+
+        if report_name not in report_name_for_template.keys():
+            return HttpResponse("Invalid report name", status=400)
+
+        report_extractor = ReportExtraction(request, report_name)
+
+        report_data = report_extractor.get_report_data()
+
+        report_data["report_name"] = report_name_for_template[report_name]
+
+        return render(
+            request,
+            "admin_panel/dynamic_system_reports.html",
+            report_data,
+        )
+
+    except Exception as e:
+        return HttpResponse(str(e), status=500)
+
+
+def export_dynamic_system_reports(request, report_name):
+    try:
+        print("report_name: ", report_name)
+        report_name_dict = {
+            "Sales Report": "sales-report",
+            "User Report": "user-report",
+            "Coupon Report": "coupon-report",
+        }
+        if report_name not in report_name_dict.keys():
+            return HttpResponse("Invalid report name", status=400)
+
+        report_type = request.GET.get("type", "pdf")
+        report = ReportExtraction(request, report_name_dict[report_name])
+
+        if report_type == "csv":
+            return report.export_report("csv")
+        else:
+            return report.export_report("pdf")
+    except Exception as e:
+        return HttpResponse(f"Error: {str(e)}")
+
+
+# ----------------------------------------/Reports---------------------------------------------
+
+
+# ----------------------------------------News-Letter---------------------------------------------
+def list_all_news_letters(request):
+    try:
+        return render(request, "admin_panel/news_letters_list.html")
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+def get_all_news_letters(request):
+    try:
+        # Server-side processing for DataTables
+        search_query = build_search_query(
+            request,
+            [
+                "email",
+            ],  # Add fields you want to search
+        )
+        news_letters = NewsLetter.objects.filter(search_query).order_by("created_at")
+        response = paginated_response(request, news_letters)
+        paginated_news_letters = response.get("data")
+
+        index = 1 + response.get("start")
+        contact_us_queries_list = []
+        for newsletter in paginated_news_letters:
+            contact_us_queries_list.append(
+                {
+                    "id": newsletter.id,
+                    "index": index,
+                    "email": newsletter.email,
+                }
+            )
+            index += 1
+        response["data"] = contact_us_queries_list
+        return JsonResponse(response, safe=False)
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+# ----------------------------------------/News-Letter---------------------------------------------
