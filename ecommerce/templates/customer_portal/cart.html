@@ -52,8 +52,6 @@
         </ol>
       </div>
 
-
-
       <!-- Modal -->
       <div class="modal fade" id="clearCartModal" tabindex="-1" role="dialog" aria-labelledby="clearCartModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -74,11 +72,6 @@
           </div>
         </div>
       </div>
-
-
-
-
-
 
       <div class="table-responsive cart_info">
         <table class="table table-condensed">
@@ -273,13 +266,11 @@
         $('#clearCartModal').modal('show'); // Show the modal
       });
 
-
-      var discountPercent;
-
       $(document).on('click', '.remove-coupon', function () {
-        removeCoupon();
+        removeCoupon(); //call removeCoupon function
       });
-    
+      
+      var discountPercent;
       $('.cart_quantity_delete').on('click', function () {
         const productId = $(this).data('product_id');
         const deleteButton = $(this);  
