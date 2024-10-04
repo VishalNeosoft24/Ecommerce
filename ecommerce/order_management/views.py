@@ -1,41 +1,27 @@
-from datetime import datetime
-from django.http import HttpResponse, JsonResponse
+import json
+
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render, get_object_or_404
-from django.views import View
-from admin_panel.utils import send_order_confirmation_email
-from product_management.models import Product
-from .models import UserWishList
-from admin_panel.models import Coupon, Address, EmailTemplate
-from order_management.models import UserOrder, OrderDetail
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from user_management.forms import AddressForm
-from io import BytesIO
-from django.http import HttpResponse
 from django.template.loader import get_template
-from weasyprint import HTML
 from django.core.paginator import Paginator
 from django.conf import settings
-import razorpay
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponseBadRequest
 from django.contrib import messages
+
+from weasyprint import HTML
+
+from admin_panel.models import Coupon, Address
+from product_management.models import Product
+from order_management.models import UserOrder
+from user_management.forms import AddressForm
+from .models import PaymentGateway, PaymentLogs, UserWishList
+from .utils import calculate_sub_total_amount, create_user_order
+
+import razorpay
 
 
 # Create your views here.
-razorpay_client = razorpay.Client(
-    auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
-)
-
-
-def calculate_sub_total_amount(cart, total_amount):
-    cart_products = []
-    for product_id, quantity in cart.items():
-        product = Product.objects.get(id=product_id)
-        cart_products.append({"product": product, "quantity": quantity})
-        total_amount += product.price * quantity
-    return total_amount, cart_products
-
-
 def cart_list(request):
     """Cart Functionality"""
     try:
@@ -187,7 +173,7 @@ def update_cart_product_quantity(request, product_id):
                     "coupon_code": coupon_code,
                     "operation": operation,
                     "cart_quantity": cart.get(product_id_str, 1),
-                    "msg":response_message
+                    "msg": response_message,
                 }
             )
 
@@ -423,20 +409,13 @@ def checkout(request):
         cart = request.session.get("cart", {})
         cart_products = []
 
-        addresses = Address.objects.filter(user=request.user, active=True)
-
-        # for product_id, quantity in cart.items():
-        #     product = Product.objects.get(id=product_id)
-        #     cart_products.append({"product": product, "quantity": quantity})
-        #     sub_total_amount += product.price * quantity
+        addresses = Address.objects.filter(user=request.user, active=True).all()
 
         sub_total_amount, cart_products = calculate_sub_total_amount(
             cart, sub_total_amount
         )
 
         applied_coupon = request.session.get("applied_coupon", None)
-
-        print("applied_coupon: ", applied_coupon)
 
         total_amount = sub_total_amount
 
@@ -461,6 +440,16 @@ def checkout(request):
             "form": form,
         }
 
+        if request.method == "POST":
+            form = AddressForm(request.POST)
+            if form.is_valid():
+                address = form.save(commit=False)
+                address.user = request.user
+                address.created_by = request.user
+                address.updated_by = request.user
+                address.is_active = True
+                address.save()
+
         return render(request, "customer_portal/checkout.html", context)
     except Exception as e:
         return HttpResponse(str(e))
@@ -468,7 +457,7 @@ def checkout(request):
 
 @login_required(login_url="login_page")
 def place_order(request):
-    """place order view"""
+    """Place order view"""
     try:
         if request.method == "POST":
             billing_address_id = request.POST.get("billing_address_id")
@@ -477,7 +466,6 @@ def place_order(request):
 
             cart = request.session.get("cart", {})
             sub_total_amount = 0
-
             sub_total_amount, _ = calculate_sub_total_amount(cart, sub_total_amount)
 
             if sub_total_amount <= 0:
@@ -487,18 +475,12 @@ def place_order(request):
             total_amount = sub_total_amount
             discount_amount = 0
             discount_percent = 0
-            coupon_code = ""
+
             if applied_coupon:
                 coupon_code = applied_coupon["code"]
                 discount_percent = applied_coupon["discount_percent"]
                 discount_amount = (total_amount) * (discount_percent / 100)
                 total_amount -= discount_amount
-
-            coupon = Coupon.objects.filter(code=coupon_code).first()
-            if not coupon:
-                coupon = None
-            billing_address = Address.objects.get(id=billing_address_id)
-            shipping_address = Address.objects.get(id=shipping_address_id)
 
             payment_response = dict()
             # Handle Razorpay payment
@@ -526,103 +508,146 @@ def place_order(request):
                     "key_id": settings.RAZORPAY_KEY_ID,
                 }
 
-            order = UserOrder(
-                user=request.user,
-                grand_total=total_amount,
-                coupon=coupon,
-                billing_address=billing_address,
-                shipping_address=shipping_address,
-            )
-            order.created_by = request.user
-            order.updated_by = request.user
+                return JsonResponse(
+                    payment_response
+                )  # Return the Razorpay order ID to the frontend for payment processing
 
-            order.save()
-
-            products = []
-            for product_id, quantity in cart.items():
-                product = Product.objects.get(id=product_id)
-                order_detail = OrderDetail(
-                    order=order,
-                    product=product,
-                    amount=product.price * quantity,
-                    quantity=quantity,
+            else:
+                applied_coupon = request.session.get("applied_coupon", None)
+                if selected_payment == "payment_cash":
+                    payment_gateway = PaymentGateway.objects.filter(
+                        name="Cash On Delivery"
+                    ).first()
+                print("payment_gateway===", payment_gateway)
+                # Create UserOrder using the common function
+                order = create_user_order(
+                    user=request.user,
+                    cart=cart,
+                    billing_address_id=billing_address_id,
+                    shipping_address_id=shipping_address_id,
+                    applied_coupon=applied_coupon,
+                    payment_gateway=payment_gateway,
                 )
-                products.append(
+
+                # Clear the cart from session
+                if cart:
+                    del request.session["cart"]
+
+                return JsonResponse(
                     {
-                        "name": order_detail.product.name,
-                        "quantity": order_detail.quantity,
-                        "price": f"{order_detail.amount:.2f}",
+                        "status": "success",
+                        "msg": "Payment successful and order created",
+                        "order_id": order.id,
                     }
                 )
-                order_detail.created_by = request.user
-                order_detail.updated_by = request.user
-                order_detail.save()
-            if cart:
-                # Remove the cart from the session
-                del request.session["cart"]
 
-            discount_amount = order.get_sub_total() - float(order.grand_total)
-            context = {
-                "customer_name": order.user.get_full_name(),
-                "order_number": order.awb_no,
-                "order_date": order.created_at.strftime("%Y-%m-%d"),
-                "order_total": order.grand_total,
-                "products": products,
-                "discount_amount": discount_amount,
-                "current_year": datetime.now().year,
-            }
-            if coupon:
-                context["coupon_code"] = coupon.code
-            template = EmailTemplate.objects.filter(title="Order Confirmation").first()
-
-            send_order_confirmation_email(request.user.email, context, template)
-            response = {
-                "status": "success",
-                "order_id": order.id,
-                "msg": "Order Placed successfully.",
-            }
-            if payment_response:
-                order.transaction_id = razorpay_order_id
-                order.save()
-                response = {**response, **payment_response}
-            return JsonResponse(response)
         else:
-            pass
+            return JsonResponse(
+                {"status": "error", "msg": "Invalid request"}, status=400
+            )
+
     except Exception as e:
-        return HttpResponse(str(e))
+        return JsonResponse({"status": "error", "msg": str(e)}, status=500)
 
 
 @csrf_exempt
-def paymenthandler(request):
+def payment_handler(request):
     if request.method == "POST":
         try:
+            billing_address_id = request.POST.get("billing_address_id")
+            shipping_address_id = request.POST.get("shipping_address_id")
             payment_id = request.POST.get("razorpay_payment_id", "")
             razorpay_order_id = request.POST.get("razorpay_order_id", "")
-            order_id = request.POST.get("order_id", "")
             signature = request.POST.get("razorpay_signature", "")
+            selected_payment = request.POST.get("selected_payment")
+
+            user = request.user
 
             # Initialize Razorpay client
             razorpay_client = razorpay.Client(
                 auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
             )
 
-            # Verify the payment signature
             params_dict = {
                 "razorpay_order_id": razorpay_order_id,
                 "razorpay_payment_id": payment_id,
                 "razorpay_signature": signature,
             }
-            try:
-                # Verify the payment signature
-                razorpay_client.utility.verify_payment_signature(params_dict)
-                return JsonResponse({"status": "success", "msg": "Payment successful"})
-            except razorpay.errors.SignatureVerificationError:
-                return JsonResponse({"status": "error", "msg": "Invalid signature"})
+
+            # Verify the payment signature
+            razorpay_client.utility.verify_payment_signature(params_dict)
+
+            # If payment verification is successful, create the order in your local database
+            cart = request.session.get("cart", {})
+            applied_coupon = request.session.get("applied_coupon", None)
+            if selected_payment == "payment_razorpay":
+                payment_gateway = PaymentGateway.objects.filter(name="Razorpay").first()
+
+            payment_status = "S"
+            order = create_user_order(
+                user,
+                cart,
+                billing_address_id,
+                shipping_address_id,
+                payment_gateway,
+                payment_status,
+                payment_id=payment_id,
+                applied_coupon=applied_coupon,
+                transaction_id=razorpay_order_id,
+            )
+
+            # Clear the cart from session
+            if cart:
+                del request.session["cart"]
+
+            return JsonResponse(
+                {
+                    "status": "success",
+                    "msg": "Payment successful and order created",
+                    "order_id": order.id,
+                }
+            )
+
+        except razorpay.errors.SignatureVerificationError:
+            return JsonResponse(
+                {"status": "error", "msg": "Payment Failed Invalid signature"}
+            )
 
         except Exception as e:
-            return HttpResponseBadRequest()
+            return JsonResponse({"status": "error", "msg": str(e)})
 
     return HttpResponseBadRequest()
+
+
+@csrf_exempt
+def razorpay_webhook(request):
+    """Handles webhook notifications from Razorpay."""
+    response = json.loads(request.body.decode("utf8"))
+    print("response: ", response)
+    try:
+        # Extract event and payload
+        event = response.get("event", "")
+        payload = response.get("payload", {})
+        razorpay_order_id = (
+            payload.get("payment", {}).get("entity", {}).get("order_id", "")
+        )
+
+        PaymentLogs.objects.create(
+            pay_ord_id=razorpay_order_id,
+            pay_status=event,
+            response_dict=json.dumps(response),
+        )
+
+        return JsonResponse(
+            {"status": "success", "msg": "Webhook processed successfully."}
+        )
+    except Exception as e:
+        PaymentLogs.objects.create(
+            pay_ord_id="",
+            pay_status="Exception",
+            response_dict=json.dumps({"response": response, "error": str(e)}),
+        )
+        return JsonResponse({"status": "error", "msg": str(e)}, status=500)
 
 
 @login_required(login_url="login_page")
@@ -631,6 +656,7 @@ def order_successful(request, order_id):
     try:
         order = UserOrder.objects.filter(id=order_id, user=request.user).first()
         discount_amount = order.get_sub_total() - float(order.grand_total)
+        print("discount_amount: ", discount_amount)
         if order is None:
             return render(request, "customer_portal/order_not_found.html", {})
         return render(
@@ -718,6 +744,7 @@ def order_detail_view(request, order_id):
 
 @login_required(login_url="login_page")
 def my_orders(request):
+    """User orders"""
     orders = UserOrder.objects.filter(user=request.user).all()
 
     # Apply filters
@@ -727,9 +754,10 @@ def my_orders(request):
     date_to = request.GET.get("date_to")
 
     if awb_no:
-        orders = orders.filter(awb_no=awb_no)
+        orders = orders.filter(awb_no=awb_no).order_by("-id")
     if status:
-        orders = orders.filter(status=status)
+        orders = orders.filter(status=status).order_by("-id")
+
     if date_from and date_to:
         # Check date logic
         if date_from and date_to and date_from > date_to:
