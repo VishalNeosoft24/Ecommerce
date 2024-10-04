@@ -134,3 +134,11 @@ class CMS(BaseModel):
 
     def __str__(self):
         return f"{self.title}"
+
+
+class NewsLetter(models.Model):
+    """NewsLetter Model"""
+
+    email = models.EmailField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
