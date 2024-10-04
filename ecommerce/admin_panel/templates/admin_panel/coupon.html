@@ -294,6 +294,7 @@
             if (response.success) {
               toastr.success(response.success)
               $('#createNewCoupon').modal('hide') // Close the modal
+              $('#couponForm').trigger('reset') // clear(reset) form
               $('#couponDataTable').DataTable().ajax.reload()
             } else if (response.error) {
               toastr.error(response.error)
