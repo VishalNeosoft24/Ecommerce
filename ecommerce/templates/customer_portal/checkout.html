@@ -9,87 +9,87 @@
 {% block content %}
 
 
-<style>
-    .shopper-informations {
-        padding: 1rem;
-    }
-    .address-card {
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        position: relative;
-        cursor: pointer;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        overflow: hidden;
-        margin-bottom: 1rem;
-    }
-    .address-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    .address-card.default-address {
-        border-color: #5bc0de;
-        box-shadow: 0 2px 4px rgba(91, 192, 222, 0.3);
-    }
-    .form-check-input:checked {
-        background-color: #337ab7;
-        border-color: #337ab7;
-    }
-    .form-check-label {
-        margin-left: 0.75rem;
-        font-size: 1.1rem;
-    }
-    .badge-primary {
-        background-color: #337ab7;
-    }
+  <style>
+      .shopper-informations {
+          padding: 1rem;
+      }
+      .address-card {
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          position: relative;
+          cursor: pointer;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          overflow: hidden;
+          margin-bottom: 1rem;
+      }
+      .address-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .address-card.default-address {
+          border-color: #5bc0de;
+          box-shadow: 0 2px 4px rgba(91, 192, 222, 0.3);
+      }
+      .form-check-input:checked {
+          background-color: #337ab7;
+          border-color: #337ab7;
+      }
+      .form-check-label {
+          margin-left: 0.75rem;
+          font-size: 1.1rem;
+      }
+      .badge-primary {
+          background-color: #337ab7;
+      }
 
-    .payment-options {
-        padding: 1.5rem;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        margin-top: 1rem;
-        background-color: #f9f9f9;
-    }
-    .payment-options h3 {
-        margin-bottom: 1rem;
-    }
-    .payment-methods {
-        margin-bottom: 1.5rem;
-    }
-    .payment-option {
-        display: flex;
-        align-items: center;
-        margin-bottom: 0.75rem;
-        padding: 0.5rem;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-    }
-    .payment-option:hover {
-        background-color: #e9ecef;
-    }
-    .payment-option input[type="radio"] {
-        margin-right: 12px;
-        cursor: pointer;
-    }
-    .payment-label {
-        font-size: 1.5rem;
-        font-weight: 700;
-    }
-    .btn-primary {
-        background-color: #007bff;
-        border-color: #007bff;
-        font-size: 1.2rem;
-        padding: 12px 20px;
-        border-radius: 4px;
-        margin-bottom: 20px;
-    }
-    .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #004085;
-    }
-</style>
+      .payment-options {
+          padding: 1.5rem;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          margin-top: 1rem;
+          background-color: #f9f9f9;
+      }
+      .payment-options h3 {
+          margin-bottom: 1rem;
+      }
+      .payment-methods {
+          margin-bottom: 1.5rem;
+      }
+      .payment-option {
+          display: flex;
+          align-items: center;
+          margin-bottom: 0.75rem;
+          padding: 0.5rem;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+      }
+      .payment-option:hover {
+          background-color: #e9ecef;
+      }
+      .payment-option input[type="radio"] {
+          margin-right: 12px;
+          cursor: pointer;
+      }
+      .payment-label {
+          font-size: 1.5rem;
+          font-weight: 700;
+      }
+      .btn-primary {
+          background-color: #007bff;
+          border-color: #007bff;
+          font-size: 1.2rem;
+          padding: 12px 20px;
+          border-radius: 4px;
+          margin-bottom: 20px;
+      }
+      .btn-primary:hover {
+          background-color: #0056b3;
+          border-color: #004085;
+      }
+  </style>
 
   <section id="cart_items">
     <div class="container">
@@ -104,15 +104,46 @@
       <!-- /breadcrums -->
 
       <div class="shopper-informations">
-        <div class="row">
-          <div class="col-md-6 mb-3">
-              <h3>Billing Address</h3>
+        
+          <div class="row">
+        {% if addresses %}
+
+            <div class="col-md-6 mb-3">
+                <h3>Billing Address</h3>
+                {% for address in addresses %}
+                    <div 
+                        class="panel panel-default address-card {% if address.default %}default-address{% endif %}" 
+                        data-address-id="{{ address.id }}"
+                        onclick="BillingAddress({{ address.id }})"
+                    >
+                        <div class="panel-body">
+                          {% if address.default %}
+                                <span class="badge badge-primary">Default</span>
+                            {% endif %}
+                            <div class="checkbox">
+                                <label>
+                                    <input 
+                                        class="form-check-input" 
+                                        type="radio" 
+                                        name="billing_selected_address" 
+                                        id="billing_address{{ address.id }}" 
+                                        value="{{ address.id }}" 
+                                        {% if address.default %}checked{% endif %}>
+                                    <strong>{{ address }}</strong>
+                                </label>
+                            </div>
+                            
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <h3>Shipping Address</h3>
               {% for address in user.address_set.all %}
-                  <div 
-                      class="panel panel-default address-card {% if address.default %}default-address{% endif %}" 
+                  <div class="panel panel-default address-card {% if address.default %}default-address{% endif %}" 
                       data-address-id="{{ address.id }}"
-                      onclick="BillingAddress({{ address.id }})"
-                  >
+                      onclick="ShippingAddress({{ address.id }})">
                       <div class="panel-body">
                         {% if address.default %}
                               <span class="badge badge-primary">Default</span>
@@ -122,8 +153,8 @@
                                   <input 
                                       class="form-check-input" 
                                       type="radio" 
-                                      name="billing_selected_address" 
-                                      id="billing_address{{ address.id }}" 
+                                      name="shipping_selected_address" 
+                                      id="shipping_address{{ address.id }}" 
                                       value="{{ address.id }}" 
                                       {% if address.default %}checked{% endif %}>
                                   <strong>{{ address }}</strong>
@@ -134,36 +165,7 @@
                   </div>
               {% endfor %}
           </div>
-
-        <div class="col-md-6 mb-3">
-            <h3>Shipping Address</h3>
-            {% for address in user.address_set.all %}
-                <div 
-                    class="panel panel-default address-card {% if address.default %}default-address{% endif %}" 
-                    data-address-id="{{ address.id }}"
-                    onclick="ShippingAddress({{ address.id }})"
-                >
-                    <div class="panel-body">
-                      {% if address.default %}
-                            <span class="badge badge-primary">Default</span>
-                        {% endif %}
-                        <div class="checkbox">
-                            <label>
-                                <input 
-                                    class="form-check-input" 
-                                    type="radio" 
-                                    name="shipping_selected_address" 
-                                    id="shipping_address{{ address.id }}" 
-                                    value="{{ address.id }}" 
-                                    {% if address.default %}checked{% endif %}>
-                                <strong>{{ address }}</strong>
-                            </label>
-                        </div>
-                        
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+          {% endif %}
       </div>
     </div>
 
@@ -187,7 +189,7 @@
           </div>
           <div class="modal-body">
             <!-- Form for adding/updating address details -->
-            <form id="address-form" method="post">
+            <form id="address-form" method="post" action="{% url 'checkout' %}">
               {% csrf_token %}
               <div class="form-group">
                 <label for="{{ form.type.id_for_label }}">Address Type:</label>
@@ -280,9 +282,9 @@
     <!-- ... -->
   </div>
 
-      <div class="review-payment">
-        <h2>Review & Payment</h2>
-      </div>
+    <div class="review-payment">
+      <h2>Review & Payment</h2>
+    </div>
 
       <div class="table-responsive cart_info">
         <table class="table table-condensed">
@@ -319,17 +321,11 @@
                   <td class="cart_quantity">
                     <div class="cart_quantity_button">
                       <label for="">{{ cart_product.quantity }}</label>
-                      {% comment %} <a class="cart_quantity_down" href="javascript:void(0)" onclick="cart_quantity_down({{ cart_product.product.id }}, {{ cart_product.product.price }})">-</a>
-                      <input class="cart_quantity_input" type="text" id="quantity_{{ cart_product.product.id }}" name="quantity" value="{{ cart_product.quantity }}" disabled autocomplete="off" size="2" />
-                      <a class="cart_quantity_up" onclick="cart_quantity_up({{ cart_product.product.id }}, {{ cart_product.product.price }})">+</a> {% endcomment %}
                     </div>
                   </td>
                   <td class="cart_total">
                     <p id="product_total_price_{{ cart_product.product.id }}">${{ cart_product.product.price|multiply:cart_product.quantity }}</p>
                   </td>
-                  {% comment %} <td class="cart_delete">
-                    <a class="cart_quantity_delete" data-product_id="{{ cart_product.product.id }}" href="javascript:void(0)"><i class="fa fa-times"></i></a>
-                  </td> {% endcomment %}
                 </tr>
               {% endfor %}
 
@@ -352,32 +348,6 @@
                   </td>
                 </tr>
               {% endif %}
-
-              {% comment %} <tr>
-                <td colspan="3">&nbsp;</td>
-                <td colspan="2">
-                  <table class="table table-condensed total-result">
-                    <tr>
-                      <td>Cart Sub Total</td>
-                      <td class="cart_sub_total">${{ sub_total_amount|floatformat:2 }}</td>
-                    </tr>
-                    <tr>
-                      <td>Discount Amount</td>
-                      <td>${{ discount_amount|floatformat:2 }}</td>
-                    </tr>
-                    <tr class="shipping-cost">
-                      <td>Shipping Cost</td>
-                      <td>Free</td>
-                    </tr>
-                    <tr>
-                      <td>Total</td>
-                      <td>
-                        <span>${{ total_amount|floatformat:2 }}</span>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr> {% endcomment %}
             </tbody>
           {% else %}
             <tr>
@@ -394,76 +364,58 @@
         </table>
       </div>
 
-
-      {% comment %} {% if sub_total_amount > 0 %}
-        <div class="payment-options">
-            <h3>Select Payment Method</h3>
-            <div class="payment-methods">
-                <label class="payment-option">
-                    <input type="radio" name="payment" id="payment_cash" />
-                    <span class="payment-label">Cash On Delivery</span>
-                </label>
-                <label class="payment-option">
-                    <input type="radio" name="payment" id="payment_paypal" />
-                    <span class="payment-label">Paypal</span>
-                </label>
-            </div>
-            <button id="place_order" class="btn btn-primary btn-lg">Place Order</button>
-        </div>
-      {% endif %} {% endcomment %}
-
       {% if sub_total_amount > 0 %}
-  <div class="container mt-5">
-    <!-- Payment Options -->
-    <div class="row">
-      <div class="col-md-6">
-        <!-- Subtotal and Total Section -->
-        <div class="total-result">
-          <h3>Cart Summary</h3>
-          <table class="table table-condensed">
-            <tbody>
-              <tr>
-                <td>Cart Sub Total</td>
-                <td class="cart_sub_total">${{ sub_total_amount|floatformat:2 }}</td>
-              </tr>
-              <tr>
-                <td>Discount Amount</td>
-                <td>${{ discount_amount|floatformat:2 }}</td>
-              </tr>
-              <tr class="shipping-cost">
-                <td>Shipping Cost</td>
-                <td>Free</td>
-              </tr>
-              <tr>
-                <td>Total</td>
-                <td>${{ total_amount|floatformat:2 }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <!-- Payment Methods -->
-          <h3>Select Payment Method</h3>
-          <div class="payment-methods">
-            <label class="payment-option">
-              <input type="radio" value="payment_cash" name="payment" id="payment_cash" checked />
-              <span class="payment-label">Cash On Delivery</span>
-            </label>
-            <label class="payment-option">
-              <input type="radio" value="payment_razorpay" name="payment" id="payment_razorpay" />
-              <span class="payment-label">Razorpay</span>
-            </label>
+        <div class="container mt-5">
+          <!-- Payment Options -->
+          <div class="row">
+            <div class="col-md-6">
+              <!-- Subtotal and Total Section -->
+              <div class="total-result">
+                <h3>Cart Summary</h3>
+                <table class="table table-condensed">
+                  <tbody>
+                    <tr>
+                      <td>Cart Sub Total</td>
+                      <td class="cart_sub_total">${{ sub_total_amount|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                      <td>Discount Amount</td>
+                      <td id="discount_amount">${{ discount_amount|floatformat:2 }}</td>
+                    </tr>
+                    <tr class="shipping-cost">
+                      <td>Shipping Cost</td>
+                      <td>Free</td>
+                    </tr>
+                    <tr>
+                      <td>Total</td>
+                      <td id="totalAmount">${{ total_amount|floatformat:2 }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <!-- Payment Methods -->
+                <h3>Select Payment Method</h3>
+                <div class="payment-methods">
+                  <label class="payment-option">
+                    <input type="radio" value="payment_cash" name="payment" id="payment_cash" checked />
+                    <span class="payment-label">Cash On Delivery</span>
+                  </label>
+                  <label class="payment-option">
+                    <input type="radio" value="payment_razorpay" name="payment" id="payment_razorpay" />
+                    <span class="payment-label">Razorpay</span>
+                  </label>
+                </div>
+                <button id="place_order" class="btn btn-primary btn-lg mt-3">Place Order</button>
+            </div>
           </div>
-          <button id="place_order" class="btn btn-primary btn-lg mt-3">Place Order</button>
-      </div>
-    </div>
-  </div>
-{% endif %}
+        </div>
+      {% endif %}
 
 
   </div>
-  </section> <!-- /#cart_items -->
+  </section> 
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
@@ -498,122 +450,216 @@
         selectedShippingAddressId = addressId;
     }
 
-
-    $(document).on('click', '#place_order', function () {
-    const paymentRadios = document.querySelectorAll('input[name="payment"]');
-    let selectedPayment = '';
-    paymentRadios.forEach(radio => {
-      if (radio.checked) {
-        selectedPayment = radio.value;
+    $('#apply_coupon_code').click(function () {
+      var couponCode = $('#couponCode').val()
+      var subtotalAmountText = $('.cart_sub_total').text()
+      var subtotalAmount = parseFloat(subtotalAmountText.replace(/[^\d.-]/g, ''));
+      
+  
+      if (couponCode.trim() === '') {
+        toastr.error('Please enter a coupon code.')
+        return
       }
-    });
 
-    if (selectedPayment === "payment_razorpay") {
-        // Trigger Razorpay payment if Razorpay is selected
-        $.ajax({
-            url: "{% url 'place_order' %}",
-            type: 'POST',
-            data: {
-                csrfmiddlewaretoken: '{{ csrf_token }}',
-                billing_address_id: selectedBillingAddressId,
-                shipping_address_id: selectedShippingAddressId,
-                selected_payment: selectedPayment,
-            },
-            success: function (response) {
-                if (response.status === 'success') {
-                    razorpayOrderId = response.razorpay_order_id;
-                    let options = {
-                        "key": response.key_id, // Razorpay key_id from settings
-                        "amount": response.amount * 100, // Amount in paise
-                        "currency": response.currency,
-                        "name": "E-Shopper",
-                        "description": "Order Payment",
-                        "order_id": razorpayOrderId,
-                        "handler": function (paymentResponse) {
-                            // On successful payment
-                            OrderId = response.order_id;
-                              handleRazorpaySuccess(paymentResponse.razorpay_payment_id, OrderId, razorpayOrderId, paymentResponse.razorpay_signature);                        },
-                        "prefill": {
-                            "name": "{{ request.user.get_full_name }}",
-                            "email": "{{ request.user.email }}",
-                            "contact": "{{ request.user.profile.phone_number }}",
-                        },
-                        "theme": {
-                            "color": "#3399cc"
-                        }
-                    };
-                    let rzp = new Razorpay(options);
-                    rzp.open();
+      if (subtotalAmount<=0){
+        toastr.error('Please add a product.')
+        return
+      }
+  
+      $.ajax({
+        url: '/apply-coupon/',
+        type: 'POST',
+        data: {
+          coupon_code: couponCode,
+          total_amount: subtotalAmount,
+          csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+          if (response.status == 'success') {
+            discountPercent = response.discount_percent
+            var newTotalAmount = response.new_total_amount
+  
+            $('#totalAmount').text('$' + newTotalAmount.toFixed(2))
+            $('#discount_amount').text('$' + response.discount_amount.toFixed(2))
+            toastr.success('Coupon "'+couponCode+'" applied successfully! Discount: ' + discountPercent + '%');
+            window.location.reload();
+
+          } else {
+            toastr.error(response.msg || 'Failed to apply the coupon.')
+          }
+        },
+        error: function (xhr, status, error) {
+          console.log(xhr.responseJSON.msg)
+          toastr.error(xhr.responseJSON.msg)
+        }
+      })
+    })
+
+
+    $('.remove-coupon').click(function () {
+      $.ajax({
+        url: '/remove-coupon/',
+        type: 'POST',
+        data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            if (response.status === 'success') {
+                toastr.success('Coupon removed successfully.');
+                $('.cart_sub_total').text('$' + response.sub_total_amount.toFixed(2));
+                $('#totalAmount').text('$' + response.total_amount.toFixed(2))
+                $('#discount_amount').text('$' + response.discount_amount.toFixed(2))
+                window.location.reload();
                 } else {
-                    toastr.error(response.msg);
+                  toastr.error('Failed to remove coupon.');
                 }
             },
             error: function () {
                 toastr.error('An error occurred.');
             }
-        });
-    } else {
-        // Handle other payment methods (COD, etc.)
+      });
+    })
+
+    $(document).on('click', '#place_order', function () {
+
+      if(selectedBillingAddressId == '' && selectedBillingAddressId == ''){
+        toastr.error("Add Address First")
+      }
+
+      else if (selectedBillingAddressId==''){
+        toastr.error("Select Billing Address")
+        return
+      }
+
+      else if (selectedShippingAddressId==''){
+        toastr.error("Select Shipping Address")
+        return
+      }
+
+
+      const paymentRadios = document.querySelectorAll('input[name="payment"]');
+      let selectedPayment = '';
+      paymentRadios.forEach(radio => {
+        if (radio.checked) {
+          selectedPayment = radio.value;
+        }
+      });
+
+      if (selectedPayment === "payment_razorpay") {
+          // Trigger Razorpay payment if Razorpay is selected
+          $.ajax({
+              url: "{% url 'place_order' %}",
+              type: 'POST',
+              data: {
+                  csrfmiddlewaretoken: '{{ csrf_token }}',
+                  billing_address_id: selectedBillingAddressId,
+                  shipping_address_id: selectedShippingAddressId,
+                  selected_payment: selectedPayment,
+              },
+              success: function (response) {
+                  if (response.status === 'success') {
+                      razorpayOrderId = response.razorpay_order_id;
+                      let options = {
+                          "key": response.key_id, // Razorpay key_id from settings
+                          "amount": response.amount * 100, // Amount in paise
+                          "currency": response.currency,
+                          "name": "E-Shopper",
+                          "description": "Order Payment",
+                          "order_id": razorpayOrderId,
+                          "handler": function (paymentResponse) {
+                              // On successful payment
+                                handleRazorpaySuccess(paymentResponse.razorpay_payment_id, razorpayOrderId, paymentResponse.razorpay_signature);
+                            },
+                          "prefill": {
+                              "name": "{{ request.user.get_full_name }}",
+                              "email": "{{ request.user.email }}",
+                              "contact": "{{ request.user.profile.phone_number }}",
+                          },
+                          "theme": {
+                              "color": "#3399cc"
+                          }
+                      };
+                      let rzp = new Razorpay(options);
+                      rzp.open();
+                  } else {
+                      toastr.error(response.msg);
+                  }
+              },
+              error: function (response) {
+                if (response.responseJSON.status=='error'){
+                  toastr.error(response.responseJSON.msg);
+                }else{
+                  toastr.error('An error occurred.');
+                }
+              }
+          });
+      } else {
+        console.log("selectedBillingAddressId = ",selectedBillingAddressId)
+        console.log("selectedShippingAddressId = ",selectedShippingAddressId)
+          // Handle other payment methods (COD, etc.)
+          $.ajax({
+              url: "{% url 'place_order' %}",
+              type: 'POST',
+              data: {
+                  csrfmiddlewaretoken: '{{ csrf_token }}',
+                  billing_address_id: selectedBillingAddressId,
+                  shipping_address_id: selectedShippingAddressId,
+                  selected_payment: selectedPayment
+              },
+              success: function (response) {
+                  if (response.status === 'success') {
+                      toastr.success(response.msg);
+                      OrderId = response.order_id;
+                      if (OrderId) {
+                          var Url = "{% url 'order_successful' 0 %}".replace('0', OrderId);
+                          setTimeout(function () {
+                              location.reload();
+                          }, 1000);
+                          window.location.href = Url;
+                      }
+                  } else {
+                      toastr.error(response.msg);
+                  }
+              },
+              error: function () {
+                  toastr.error('An error occurred.');
+              }
+          });
+      }
+
+
+      function handleRazorpaySuccess(paymentId, razorpayOrderId, signature) {
         $.ajax({
-            url: "{% url 'place_order' %}",
+            url: "{% url 'paymenthandler' %}",  // Backend endpoint to handle successful payment
             type: 'POST',
             data: {
-                csrfmiddlewaretoken: '{{ csrf_token }}',
+                razorpay_payment_id: paymentId,
+                razorpay_order_id: razorpayOrderId,
                 billing_address_id: selectedBillingAddressId,
                 shipping_address_id: selectedShippingAddressId,
-                selected_payment: selectedPayment
+                selected_payment: selectedPayment,
+                razorpay_signature: signature, // Include the signature here
+                csrfmiddlewaretoken: '{{ csrf_token }}'
             },
             success: function (response) {
                 if (response.status === 'success') {
                     toastr.success(response.msg);
                     OrderId = response.order_id;
-                    if (OrderId) {
-                        var Url = "{% url 'order_successful' 0 %}".replace('0', OrderId);
-                        setTimeout(function () {
-                            location.reload();
-                        }, 1000);
+                    var Url = "{% url 'order_successful' 0 %}".replace('0', OrderId);
+                    setTimeout(function () {
                         window.location.href = Url;
-                    }
+                    }, 1000);
                 } else {
-                    toastr.error(response.msg);
+                    toastr.error('Error completing the payment.');
                 }
             },
             error: function () {
-                toastr.error('An error occurred.');
+                toastr.error('Payment could not be completed.');
             }
         });
-    }
-
-
-    function handleRazorpaySuccess(paymentId, OrderId, razorpayOrderId, signature) {
-    $.ajax({
-        url: "{% url 'paymenthandler' %}",  // Backend endpoint to handle successful payment
-        type: 'POST',
-        data: {
-            razorpay_payment_id: paymentId,
-            razorpay_order_id: razorpayOrderId,
-            order_id: OrderId,
-            razorpay_signature: signature, // Include the signature here
-            csrfmiddlewaretoken: '{{ csrf_token }}'
-        },
-        success: function (response) {
-            if (response.status === 'success') {
-                toastr.success(response.msg);
-                var Url = "{% url 'order_successful' 0 %}".replace('0', OrderId);
-                setTimeout(function () {
-                    window.location.href = Url;
-                }, 1000);
-            } else {
-                toastr.error('Error completing the payment.');
-            }
-        },
-        error: function () {
-            toastr.error('Payment could not be completed.');
-        }
+      }
     });
-    }
-});
 
-</script>
+  </script>
 
 {% endblock %}
