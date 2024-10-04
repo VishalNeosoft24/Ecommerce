@@ -287,8 +287,8 @@
             <div class="col-sm-3 col-sm-offset-1">
               <div class="single-widget">
                 <h2>About Shopper</h2>
-                <form action="#" class="searchform">
-                  <input type="text" placeholder="Your email address" />
+                <form action="{% url 'subscribe_newsletter' %}" class="searchform" id="newsletterForm">
+                  <input type="email" id="subscribe_newsletter_email" name="email" placeholder="Your email address" />
                   <button type="submit" class="btn btn-default"><i class="fa fa-arrow-circle-o-right"></i></button>
                   <p>
                     Get the most recent updates from <br />our site and be updated your self...
@@ -313,4 +313,29 @@
     </footer>
     <!-- /Footer -->
   </body>
+  <script>
+    $(document).ready(function () {
+      $('#newsletterForm').on('submit', function (e) {
+        e.preventDefault()
+    
+        const email = $('#subscribe_newsletter_email').val()
+        console.log('email: ', email)
+    
+        $.ajax({
+          url: "{% url 'subscribe_newsletter' %}",
+          method: 'POST',
+          data: {
+            email: email,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+          },
+          success: function (data) {
+            toastr.success(data.message)
+          },
+          error: function (xhr) {
+            toastr.error(xhr.responseJSON.message)
+          }
+        })
+      })
+    })
+  </script>
 </html>
