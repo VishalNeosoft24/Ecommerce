@@ -127,4 +127,19 @@ urlpatterns = [
         views.delete_contact_us_query,
         name="delete_contact_us_query",
     ),
+    # Reports
+    path("reports/", views.report, name="reports"),
+    path(
+        "reports/<str:report_name>/",
+        views.dynamic_system_reports,
+        name="dynamic_system_reports",
+    ),
+    path(
+        "reports/<str:report_name>/export",
+        views.export_dynamic_system_reports,
+        name="export_dynamic_system_reports",
+    ),
+    # News-Letter
+    path("news-letters", views.list_all_news_letters, name="list_all_news_letters"),
+    path("get-news-letters", views.get_all_news_letters, name="get_all_news_letters"),
 ]
