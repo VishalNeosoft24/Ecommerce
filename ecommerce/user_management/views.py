@@ -41,13 +41,15 @@ def register_page(request):
     try:
         if request.method == "POST":
             # Retrieve form data
+            first_name = request.POST.get("first_name", "").strip()
+            last_name = request.POST.get("last_name", "").strip()
             username = request.POST.get("username", "").strip()
             email = request.POST.get("email", "").strip()
             password = request.POST.get("password", "").strip()
             re_password = request.POST.get("re_password", "").strip()
 
             # Validate form data
-            if not username or not password:
+            if not first_name or not last_name or not username or not password:
                 messages.error(request, "All fields are required.")
                 return render(request, "customer_portal/login.html")
 
@@ -88,7 +90,12 @@ def register_page(request):
 
             # Create the user
             try:
-                user = User(username=username, email=email)
+                user = User(
+                    first_name=first_name,
+                    last_name=last_name,
+                    username=username,
+                    email=email,
+                )
                 user.set_password(password)
                 user.save()
 
