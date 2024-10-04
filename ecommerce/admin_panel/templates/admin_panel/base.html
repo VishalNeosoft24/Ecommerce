@@ -114,8 +114,8 @@ scratch. This page gets rid of all links and provides the needed markup only.   
           <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#"><i class="far fa-user"></i> {{ request.user.username|title }}</a>
             <div class="dropdown-menu dropdown-menu dropdown-menu-right">
-              <a href="#" class="dropdown-item"><i class="fas fa-user mr-2"></i> User Profile</a>
-              <div class="dropdown-divider"></div>
+              {% comment %} <a href="#" class="dropdown-item"><i class="fas fa-user mr-2"></i> User Profile</a> {% endcomment %}
+              {% comment %} <div class="dropdown-divider"></div> {% endcomment %}
               <a href="{% url 'logout' %}" class="dropdown-item"><i class="fas fa-sign-out-alt mr-2"></i> Log out</a>
             </div>
           </li>
@@ -162,6 +162,12 @@ scratch. This page gets rid of all links and provides the needed markup only.   
                     <p>Users</p>
                   </a>
                 </li>
+                <li class="nav-item">
+                  <a href="{% url 'reports' %}" class="nav-link {% if request.path == '/admin-panel/reports/' %}active{% endif %}">
+                    <i class="nav-icon fas fa-clipboard-list"></i>
+                    <p>Reports</p>
+                  </a>
+                </li>
                 <li class="nav-header">PMS</li>
                 <!-- Category -->
                 <li class="nav-item">
@@ -186,11 +192,22 @@ scratch. This page gets rid of all links and provides the needed markup only.   
                 <!-- /. Coupon -->
                 <li class="nav-item">
                 <a href="{% url 'all_coupons' %}" class="nav-link {% if request.path == '/admin-panel/coupons/' %}active{% endif %}">
-                  <i class="nav-icon fa fa-tag"></i>
+                  <i class="nav-icon fas fa-ticket-alt"></i>
                   <p>Coupons</p>
                 </a>
               </li>
               <!-- /. Coupon -->
+
+              <!-- Orders -->
+              <li class="nav-header">OMS</li>
+                <!-- Orders -->
+                <li class="nav-item">
+                  <a href="{% url 'all_orders' %}" class="nav-link {% if request.path == '/admin-panel/orders/' %}active{% endif %}">
+                    <i class="nav-icon fas fa-shopping-basket"></i>
+                    <p>Orders</p>
+                  </a>
+                </li>
+                <!-- /. Orders -->
                 
                 <li class="nav-header">CMS</li>
                 <!-- Email Template -->
@@ -229,15 +246,14 @@ scratch. This page gets rid of all links and provides the needed markup only.   
                 </li>
                 <!-- /.Contact Us -->
 
-                <li class="nav-header">OMS</li>
-                <!-- Orders -->
+                <!-- News Letter -->
                 <li class="nav-item">
-                  <a href="{% url 'all_orders' %}" class="nav-link {% if request.path == '/admin-panel/orders/' %}active{% endif %}">
-                    <i class="nav-icon fas fa-shopping-basket"></i>
-                    <p>Orders</p>
+                  <a href="{% url 'list_all_news_letters' %}" class="nav-link {% if request.resolver_match.url_name == 'list_all_news_letters' %}active{% endif %}">
+                    <i class="nav-icon fas fa-envelope"></i>
+                    <p>News Letter</p>
                   </a>
                 </li>
-                <!-- /. Orders -->
+                <!-- /.News Letter -->
 
               {% endif %}
 
@@ -259,10 +275,7 @@ scratch. This page gets rid of all links and provides the needed markup only.   
                 <li class="nav-item">
                   <a href="{% url 'all_categories' %}" class="nav-link {% if request.path == '/admin-panel/add-category/' %}active {% elif request.path == '/admin-panel/categories/' %}active {% endif %}">
                     <i class="nav-icon fas fa-list-alt"></i>
-                    <p>
-                      Category
-                      
-                    </p>
+                    <p>Category</p>
                   </a>
                   
                 </li>
