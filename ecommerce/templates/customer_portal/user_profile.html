@@ -81,7 +81,7 @@
         <div class="col-md-12 col-sm-12">
           <div class="card shadow-sm mb-4">
             <div class="card-header">
-              <a href="{% url 'add_address' %}"><button id="update-btn" class="btn btn-primary">Add Address</button></a>
+              <a href="{% url 'add_address' %}"><button id="update-btn" class="btn btn-primary" style="margin-bottom: 10px;">Add Address</button></a>
             </div>
             <div class="card-body">
               <div class="table-responsive">
@@ -95,6 +95,7 @@
                       <th scope="col">City</th>
                       <th scope="col">Pincode</th>
                       <th scope="col">Street Address</th>
+                      <th scope="col">Default Address</th>
                       <th scope="col">Action</th>
                     </tr>
                   </thead>
@@ -108,6 +109,7 @@
                         <td>{{ address.city }}</td>
                         <td>{{ address.pincode }}</td>
                         <td>{{ address.street_address }}</td>
+                        <td>{{ address.default|yesno:'Yes,No' }}</td>
                         <td>
                           <a href="{% url 'update_address' address.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
                           <a href="{% url 'delete_address' address.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
