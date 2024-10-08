@@ -124,34 +124,36 @@
             {% endfor %}
             <!-- features_items -->
           </div>
-          <!-- Pagination -->
-          <ul class="pagination">
-            <!-- Previous Page Link -->
-            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
-                <a class="page-link" {% if page_obj.has_previous %} onclick="navigatePage({{ page_obj.previous_page_number }})" {% else %} style="pointer-events: none;" {% endif %} aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>
+          {% if page_obj.paginator.num_pages > 1 %}
 
-            <!-- Page Number Links -->
-            {% for num in page_obj.paginator.page_range %}
-                {% if num >= page_obj.number|add:'-5' and num <= page_obj.number|add:'5' %}
-                    <li class="page-item {% if num == page_obj.number %}active{% endif %}">
-                        <a class="page-link" onclick="navigatePage({{ num }})">
-                            {{ num }}
-                        </a>
-                    </li>
-                {% endif %}
-            {% endfor %}
+            <!-- Pagination -->
+            <ul class="pagination">
+              <!-- Previous Page Link -->
+              <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                  <a class="page-link" {% if page_obj.has_previous %} onclick="navigatePage({{ page_obj.previous_page_number }})" {% else %} style="pointer-events: none;" {% endif %} aria-label="Previous">
+                      <span aria-hidden="true">&laquo;</span>
+                  </a>
+              </li>
 
-            <!-- Next Page Link -->
-            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
-                <a class="page-link" {% if page_obj.has_next %} onclick="navigatePage({{ page_obj.next_page_number }})" {% else %} style="pointer-events: none;" {% endif %} aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
-        </ul>
+              <!-- Page Number Links -->
+              {% for num in page_obj.paginator.page_range %}
+                  {% if num >= page_obj.number|add:'-5' and num <= page_obj.number|add:'5' %}
+                      <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                          <a class="page-link" onclick="navigatePage({{ num }})">
+                              {{ num }}
+                          </a>
+                      </li>
+                  {% endif %}
+              {% endfor %}
 
+              <!-- Next Page Link -->
+              <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                  <a class="page-link" {% if page_obj.has_next %} onclick="navigatePage({{ page_obj.next_page_number }})" {% else %} style="pointer-events: none;" {% endif %} aria-label="Next">
+                      <span aria-hidden="true">&raquo;</span>
+                  </a>
+              </li>
+          </ul>
+        {% endif %}
         </div>
       </div>
     </div>
