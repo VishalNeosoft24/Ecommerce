@@ -136,7 +136,7 @@
                     </li>
 
                     <li class="dropdown">
-                      <a class="{% if request.get_full_path == '/profile/' or request.get_full_path == '/change-password/' %}active{% endif %}">{{ request.user.first_name }}<i class="fa fa-angle-down"></i></a>
+                      <a class="{% if request.get_full_path == '/profile/' or request.get_full_path == '/change-password/' %}active{% endif %}">{{ request.user.first_name|title }}<i class="fa fa-angle-down"></i></a>
                       <ul role="menu" class="sub-menu" style="left: -100px !important;">
                         <li>
                           <a href="{% url 'profile_page' %}"><i class="fa fa-user"></i> Profile</a>
@@ -183,12 +183,12 @@
                 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit,sed do eiusmod tempor</p>
               </div>
             </div>
-            <div class="col-sm-3">
+            {% comment %} <div class="col-sm-3">
               <div class="address">
                 <img src="{% static 'customer_portal/images/home/map.png' %}" alt="" />
                 <p>505 S Atlantic Ave Virginia Beach, VA(Virginia)</p>
               </div>
-            </div>
+            </div> {% endcomment %}
           </div>
         </div>
       </div>
@@ -201,19 +201,10 @@
                 <h2>Service</h2>
                 <ul class="nav nav-pills nav-stacked">
                   <li>
-                    <a href="#">Online Help</a>
-                  </li>
-                  <li>
-                    <a href="#">Contact Us</a>
+                    <a href="{% url 'contact_us' %}">Contact Us</a>
                   </li>
                   <li>
                     <a href="#">Order Status</a>
-                  </li>
-                  <li>
-                    <a href="#">Change Location</a>
-                  </li>
-                  <li>
-                    <a href="#">FAQ’s</a>
                   </li>
                 </ul>
               </div>
@@ -222,21 +213,11 @@
               <div class="single-widget">
                 <h2>Quock Shop</h2>
                 <ul class="nav nav-pills nav-stacked">
-                  <li>
-                    <a href="#">T-Shirt</a>
-                  </li>
-                  <li>
-                    <a href="#">Mens</a>
-                  </li>
-                  <li>
-                    <a href="#">Womens</a>
-                  </li>
-                  <li>
-                    <a href="#">Gift Cards</a>
-                  </li>
-                  <li>
-                    <a href="#">Shoes</a>
-                  </li>
+                  {% for category in footer_categories %}
+                    <li>
+                      <a onclick="filter_by_category_base('{{ category.name }}')" style="cursor: pointer;">{{ category.name }}</a>
+                    </li>
+                  {% endfor %}
                 </ul>
               </div>
             </div>
@@ -271,9 +252,6 @@
                   </li>
                   <li>
                     <a href="/pages/careers">Careers</a>
-                  </li>
-                  <li>
-                    <a href="#">Store Location</a>
                   </li>
                   <li>
                     <a href="/pages/affiliate-program">Affillate Program</a>
@@ -337,5 +315,19 @@
         })
       })
     })
+    
+    function filter_by_category_base(categoryName, price) {
+      const queryParams = new URLSearchParams(window.location.search)
+      const baseUrl = window.location.pathname
+    
+      if (categoryName) {
+        queryParams.set('cat', categoryName)
+      }
+      const queryString = `?cat=${encodeURIComponent(categoryName)}`
+      const newUrl = "{% url 'product_list' %}" + queryString
+    
+      // Set the new URL as the window location
+      window.location.href = newUrl
+    }
   </script>
 </html>
