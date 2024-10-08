@@ -10,41 +10,41 @@
 
 <style>
     .panel-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-.panel-title .order-id {
-  flex: 1;
-}
+    .panel-title .order-id {
+      flex: 1;
+    }
 
-.panel-title .total {
-  text-align: right;
-}
-/* Remove default link styling */
-a.collapsed {
-  text-decoration: none; /* Remove underline */
-  color: inherit; /* Inherit text color from parent */
-}
+    .panel-title .total {
+      text-align: right;
+    }
 
-/* Optional: remove any additional styling */
-a.collapsed:hover,
-a.collapsed:focus {
-  text-decoration: none; /* Ensure no underline on hover or focus */
-}
+    /* Remove default link styling */
+    a.collapsed {
+      text-decoration: none; /* Remove underline */
+      color: inherit; /* Inherit text color from parent */
+    }
 
-/* Ensure div inside is properly aligned */
-a.collapsed .d-flex {
-  display: flex;
-  justify-content: space-between; /* Ensure items are spaced correctly */
-  align-items: center; /* Vertically center items if needed */
-  width: 100%;
-}
+    /* Optional: remove any additional styling */
+    a.collapsed:hover,
+    a.collapsed:focus {
+      text-decoration: none; /* Ensure no underline on hover or focus */
+    }
 
-
+    /* Ensure div inside is properly aligned */
+    a.collapsed .d-flex {
+      display: flex;
+      justify-content: space-between; /* Ensure items are spaced correctly */
+      align-items: center; /* Vertically center items if needed */
+      width: 100%;
+    }
 
 </style>
+
 <script>
     // Displaying messages using Toastr
     {% if messages %}
@@ -152,44 +152,45 @@ a.collapsed .d-flex {
         <p class="text-center">You have no orders yet.</p>
       {% endfor %}
     </div>
-
     <!-- Pagination -->
     <div class="pagination" style="margin-top: 20px;">
-      <ul class="pagination">
-        {% if page_obj.has_previous %}
-          <li class="page-item">
-            <a class="page-link" href="?page=1{% if request.GET.order_id %}&order_id={{ request.GET.order_id }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" aria-label="First">
-              <span aria-hidden="true">&laquo;&laquo;</span>
-            </a>
-          </li>
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.order_id %}&order_id={{ request.GET.order_id }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" aria-label="Previous">
-              <span aria-hidden="true">&laquo;</span>
-            </a>
-          </li>
-        {% endif %}
-        {% for num in page_obj.paginator.page_range %}
-          {% if page_obj.number == num %}
-            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-          {% else %}
-            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.order_id %}&order_id={{ request.GET.order_id }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">{{ num }}</a></li>
+      {% if page_obj.paginator.num_pages > 1 %}
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page=1{% if request.GET.order_id %}&order_id={{ request.GET.order_id }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" aria-label="First">
+                <span aria-hidden="true">&laquo;&laquo;</span>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.order_id %}&order_id={{ request.GET.order_id }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
           {% endif %}
-        {% endfor %}
-        {% if page_obj.has_next %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.order_id %}&order_id={{ request.GET.order_id }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" aria-label="Next">
-              <span aria-hidden="true">&raquo;</span>
-            </a>
-          </li>
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.order_id %}&order_id={{ request.GET.order_id }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" aria-label="Last">
-              <span aria-hidden="true">&raquo;&raquo
-            </span>
-            </a>
-          </li>
-        {% endif %}
-      </ul>
-    </div>
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+              <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.order_id %}&order_id={{ request.GET.order_id }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">{{ num }}</a></li>
+            {% endif %}
+          {% endfor %}
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.order_id %}&order_id={{ request.GET.order_id }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.order_id %}&order_id={{ request.GET.order_id }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" aria-label="Last">
+                <span aria-hidden="true">&raquo;&raquo
+              </span>
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      {% endif %}
+      </div>
   </div>
 
   <script>
