@@ -14,6 +14,7 @@ from django.core.paginator import Paginator
 
 # Local app imports
 from admin_panel.models import Address, NewsLetter
+from admin_panel.utils import send_user_credentials_email
 from order_management.models import UserOrder
 from user_management.forms import AddressForm, UpdateUserForm
 from .models import User
@@ -98,6 +99,8 @@ def register_page(request):
                 )
                 user.set_password(password)
                 user.save()
+
+                send_user_credentials_email(user, password)
 
                 # Log the user in and redirect to a success page
                 login(request, user)
