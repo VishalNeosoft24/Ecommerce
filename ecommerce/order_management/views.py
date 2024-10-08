@@ -1,3 +1,4 @@
+from django.utils import timezone
 import json
 
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
@@ -251,6 +252,15 @@ def apply_coupon(request):
                     {"status": "error", "msg": "Invalid Coupon Code!"},
                     status=404,
                 )
+            if (
+                not coupon.start_date < timezone.now()
+                or not coupon.end_date > timezone.now()
+            ):
+                return JsonResponse(
+                    {"status": "error", "msg": "Invalid Coupon Code!"},
+                    status=404,
+                )
+
             discount_percent = coupon.discount
             request.session["applied_coupon"] = {
                 "code": coupon.code,
