@@ -528,7 +528,7 @@ def place_order(request):
                     payment_gateway = PaymentGateway.objects.filter(
                         name="Cash On Delivery"
                     ).first()
-                print("payment_gateway===", payment_gateway)
+
                 # Create UserOrder using the common function
                 order = create_user_order(
                     user=request.user,
