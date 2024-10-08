@@ -81,6 +81,7 @@ TEMPLATES = [
                 "product_management.context_processors.recommended_product",
                 "order_management.context_processors.cart_item_count",
                 "order_management.context_processors.wishlist_item_count",
+                "product_management.context_processors.categories_for_footer",
             ],
         },
     },
