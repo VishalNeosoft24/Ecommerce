@@ -231,7 +231,7 @@ scratch. This page gets rid of all links and provides the needed markup only.   
                 <!-- Flatpages -->
                 <li class="nav-item">
                   <a href="{% url 'all_flatpages' %}" class="nav-link {% if request.path == '/admin-panel/flatpages/' %}active {% elif request.path == '/admin-panel/flatpages/create/' %}active {% endif %}">
-                    <i class="nav-icon fas fa-cog"></i>
+                    <i class="nav-icon fas fa-file-alt"></i>
                     <p>Flatpages</p>
                   </a>
                 </li>
@@ -240,7 +240,7 @@ scratch. This page gets rid of all links and provides the needed markup only.   
                 <!-- Contact Us -->
                 <li class="nav-item">
                   <a href="{% url 'all_contact_us_queries' %}" class="nav-link {% if request.resolver_match.url_name == 'all_contact_us_queries' or request.resolver_match.url_name == 'contact_us_query_detail' %}active{% endif %}">
-                    <i class="nav-icon fas fa-cog"></i>
+                    <i class="nav-icon fa fa-address-book"></i>
                     <p>Contact Us</p>
                   </a>
                 </li>
