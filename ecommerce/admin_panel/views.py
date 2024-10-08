@@ -451,8 +451,6 @@ def update_user(request):
             email = request.POST.get("email")
             groups = request.POST.getlist("group")
             user_id = request.POST.get("user_id")
-            username = request.POST.get("username")
-            print("username: ", username)
 
             user = User.objects.filter(id=user_id).first()
             user.first_name = first_name
@@ -463,6 +461,9 @@ def update_user(request):
                 for group in groups:
                     group_obj = Group.objects.get(name=group)
                     user.groups.add(group_obj)
+            else:
+                # Remove all groups if no groups are provided
+                user.groups.clear()
 
             user.save()
             msg = "User Updated successfully."
