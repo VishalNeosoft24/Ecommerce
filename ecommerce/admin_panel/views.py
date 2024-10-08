@@ -241,8 +241,6 @@ def create_user(request):
                 username=username,
             )
 
-            send_user_credentials_email(user, password)
-
             user.set_password(password)
             user.save()
 
@@ -253,6 +251,8 @@ def create_user(request):
                 # else:
                 #     customer_group = Group.objects.get(name="customer")
                 user.groups.add(customer_group)
+
+            send_user_credentials_email(user, password)
 
             return JsonResponse(
                 {"status": "success", "msg": "User created successfully."}
@@ -419,8 +419,6 @@ def get_user_details(request, user_id):
 
         # Convert the QuerySet to a list (optional)
         user_groups_list = list(user_groups)
-        print("==============", list(format_role(user_groups_list).keys()))
-
         user_details = {
             "id": user.id,
             "first_name": user.first_name,
@@ -461,11 +459,13 @@ def update_user(request):
                 for group in groups:
                     group_obj = Group.objects.get(name=group)
                     user.groups.add(group_obj)
+                user.save()
+                send_user_credentials_email(user, "Use Your Existing Password")
             else:
                 # Remove all groups if no groups are provided
                 user.groups.clear()
+                user.save()
 
-            user.save()
             msg = "User Updated successfully."
             status = "success"
             return JsonResponse({"status": status, "msg": msg})
