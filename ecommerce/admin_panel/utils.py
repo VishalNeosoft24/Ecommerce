@@ -1,5 +1,6 @@
 # Django imports
 import csv
+import threading
 from datetime import datetime
 from io import BytesIO, StringIO
 from django.db.models import DecimalField, IntegerField, FloatField
@@ -13,15 +14,28 @@ from django.conf import settings
 from django.db.models import Count, F, Sum, Q, Value, ExpressionWrapper, Func
 from django.core.paginator import Paginator
 from django.db.models.functions import Coalesce
-from weasyprint import HTML
+from django.core.mail import send_mail
 
+from weasyprint import HTML
 
 from admin_panel.models import Coupon
 from user_management.models import User
 from product_management.models import Product
 
-# Local imports
-from .tasks import send_email_task
+
+def send_email_task(subject, plain_message, from_email, to, html_message):
+    def send_email():
+        send_mail(
+            subject,
+            plain_message,
+            from_email,
+            to,
+            html_message=html_message,
+        )
+
+    # Create and start a new thread for sending the email
+    email_thread = threading.Thread(target=send_email)
+    email_thread.start()
 
 
 def send_admin_reply_email(user, user_query, admin_reply, template):
@@ -69,7 +83,7 @@ def send_admin_reply_email(user, user_query, admin_reply, template):
         template.subject,
         plain_message,
         from_email,
-        to,
+        [to],
         html_message=html_message,
     )
 
@@ -91,7 +105,14 @@ def send_user_credentials_email(user, password):
     """
 
     subject = "Your Account Credentials"
-    login_url = "http://127.0.0.1:8000/admin-panel/login/"
+    if (
+        user.is_superuser
+        or user.groups.filter(name__in=["order_manager", "inventory_manager"]).exists()
+    ):
+        login_url = "http://127.0.0.1:8000/admin-panel/login/"
+    else:
+        login_url = "http://127.0.0.1:8000/login/"
+
     context = {
         "user": user,
         "password": password,
@@ -103,10 +124,10 @@ def send_user_credentials_email(user, password):
     to_email = user.email
 
     send_email_task(
-        subject,
-        plain_message,
-        from_email,
-        to_email,
+        subject=subject,
+        plain_message=plain_message,
+        from_email=from_email,
+        to=[to_email],
         html_message=html_message,
     )
 
@@ -135,7 +156,7 @@ def send_order_confirmation_email(customer_email, context, template):
         subject=subject,
         plain_message=plain_message,
         from_email=from_email,
-        to=to_email,
+        to=[to_email],
         html_message=html_content,
     )
 
