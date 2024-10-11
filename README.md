@@ -25,6 +25,35 @@ python manage.py dumpdata <app_name>.<ModelName> --indent 4 > <fixture_name>.jso
 python manage.py dumpdata ecommerce.Product --indent 4 > initial_data.json
 ```
 
+## Example to create a fixture for a individual model of product_management app
+
+```
+python manage.py dumpdata product_management.Category --indent 4 > product_management/fixtures/category_data.json
+python manage.py dumpdata product_management.Product --indent 4 > product_management/fixtures/product_data.json
+python manage.py dumpdata product_management.ProductImage --indent 4 > product_management/fixtures/product_image_data.json
+python manage.py dumpdata product_management.ProductAttribute --indent 4 > product_management/fixtures/product_attribute_data.json
+python manage.py dumpdata product_management.ProductAttributeValue --indent 4 > product_management/fixtures/product_attribute_value_data.json
+
+```
+
+## Example to create a fixture for a individual model of order_management app
+
+```
+python manage.py dumpdata order_management.PaymentGateway --indent 4 > order_management/fixtures/payment_gateway_data.json
+python manage.py dumpdata order_management.UserOrder --indent 4 > order_management/fixtures/user_order_data.json
+python manage.py dumpdata order_management.OrderDetail --indent 4 > order_management/fixtures/order_detail_data.json
+python manage.py dumpdata order_management.UserWishList --indent 4 > order_management/fixtures/user_wishlist_data.json
+python manage.py dumpdata order_management.PaymentLogs --indent 4 > order_management/fixtures/payment_logs_data.json
+
+```
+
+## Example to create a fixture for a individual model of user_management app
+
+```
+python manage.py dumpdata user_management.Category --indent 4 > user_management/fixtures/user_data.json
+
+```
+
 ## Loading a Fixture
 
 ```
