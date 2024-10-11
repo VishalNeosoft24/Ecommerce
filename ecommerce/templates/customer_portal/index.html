@@ -2,6 +2,13 @@
 {% load static %}
 
 {% block content %}
+  <script>
+    {% if messages %}
+      {% for message in messages %}
+        toastr.{{ message.tags }}("{{ message }}");
+      {% endfor %}
+    {% endif %}
+  </script>
   <section id="slider">
     <!-- slider -->
     <div class="container">
