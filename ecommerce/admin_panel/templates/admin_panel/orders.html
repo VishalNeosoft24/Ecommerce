@@ -24,7 +24,7 @@
       <div class="container-fluid">
         <div class="row">
           <div class="col-12">
-            <div class="card table-responsive">
+            <div class="card">
               <!-- /.card-header -->
               <div class="card-body">
                 <table id="orderDataTable" class="table table-bordered">
@@ -68,12 +68,12 @@
     $(document).ready(function () {
       $('#orderDataTable').DataTable({
         responsive: true,
-        lengthChange: false,
+        lengthChange: true,
+        pageLength: 5,
         autoWidth: true,
         scrollX: true,
-        pageLength: 10,
-        processing: true,
         serverSide: true,
+        processing: true,
         dom: 'Bfrtip',
     
         ajax: {
@@ -93,7 +93,7 @@
           { data: 'status', title: 'Status', searchable: true },
           //{ data: 'shipping_charges', title: 'Shipping Charges', searchable: false },
           //{ data: 'coupon', title: 'Coupon', searchable: false },
-          { data: 'created_at', title: 'Create At', searchable: false },
+          //{ data: 'created_at', title: 'Create At', searchable: false },
           {
             data: 'order_details',
             title: 'Order Details',
