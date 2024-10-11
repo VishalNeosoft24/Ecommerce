@@ -1,5 +1,6 @@
 {% extends 'customer_portal/customer_base.html' %}
 {% load static %}
+{% load socialaccount %}
 
 {% block title %}
   Login
@@ -52,6 +53,8 @@
                 </ul>
               </div>
               <button type="submit" class="btn btn-default">Signup</button>
+              <h3>Social Login</h3>
+              <a href="{% provider_login_url 'google' %}" class="btn btn-primary">Login with Google</a>
             </form>
           </div>
           <!-- /sign up form -->
