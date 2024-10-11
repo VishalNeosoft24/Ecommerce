@@ -2154,6 +2154,7 @@ def update_order(request, order_id):
 
 
 # ----------------------------------------/Contact Us---------------------------------------------
+@check_user_permission("user_management.view_contactus", "view")
 def list_all_contact_us(request):
     """
     Renders a page to list all contact us queries in the admin panel.
@@ -2165,7 +2166,7 @@ def list_all_contact_us(request):
         return HttpResponse(str(e))
 
 
-@login_required
+@check_user_permission("user_management.view_contactus", "api")
 def get_all_contact_us_queries(request):
     """
     Fetches all contact us queries from the database and returns them in a paginated JSON response.
@@ -2197,6 +2198,7 @@ def get_all_contact_us_queries(request):
     return JsonResponse(response, safe=False)
 
 
+@check_user_permission("user_management.view_contactus", "view")
 def contact_us_query_detail(request, id):
     """
     Fetches the details of a specific contact us query. If the request method is GET, it renders the details page.
@@ -2251,6 +2253,7 @@ def delete_contact_us_query(request):
 
 
 # ----------------------------------------Reports---------------------------------------------
+@check_user_permission("user_management.view_user", "view")
 def report(request):
     try:
         STATUS_CHOICES = {
@@ -2297,6 +2300,7 @@ def report(request):
         return HttpResponse(str(e))
 
 
+@check_user_permission("user_management.view_user", "view")
 def dynamic_system_reports(request, report_name):
     try:
         report_name_for_template = {
@@ -2324,6 +2328,7 @@ def dynamic_system_reports(request, report_name):
         return HttpResponse(str(e), status=500)
 
 
+@check_user_permission("user_management.view_user", "view")
 def export_dynamic_system_reports(request, report_name):
     try:
         print("report_name: ", report_name)
@@ -2350,6 +2355,7 @@ def export_dynamic_system_reports(request, report_name):
 
 
 # ----------------------------------------News-Letter---------------------------------------------
+@check_user_permission("user_management.view_user", "view")
 def list_all_news_letters(request):
     try:
         return render(request, "admin_panel/news_letters_list.html")
@@ -2357,6 +2363,7 @@ def list_all_news_letters(request):
         return HttpResponse(str(e))
 
 
+@check_user_permission("user_management.view_user", "view")
 def get_all_news_letters(request):
     try:
         # Server-side processing for DataTables
