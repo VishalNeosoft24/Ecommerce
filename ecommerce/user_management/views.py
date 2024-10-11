@@ -103,7 +103,9 @@ def register_page(request):
                 send_user_credentials_email(user, password)
 
                 # Log the user in and redirect to a success page
-                login(request, user)
+                login(
+                    request, user, backend="django.contrib.auth.backends.ModelBackend"
+                )
                 return redirect("home_page")
             except IntegrityError:
                 messages.error(
@@ -155,7 +157,9 @@ def login_page(request):
 
             if user is not None:
                 # Log the user in
-                login(request, user)
+                login(
+                    request, user, backend="django.contrib.auth.backends.ModelBackend"
+                )
                 # Redirect to a success page, e.g., home page
                 return redirect("home_page")
             else:
