@@ -115,6 +115,9 @@ class UserOrder(BaseModel):
         verbose_name="Shipping Address",
     )
 
+    class Meta:
+        ordering = ["-created_at"]
+
     def generate_awb_no(self):
         """Generate AWB number using current timestamp and shipping method."""
         timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
