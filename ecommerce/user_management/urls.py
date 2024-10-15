@@ -46,4 +46,6 @@ urlpatterns = [
     path("contact-us/", views.contact_us, name="contact_us"),
     # News-Letter
     path("subscribe/", views.subscribe_newsletter, name="subscribe_newsletter"),
+    # Google Login
+    path("google-login/", views.google_login, name="google-login"),
 ]
