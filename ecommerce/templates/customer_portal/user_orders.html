@@ -100,7 +100,7 @@
                       <i class="fas fa-copy ml-2" onclick="copyToClipboard(event, '{{ order.awb_no }}')" title="Copy to clipboard"></i>
                     </div>
                     <div class="total">
-                      <strong>Total:</strong> ₹{{ order.grand_total }}
+                      <strong>Total:</strong>$ {{ order.grand_total }}
                     </div>
                   </h4>
               </div>
@@ -123,7 +123,7 @@
                 <tbody>
                   {% for detail in order.order_details.all %}
                     <tr>
-                      <td class="text-center">
+                      <td>
                         {% with first_image=detail.product.product_images.first %}
                           {% if first_image %}
                             <img src="{{ first_image.image.url }}" alt="{{ detail.product.name }}" width="60px" height="60px" class="img-fluid" />
@@ -134,10 +134,10 @@
                       </td>
                       <td>{{ detail.product.name }}</td>
                       <td>Qty: {{ detail.quantity }}</td>
-                      <td>₹{{ detail.product.price }}</td>
+                      <td>$ {{ detail.product.price }}</td>
                       <td><span class="badge badge-primary badge-pill">₹{{ detail.amount }}</span></td>
                     </tr>
-                  {% endfor %}
+                  {% endfor %}  
                 </tbody>
               </table>
 
