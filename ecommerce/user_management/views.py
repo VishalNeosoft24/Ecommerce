@@ -1,4 +1,6 @@
 # Django core imports
+import os
+import json
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, views as auth_views
@@ -9,11 +11,13 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db import IntegrityError
-from django.core.paginator import Paginator
+from django.views.decorators.csrf import csrf_exempt
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 
 # Local app imports
-from admin_panel.models import Address, NewsLetter
+from admin_panel.models import Address
 from admin_panel.utils import send_user_credentials_email
 from order_management.models import UserOrder
 from user_management.forms import AddressForm, UpdateUserForm
@@ -451,3 +455,42 @@ def subscribe_newsletter(request):
                 status=400,
             )
     return JsonResponse({"message": "Invalid request method."}, status=405)
+
+
+@csrf_exempt
+def google_login(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        token = data.get("token")
+        try:
+            # Verify the token with Google
+            idinfo = id_token.verify_oauth2_token(
+                token, requests.Request(), os.environ.get("CLIENT_ID")
+            )
+            # Extract user information
+            email = idinfo["email"]
+            username = idinfo["email"].split("@")[0]
+
+            # Check if the user already exists, or create them
+            user, created = User.objects.get_or_create(
+                email=email,
+                defaults={"username": username},
+            )
+
+            if created:
+                if idinfo["given_name"]:
+                    user.first_name = idinfo["given_name"]
+                if idinfo["family_name"]:
+                    user.last_name = idinfo["family_name"]
+                # Set an unusable password for users logging in with Google
+                user.set_unusable_password()
+                user.save()
+
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+
+            return JsonResponse({"success": True})
+
+        except ValueError as e:
+            return JsonResponse({"success": False, "message": str(e)})
+
+    return JsonResponse({"success": False, "message": "Invalid request method."})
