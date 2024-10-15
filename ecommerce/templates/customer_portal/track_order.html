@@ -1,0 +1,114 @@
+{% extends 'customer_portal/customer_base.html' %}
+{% load static %}
+
+{% block title %}
+  Track Order
+{% endblock %}
+
+{% block content %}
+  <!-- Add CSS for proper layout -->
+  <style>
+    .order-status-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .order-status-wrapper .circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      color: white;
+    }
+    .order-status-wrapper .circle.active {
+      background-color: #fe980f; /* Change to indicate the active stage */
+    }
+    .order-status-wrapper .line {
+      flex: 1;
+      height: 5px;
+      background-color: #ccc;
+      margin: 0 10px;
+    }
+    .order-status-wrapper .line.active {
+      background-color: #fe980f; /* Active line color */
+    }
+    .status-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+
+  <div class="container mt-5">
+    <h1 class="text-center mb-4 font-weight-bold">Track Your Order</h1>
+
+    <!-- Order ID Form -->
+    <div class="d-flex justify-content-center mb-4">
+      <form method="post" class="form-inline">
+        {% csrf_token %}
+        <div class="input-group">
+          <input type="text" class="form-control" id="awb_no" name="awb_no" placeholder="Enter Order ID" value="{{ order.awb_no }}" aria-label="Order ID" aria-describedby="trackOrderButton" />
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-primary" id="trackOrderButton" style="margin-bottom: 10px;">Track Order</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Order Status Result -->
+    {% if order %}
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white"></div>
+        <div class="card-body">
+          <h3 class="card-title">Order ID: {{ order.awb_no }}</h3>
+          <div class="order-status-wrapper">
+            <!-- Step 1: Pending -->
+            <div class="circle {% if order.status == 'P' or order.status == 'O' or order.status == 'S' or order.status == 'D' %}active{% endif %}">1</div>
+            <div class="line {% if order.status == 'O' or order.status == 'S' or order.status == 'D' %}active{% endif %}"></div>
+
+            <!-- Step 2: Processing -->
+            <div class="circle {% if order.status == 'O' or order.status == 'S' or order.status == 'D' %}active{% endif %}">2</div>
+            <div class="line {% if order.status == 'S' or order.status == 'D' %}active{% endif %}"></div>
+
+            <!-- Step 3: Shipped -->
+            <div class="circle {% if order.status == 'S' or order.status == 'D' %}active{% endif %}">3</div>
+            <div class="line {% if order.status == 'D' %}active{% endif %}"></div>
+
+            <!-- Step 4: Delivered -->
+            <div class="circle {% if order.status == 'D' %}active{% endif %}">4</div>
+          </div>
+
+          <div class="status-labels">
+            <div>Pending</div>
+            <div>Processing</div>
+            <div>Shipped</div>
+            <div>Delivered</div>
+          </div>
+
+          <!-- Order Details Table -->
+          <table class="table table-bordered mt-4">
+            <thead class="thead-light">
+              <tr>
+                <th>Date</th>
+                <th>Total Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ order.created_at|date:'Y-m-d' }}</td>
+                <td>${{ order.grand_total }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer text-muted text-center">Thank you for shopping with us!</div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

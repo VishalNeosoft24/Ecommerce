@@ -784,3 +784,16 @@ def my_orders(request):
     page_obj = paginator.get_page(page_number)
 
     return render(request, "customer_portal/user_orders.html", {"page_obj": page_obj})
+
+
+def track_order(request):
+    """track order"""
+    try:
+        if request.method == "POST":
+            awb_no = request.POST.get("awb_no")
+            order = UserOrder.objects.filter(awb_no=awb_no).first()
+            return render(request, "customer_portal/track_order.html", {"order": order})
+
+        return render(request, "customer_portal/track_order.html")
+    except Exception as e:
+        return HttpResponse(str(e))

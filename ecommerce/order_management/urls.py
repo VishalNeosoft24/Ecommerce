@@ -46,4 +46,6 @@ urlpatterns = [
     # payment
     path("paymenthandler/", views.payment_handler, name="paymenthandler"),
     path("webhook/razorpay/", views.razorpay_webhook, name="razorpay_webhook"),
+    # Track Order Status
+    path("track-order/", views.track_order, name="track_order"),
 ]
