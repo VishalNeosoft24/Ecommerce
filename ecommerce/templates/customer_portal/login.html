@@ -22,7 +22,10 @@
               <p class="mb-1">
                 <a href="{% url 'password_reset' %}">I forgot my password</a>
               </p>
-              <button type="submit" class="btn btn-default">Login</button>
+              <div style="display: flex; justify-content: space-between;">
+                <button type="submit" class="btn btn-primary">Login</button>
+                <div class="g_id_signin" data-type="standard" style="margin-top: 23px;"></div>
+              </div>
               <!-- Display error message if any -->
             </form>
           </div>
@@ -52,9 +55,11 @@
                   <li>Your password should not be too similar to your username or personal information.</li>
                 </ul>
               </div>
-              <button type="submit" class="btn btn-default">Signup</button>
-              <h3>Social Login</h3>
-              <a href="{% provider_login_url 'google' %}" class="btn btn-primary">Login with Google</a>
+              <div style="display: flex; margin: auto; justify-content: space-between;">
+                <button type="submit" class="btn btn-default">Signup</button>
+                <div class="g_id_signin" data-type="standard"></div>
+              </div>
+              {% comment %} <a href="{% provider_login_url 'google' %}" class="btn btn-primary">Login with Google</a> {% endcomment %}
             </form>
           </div>
           <!-- /sign up form -->
@@ -63,6 +68,37 @@
     </div>
   </section>
   <!-- /form -->
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <div id="g_id_onload" data-client_id="873349130487-ggck2cvcga46cq323uf2044olnn31fk3.apps.googleusercontent.com" data-callback="handleCredentialResponse"></div>
+  <script>
+    function handleCredentialResponse(response) {
+      $.ajax({
+        url: '{% url "google-login" %}',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ token: response.credential }),
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        success: function (data) {
+          // Handle success or error
+          console.log(data)
+          if (data.success) {
+            // Redirect or update UI
+            window.location.href = '/'
+          } else {
+            // Handle errors
+            toastr.error(data.message || 'Login failed!')
+          }
+        },
+        error: function (xhr, status, error) {
+          console.error('Error:', error)
+          toastr.error('An error occurred during login. Please try again.')
+        }
+      })
+    }
+  </script>
 
   <script>
   {% if messages %}
