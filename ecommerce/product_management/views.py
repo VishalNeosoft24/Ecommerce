@@ -239,7 +239,7 @@ def product_list(request):
         if search_term:
             products = products.filter(name__icontains=search_term)
 
-        per_page = int(request.GET.get("per_page", 5))
+        per_page = int(request.GET.get("per_page", 6))
 
         # Pagination settings
         paginator = Paginator(products, per_page)  # Show 5 categories per page
