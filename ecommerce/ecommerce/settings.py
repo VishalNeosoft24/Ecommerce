@@ -192,8 +192,8 @@ CSRF_TRUSTED_ORIGINS = [
 
 
 AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
+    "django.contrib.auth.backends.ModelBackend",  # Default Django backend
+    "allauth.account.auth_backends.AuthenticationBackend",  # For Django Allauth
 ]
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -211,4 +211,6 @@ SOCIALACCOUNT_PROVIDERS = {
 
 LOGIN_REDIRECT_URL = "/"
 
-CORS_ALLOW_CREDENTIALS = True
+SECURE_CORS_ORIGIN_OPENER_POLICY = None
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
