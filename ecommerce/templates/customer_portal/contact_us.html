@@ -85,4 +85,13 @@
     </div>
   </div>
   <!-- /#contact-page -->
+
+  <script>
+    // Displaying messages using Toastr
+    {% if messages %}
+        {% for message in messages %}
+          toastr.{{ message.tags }}("{{ message }}");
+        {% endfor %}
+    {% endif %}
+  </script>
 {% endblock %}
