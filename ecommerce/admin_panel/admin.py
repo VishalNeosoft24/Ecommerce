@@ -5,7 +5,6 @@ from .models import (
     Banner,
     Address,
     EmailTemplate,
-    Banner,
     NewsLetter,
 )
 from django.contrib.auth.models import Permission
@@ -41,6 +40,7 @@ class BannerAdmin(admin.ModelAdmin):
         "url",
         "is_active",
         "status",
+        "display_order",
         "created_at",
         "updated_at",
         "deleted_at",
