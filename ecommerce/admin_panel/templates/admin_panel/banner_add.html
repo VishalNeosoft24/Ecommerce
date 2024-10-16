@@ -69,15 +69,25 @@
                     {% endif %}
                   </div>
 
-                  <!-- Display the current image if available -->
-                  {% comment %} {% if form.instance.image and 'update' in request.path %}
-                    <div class="form-group">
-                      <label for="current-image">Current Image:</label>
-                      <div>
-                        <img src="{{ form.instance.image.url }}" alt="Current Image" style="max-width: 200px; max-height: 200px;" />
-                      </div>
-                    </div>
-                  {% endif %} {% endcomment %}
+                  <div class="form-group">
+                    <label for="{{ form.display_order.id_for_label }}">Display Order:</label>
+                    {{ form.display_order }}
+                    {% if form.display_order.errors %}
+                      <div class="text-danger mt-2">{{ form.display_order.errors }}</div>
+                    {% endif %}
+                  </div>
+
+                  <div class="form-group">
+                    <label for="{{ form.is_active.id_for_label }}">Active:</label>
+                    <!-- Display Switch for the 'status' field -->
+                    <input type="checkbox" id="{{ form.is_active.id_for_label }}" name="{{ form.is_active.name }}"
+                          {% if form.is_active.value %}checked{% endif %}
+                          data-bootstrap-switch data-off-color="danger" data-on-color="success"
+                          data-on-text="Enabled" data-off-text="Disabled">
+                    {% if form.is_active.errors %}
+                        <div class="text-danger mt-2">{{ form.is_active.errors }}</div>
+                    {% endif %}
+                  </div>
 
                   <div class="card-footer mt-3">
                     <button type="submit" class="btn btn-primary">Save</button>
@@ -122,9 +132,12 @@
 
   <script>
     function openPreview(src) {
-      console.log('====================', src)
       $('#image-content').attr('src', src)
       $('#modal-preview').modal('show')
     }
+
+    $("input[data-bootstrap-switch]").each(function(){
+      $(this).bootstrapSwitch('state', $(this).prop('checked'));
+    })
   </script>
 {% endblock %}
