@@ -112,6 +112,12 @@ class Banner(BaseModel):
     url = models.URLField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     status = models.BooleanField(default=True)
+    display_order = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        """Ordering"""
+
+        ordering = ["display_order", "-updated_at", "id"]
 
     def __str__(self):
         return self.title
