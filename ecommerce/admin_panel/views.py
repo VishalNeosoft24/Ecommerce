@@ -23,7 +23,9 @@ import humanize
 
 from admin_panel.utils import (
     ReportExtraction,
+    send_admin_notification_for_new_user_registration,
     send_admin_reply_email,
+    send_order_status_update_email,
     send_user_credentials_email,
 )
 
@@ -253,6 +255,7 @@ def create_user(request):
                 user.groups.add(customer_group)
 
             send_user_credentials_email(user, password)
+            send_admin_notification_for_new_user_registration(user)
 
             return JsonResponse(
                 {"status": "success", "msg": "User created successfully."}
@@ -1821,7 +1824,7 @@ def get_all_banners(request):
 
     try:
         if request.method == "GET":
-            banners = Banner.objects.filter(is_active=True).order_by("id")
+            banners = Banner.objects.order_by("display_order")
             response = paginated_response(request, banners)
             paginated_banners = response.get("data")
             bannerlist = []
@@ -1834,6 +1837,8 @@ def get_all_banners(request):
                         "title": banner.title,
                         "image": banner.image.url if banner.image else "",
                         "url": banner.url,
+                        "display_order": banner.display_order,
+                        "is_active": "Enabled" if banner.is_active else "Disabled",
                     }
                 )
                 index += 1
@@ -1890,7 +1895,7 @@ def update_banner(request, id):
         if form.is_valid():
             banner = form.save(commit=False)
             banner.updated_by = request.user
-            banner.is_active = True
+            # banner.is_active = True
             banner.save()
             return redirect("all_banners")
         else:
@@ -2142,6 +2147,7 @@ def update_order(request, order_id):
         form = UserOrderForm(request.POST, instance=order)
         if form.is_valid():
             form.save()
+            send_order_status_update_email(order)
             return redirect("all_orders")
     else:
         form = UserOrderForm(instance=order)
