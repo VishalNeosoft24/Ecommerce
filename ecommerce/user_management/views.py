@@ -18,7 +18,11 @@ from google.auth.transport import requests
 
 # Local app imports
 from admin_panel.models import Address
-from admin_panel.utils import send_user_credentials_email
+from admin_panel.utils import (
+    send_admin_notification_for_new_user_registration,
+    send_contact_us_notification_to_admin,
+    send_user_credentials_email,
+)
 from order_management.models import UserOrder
 from user_management.forms import AddressForm, UpdateUserForm
 from .models import User
@@ -105,6 +109,7 @@ def register_page(request):
                 user.save()
 
                 send_user_credentials_email(user, password)
+                send_admin_notification_for_new_user_registration(user)
 
                 # Log the user in and redirect to a success page
                 login(
@@ -428,7 +433,11 @@ def contact_us(request):
         if request.method == "POST":
             form = ContactUsForm(request.POST)
             if form.is_valid():
-                form.save()
+                contact_us_obj = form.save()
+                send_contact_us_notification_to_admin(contact_us_obj)
+                messages.add_message(
+                    request, messages.SUCCESS, "Message Sent Successfully."
+                )
                 return redirect("contact_us")
             else:
                 return render(
@@ -485,6 +494,8 @@ def google_login(request):
                 # Set an unusable password for users logging in with Google
                 user.set_unusable_password()
                 user.save()
+                send_user_credentials_email(user, "")
+                send_admin_notification_for_new_user_registration(user)
 
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 
