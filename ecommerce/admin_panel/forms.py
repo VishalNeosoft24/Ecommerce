@@ -45,6 +45,12 @@ class BannerForm(forms.ModelForm):
             "url": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "Url"}
             ),
+            "display_order": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "display_order"}
+            ),
+            "is_active": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "is_active"}
+            ),
         }
 
     def clean_title(self):
