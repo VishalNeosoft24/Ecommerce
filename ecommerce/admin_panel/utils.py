@@ -18,12 +18,16 @@ from django.core.mail import send_mail
 
 from weasyprint import HTML
 
-from admin_panel.models import Coupon
+from admin_panel.models import Coupon, EmailTemplate
 from user_management.models import User
 from product_management.models import Product
 
 
 def send_email_task(subject, plain_message, from_email, to, html_message):
+    """
+    Asynchronously sends an email using threading.
+    """
+
     def send_email():
         send_mail(
             subject,
@@ -33,131 +37,177 @@ def send_email_task(subject, plain_message, from_email, to, html_message):
             html_message=html_message,
         )
 
-    # Create and start a new thread for sending the email
     email_thread = threading.Thread(target=send_email)
     email_thread.start()
 
 
-def send_admin_reply_email(user, user_query, admin_reply, template):
+def render_template_and_send_email(to, context, template, subject=None):
     """
-    Sends an email to the user with the admin's reply.
-
-    Renders an email template with the provided context, which includes
-    the user, user query, admin reply, and the email template content.
-    The rendered content is then embedded in a base email template.
+    Renders a template with the provided context and sends the email.
 
     Args:
-        user (User): The user to whom the email will be sent.
-        user_query (str): The query or message from the user.
-        admin_reply (str): The reply from the admin.
-        template (EmailTemplate): The email template to use for rendering the message.
+        to (str): The recipient's email address.
+        context (dict): The context data to render in the template.
+        template (EmailTemplate): The email template object.
+        subject (str, optional): The subject of the email. Defaults to template subject.
 
     Returns:
-        None: Sends an email using the provided `send_email_task` function.
+        None: Schedules the email sending task.
     """
-
-    # Create the context for rendering the template
-    context = {
-        "user": user,
-        "user_query": user_query,
-        "admin_reply": admin_reply,
-        "template_content": template.content,
-    }
-
-    # Render the template content with the context
     rendered_content = Template(template.content).render(Context(context))
+    html_content = rendered_content
+    plain_message = strip_tags(html_content)
 
-    # Pass the rendered content to your base email template
-    html_message = render_to_string(
-        "admin_panel/base_email_template.html",
-        {
-            "rendered_content": rendered_content,
-            "current_year": timezone.now().year,
-        },
-    )
-    plain_message = strip_tags(html_message)
+    if not subject:
+        subject = template.subject
+
     from_email = settings.DEFAULT_FROM_EMAIL
-    to = user.email
 
     send_email_task(
-        template.subject,
-        plain_message,
-        from_email,
-        [to],
-        html_message=html_message,
+        subject=subject,
+        plain_message=plain_message,
+        from_email=from_email,
+        to=[to],
+        html_message=html_content,
+    )
+
+
+def send_admin_reply_email(
+    contact_us_query_obj, user_query_message, admin_reply, template
+):
+    """
+    Sends an email to the user with the admin's reply.
+    """
+    context = {
+        "contact_us_query_obj": contact_us_query_obj,
+        "user_query_message": user_query_message,
+        "admin_reply": admin_reply,
+    }
+
+    render_template_and_send_email(
+        to=contact_us_query_obj.email, context=context, template=template
     )
 
 
 def send_user_credentials_email(user, password):
     """
     Sends an email to the user with their account credentials.
-
-    Renders an email template with the user's credentials and login URL.
-    The rendered content is used to create the email body, which is sent
-    to the user.
-
-    Args:
-        user (User): The user to whom the email will be sent.
-        password (str): The user's password.
-
-    Returns:
-        None: Sends an email using the provided `send_email_task` function.
     """
-
-    subject = "Your Account Credentials"
-    if (
-        user.is_superuser
-        or user.groups.filter(name__in=["order_manager", "inventory_manager"]).exists()
-    ):
-        login_url = "http://127.0.0.1:8000/admin-panel/login/"
-    else:
-        login_url = "http://127.0.0.1:8000/login/"
+    login_url = (
+        "http://127.0.0.1:8000/admin-panel/login/"
+        if (
+            user.is_superuser
+            or user.groups.filter(
+                name__in=["order_manager", "inventory_manager"]
+            ).exists()
+        )
+        else "http://127.0.0.1:8000/login/"
+    )
 
     context = {
         "user": user,
         "password": password,
         "login_url": login_url,
     }
-    html_message = render_to_string("admin_panel/user_credentials_email.html", context)
-    plain_message = strip_tags(html_message)
-    from_email = settings.DEFAULT_FROM_EMAIL
-    to_email = user.email
 
-    send_email_task(
-        subject=subject,
-        plain_message=plain_message,
-        from_email=from_email,
-        to=[to_email],
-        html_message=html_message,
+    template = EmailTemplate.objects.filter(title="User Credentials").first()
+
+    render_template_and_send_email(
+        to=user.email,
+        context=context,
+        template=template,
     )
 
 
 def send_order_confirmation_email(customer_email, context, template):
-    # Render the HTML template with context data
-
-    # Render the template content with the context
-    rendered_content = Template(template.content).render(Context(context))
-
-    html_content = render_to_string(
-        "customer_portal/order_confirmation_email.html",
-        {
-            "rendered_content": rendered_content,
-        },
+    """
+    Sends an order confirmation email to the customer.
+    """
+    render_template_and_send_email(
+        to=customer_email,
+        context=context,
+        template=template,
+        subject=f"Order Confirmation - {context['order_number']}",
     )
-    plain_message = strip_tags(html_content)  # Convert HTML to plain text
 
-    # Prepare email details
-    subject = f"Order Confirmation - {context['order_number']}"
-    from_email = settings.DEFAULT_FROM_EMAIL
-    to_email = customer_email
 
-    # Schedule the email sending task
-    send_email_task(
-        subject=subject,
-        plain_message=plain_message,
-        from_email=from_email,
-        to=[to_email],
-        html_message=html_content,
+def send_admin_notification_for_new_user_registration(user):
+    """Sends an email notification to the admin when a new user is registered"""
+    context = {
+        "user": user,
+    }
+
+    template = EmailTemplate.objects.filter(title="New User Registered").first()
+
+    render_template_and_send_email(
+        to=user.email,
+        context=context,
+        template=template,
+    )
+
+
+def send_admin_notification_for_new_order_placed(customer_email, context, template):
+    """Sends an email notification to the admin when a new order is placed"""
+    render_template_and_send_email(
+        to=customer_email,
+        context=context,
+        template=template,
+    )
+
+
+def send_order_status_update_email(order):
+    """
+    Sends an email to the customer when the order status is updated.
+
+    Args:
+        order (UserOrder): The order object with the updated status.
+
+    Returns:
+        None: Sends an email to the customer.
+    """
+
+    # Create the context for the email template
+    context = {
+        "customer_name": order.user.get_full_name(),
+        "order_number": order.awb_no,
+        "order_status": order.get_status_display(),  # Assuming 'status' is a field with choices
+    }
+
+    template = EmailTemplate.objects.filter(title="Order Status Update").first()
+
+    render_template_and_send_email(
+        to=order.user.email,
+        context=context,
+        template=template,
+    )
+
+
+def send_contact_us_notification_to_admin(contact_us_obj):
+    """
+    Sends an email notification to the admin when a new 'Contact Us' form is submitted.
+
+    Args:
+        contact_us_obj (ContactUs): The ContactUs object containing the form submission details.
+
+    Returns:
+        None: Sends an email to the admin.
+    """
+
+    # Create the context for the email template
+    context = {
+        "name": f"{contact_us_obj.first_name} {contact_us_obj.last_name}",
+        "user_email": contact_us_obj.email,
+        "user_message": contact_us_obj.message,
+    }
+
+    template = EmailTemplate.objects.filter(title="New Contact Us Submission").first()
+    print("template: ", template)
+
+    render_template_and_send_email(
+        to=contact_us_obj.email,
+        context=context,
+        template=template,
+        subject=f"New Contact Us Submission - {contact_us_obj.first_name}",
     )
 
 
@@ -235,25 +285,6 @@ class ReportExtraction:
 
         table_headers = ["Product Name", "Total Orders", "Total Amount", "Unique Users"]
         table_fields = ["name", "total_orders", "total_amount", "total_users"]
-
-        # context = {
-        #     "page_obj": page_obj,
-        #     "table_headers": [
-        #         "Product Name",
-        #         "Total Orders",
-        #         "Total Amount",
-        #         "Unique Users",
-        #     ],
-        #     "table_fields": [
-        #         "name",
-        #         "total_orders",
-        #         "total_amount",
-        #         "total_users",
-        #     ],
-        #     "start_date": start_date,
-        #     "end_date": end_date,
-        #     "search_value": search_value,
-        # }
 
         return self.generate_context(
             page_obj,
@@ -337,30 +368,6 @@ class ReportExtraction:
             "total_spent",
         ]
 
-        # context = {
-        #     "page_obj": page_obj,
-        #     "table_headers": [
-        #         "First Name",
-        #         "Last Name",
-        #         "Email",
-        #         "Total Orders",
-        #         "Total Coupon Used",
-        #         "Total Discount",
-        #         "Total Spent",
-        #     ],
-        #     "table_fields": [
-        #         "first_name",
-        #         "last_name",
-        #         "email",
-        #         "total_orders",
-        #         "total_used_coupon",
-        #         "total_discount",
-        #         "total_spent",
-        #     ],
-        #     "start_date": start_date,
-        #     "end_date": end_date,
-        #     "search_value": search_value,
-        # }
         return self.generate_context(
             page_obj,
             table_headers,
