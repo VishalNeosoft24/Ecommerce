@@ -95,6 +95,70 @@ class AddressForm(forms.ModelForm):
             "default": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
+    def clean_country(self):
+        """Validate country format and check if it is not empty."""
+        country = self.cleaned_data.get("country")
+
+        if not country:
+            raise ValidationError(_("Country is required."))
+
+        if not country.isalpha():
+            raise ValidationError(
+                _(
+                    "Country must contain only letters. Please enter a valid country name."
+                )
+            )
+
+        return country
+
+    def clean_state(self):
+        """Validate state format."""
+        state = self.cleaned_data.get("state")
+        print("state: ", state)
+        if not state.isalpha():
+            raise ValidationError(
+                _("State must contain only letters. Please enter a valid state name.")
+            )
+        return state
+
+    def clean_city(self):
+        """Validate city format."""
+        city = self.cleaned_data.get("city")
+        if not city.isalpha():
+            raise ValidationError(
+                _("City must contain only letters. Please enter a valid city name.")
+            )
+        return city
+
+    def clean_pincode(self):
+        """Validate pincode format"""
+        pincode = self.cleaned_data.get("pincode")
+        if len(pincode) != 6 or not pincode.isdigit():
+            raise ValidationError(_("Pincode must be exactly 6 digits."))
+        return pincode
+
+    def clean_phone_number(self):
+        """Validate phone number format"""
+        phone_number = self.cleaned_data.get("phone_number")
+        if len(phone_number) != 10 or not phone_number.isdigit():
+            raise ValidationError(_("Phone number must be exactly 10 digits."))
+        return phone_number
+
+    def clean(self):
+        """Form-wide validation"""
+        cleaned_data = super().clean()
+
+        street_address = cleaned_data.get("street_address")
+        apartment_number = cleaned_data.get("apartment_number")
+
+        if not street_address and not apartment_number:
+            raise ValidationError(
+                _("Either street address or apartment number must be provided.")
+            )
+
+        # Add more form-wide validations as needed
+        return cleaned_data
+
 
 class ContactUsForm(forms.ModelForm):
     """Contact Us Form"""
