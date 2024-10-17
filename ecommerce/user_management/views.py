@@ -231,7 +231,7 @@ def profile_page(request):
             form = UpdateUserForm(request.POST, instance=user)
             if form.is_valid():
                 form.save()
-                return redirect("profile_page")  # Redirect to a profile page or similar
+                return redirect("profile_page")
             else:
                 render(
                     request,
@@ -304,7 +304,6 @@ def add_address(request):
         for adding an address, or redirects to the profile page after a
         successful address creation.
     """
-
     if request.method == "POST":
         form = AddressForm(request.POST)
         if form.is_valid():
@@ -314,9 +313,11 @@ def add_address(request):
             address.updated_by = request.user
             address.is_active = True
             address.save()
-            return redirect(
-                "profile_page"
-            )  # Replace 'address_list' with your success URL
+            # Get the redirect URL
+            redirect_url = request.GET.get(
+                "redirect", "profile_page"
+            )  # Default to profile_page
+            return redirect(redirect_url)
         else:
             return render(request, "customer_portal/add_address.html", {"form": form})
 
@@ -368,8 +369,8 @@ def delete_address(request, id):
     """
     Deletes an address for the logged-in user.
 
-    Fetches the address by ID and deletes it. Redirects to the profile page
-    after successful deletion.
+    If the deleted address is marked as default, assigns another address
+    (if available) as the default.
 
     Args:
         request (HttpRequest): The HTTP request object.
@@ -382,9 +383,24 @@ def delete_address(request, id):
     """
 
     try:
-        address = Address.objects.get(id=id)
-        address.delete()
+        address = Address.objects.get(id=id, user=request.user)
+        was_default = address.default  # Check if this was the default address
+
+        address.active = False
+        address.save()
+
+        # If it was the default address, set another one as default if available
+        if was_default:
+            # Get another address for the user, if exists
+            next_address = Address.objects.filter(
+                active=True, user=request.user
+            ).first()
+            if next_address:
+                next_address.default = True
+                next_address.save()
+
         return redirect("profile_page")
+
     except Address.DoesNotExist:
         return JsonResponse({"status": "error", "msg": "Address not found"}, status=404)
 
