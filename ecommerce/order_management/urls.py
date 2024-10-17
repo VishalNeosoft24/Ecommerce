@@ -39,7 +39,6 @@ urlpatterns = [
         views.order_successful,
         name="order_successful",
     ),
-    path("add-address", views.add_address, name="add_address"),
     path("order/<int:order_id>/", views.order_pdf_view, name="order_pdf"),
     path("order-detail/<int:order_id>/", views.order_detail_view, name="order_detail"),
     path("orders", views.my_orders, name="my_orders"),
