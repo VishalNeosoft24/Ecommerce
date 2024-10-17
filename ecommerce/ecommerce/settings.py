@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "django_celery_beat",
+    "debug_toolbar",
 ]
 
 SITE_ID = 1
@@ -68,6 +70,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "ecommerce.urls"
@@ -214,3 +217,31 @@ LOGIN_REDIRECT_URL = "/"
 SECURE_CORS_ORIGIN_OPENER_POLICY = None
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+
+
+# Celery settings
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    "send-daily-order-summary": {
+        "task": "order_management.tasks.send_daily_order_summary",
+        "schedule": 10.00,  # Runs every 10 seconds
+    },
+    "send-weekly-wishlist-summary": {
+        "task": "order_management.tasks.send_weekly_wishlist_summary",
+        # "schedule": crontab(
+        #     day_of_week=0, hour=8, minute=0
+        # ),  # Runs every Sunday at 8:00 AM
+        "schedule": 10.00,
+    },
+}
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
