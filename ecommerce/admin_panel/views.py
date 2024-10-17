@@ -70,6 +70,7 @@ def home(request):
         orders = UserOrder.objects.all().count()
         products = Product.objects.filter(is_active=True).all().count()
         users = User.objects.filter(is_active=True).all().count()
+        queries = ContactUs.objects.all().count()
 
         user_data = (
             User.objects.filter(date_joined__year=datetime.now().year)
@@ -105,7 +106,7 @@ def home(request):
                 "total_order": orders,
                 "total_product": products,
                 "total_user": users,
-                "queries": 10,
+                "queries": queries,
                 "months": json.dumps(months),
                 "user_counts": json.dumps(user_counts),
                 "month_labels": json.dumps(month_labels),
@@ -2088,7 +2089,7 @@ def get_all_orders(request):
         orders = (
             UserOrder.objects.filter(search_query)
             .prefetch_related("order_details")
-            .order_by("id")
+            .order_by("-id")
         )
         response = paginated_response(request, orders)
         paginated_orders = response.get("data")
