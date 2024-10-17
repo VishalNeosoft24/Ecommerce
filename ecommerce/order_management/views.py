@@ -683,24 +683,6 @@ def order_successful(request, order_id):
 
 
 @login_required(login_url="login_page")
-def add_address(request):
-    if request.method == "POST":
-        form = AddressForm(request.POST)
-        if form.is_valid():
-            address = form.save(commit=False)
-            address.user = request.user
-            address.created_by = request.user
-            address.updated_by = request.user
-            address.is_active = True
-            address.save()
-            return JsonResponse({"status": "success"})
-    else:
-        form = AddressForm()
-
-    return render(request, "customer_portal/add_address.html", {"form": form})
-
-
-@login_required(login_url="login_page")
 def order_pdf_view(request, order_id):
     """View to generate PDF for a specific order."""
     try:
