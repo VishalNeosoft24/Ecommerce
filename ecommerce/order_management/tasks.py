@@ -78,9 +78,7 @@ def send_weekly_wishlist_summary():
             title="Weekly Wish List Summary"
         ).first()
         rendered_content = Template(template.content).render(Context(context))
-        print("rendered_content: ", rendered_content)
         plain_message = strip_tags(rendered_content)
-        print("plain_message: ", plain_message)
 
         send_mail(
             subject,
