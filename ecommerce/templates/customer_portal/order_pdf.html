@@ -4,117 +4,154 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Order Summary</title>
     <style>
+      /* General Page Styling */
       body {
-        font-family: Arial, sans-serif;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        background-color: #f9f9f9;
         margin: 0;
         padding: 20px;
-        background-color: #f4f4f4;
       }
       .container {
-        max-width: 800px;
-        margin: 0 auto;
+        max-width: 850px;
+        margin: 20px auto;
         background: #fff;
         padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       }
       h1,
       h3 {
+        font-family: 'Segoe UI Semibold';
         color: #333;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      }
-      h1 {
-        font-size: 24px;
-        border-bottom: 2px solid #007bff;
-        padding-bottom: 10px;
         margin-bottom: 20px;
       }
+      h1 {
+        font-size: 28px;
+        border-bottom: 2px solid #4a90e2;
+        padding-bottom: 12px;
+      }
       h3 {
-        font-size: 18px;
-        color: #007bff;
-        margin-top: 20px;
-        border-bottom: 1px solid #e9ecef;
-        padding-bottom: 5px;
+        font-size: 20px;
+        color: #4a90e2;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 8px;
       }
       p {
         margin: 5px 0;
         color: #555;
       }
+      
+      /* Table Styling */
       .table {
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 20px;
-        border: 1px solid #ddd;
       }
       .table th,
       .table td {
+        padding: 12px;
         border: 1px solid #ddd;
-        padding: 10px;
         text-align: left;
       }
       .table th {
         background-color: #007bff;
         color: #fff;
+        font-weight: 600;
       }
       .table tbody tr:nth-child(even) {
-        background-color: #f9f9f9;
+        background-color: #f7f9fc;
       }
-      .text-success {
-        color: #28a745;
+      .table tbody tr:hover {
+        background-color: #eef4fc;
       }
-      .row {
-        display: flex;
-        flex-wrap: wrap;
-        margin: 0 -10px;
-      }
-      .col {
-        flex: 1;
-        padding: 0 10px;
-        box-sizing: border-box;
-      }
-      .col-6 {
-        width: 50%;
-      }
-      .panel {
-        margin-bottom: 20px;
+      
+      /* Button and Links */
+      .button {
+        background-color: #28a745;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
         border-radius: 5px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
       }
-      .panel-heading {
-        background-color: #007bff;
-        color: white;
+      .button:hover {
+        background-color: #218838;
+      }
+      .link {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .link:hover {
+        text-decoration: underline;
+      }
+      
+      /* Payment Info Styling */
+      .payment-info {
+        margin-top: 25px;
         padding: 15px;
-        border-bottom: 1px solid #e9ecef;
-        border-top-left-radius: 5px;
-        border-top-right-radius: 5px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #fdfdfd;
       }
-      .panel-body {
-        padding: 15px;
-        background-color: #fff;
+      .payment-info h4 {
+        color: #007bff;
+        font-size: 20px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 8px;
       }
+      .payment-info ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .payment-info li {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .payment-info strong {
+        display: inline-block;
+        width: 180px;
+        color: #555;
+      }
+      
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .col-6 {
+          width: 100%;
+          margin-bottom: 20px;
+        }
+      }
+      
       .footer {
         margin-top: 30px;
-        padding-top: 10px;
-        border-top: 1px solid #ddd;
         text-align: center;
-        font-size: 12px;
+        font-size: 13px;
         color: #777;
+        padding-top: 15px;
+        border-top: 1px solid #ddd;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>Order Summary</h1>
-      <p>
-        <strong>Order Number:</strong> {{ order_number }}
-      </p>
-      <p>
-        <strong>Order Date:</strong> {{ order.created_at|date:'F j, Y' }}
-      </p>
 
-      <h3>User Details</h3>
+      <div>
+        <p>
+          <strong>Order Number:</strong> {{ order_number }}
+        </p>
+        <p>
+          <strong>Order Date:</strong> {{ order.created_at|date:'F j, Y' }}
+        </p>
+      </div>
+
+      <h3>User Information</h3>
       <p>
         <strong>Username:</strong> {{ user.username }}
       </p>
@@ -125,7 +162,7 @@
         <strong>Email:</strong> {{ user.email }}
       </p>
 
-      <h3>Products</h3>
+      <h3>Order Details</h3>
       <table class="table">
         <thead>
           <tr>
@@ -158,6 +195,29 @@
         <strong>Total:</strong> <span class="text-success">${{ order_total|floatformat:2 }}</span>
       </p>
 
+      <!-- Payment Info Section -->
+      <div class="payment-info">
+        <h4>Payment Information</h4>
+        <ul>
+          <li>
+            <strong>Payment Method:</strong> {{ order.payment_gateway.name }}
+          </li>
+          {% if order.payment_id %}
+            <li>
+              <strong>Payment ID:</strong> {{ order.payment_id }}
+            </li>
+          {% endif %}
+          {% if order.transaction_id %}
+            <li>
+              <strong>Transaction ID:</strong> {{ order.transaction_id }}
+            </li>
+          {% endif %}
+          <li>
+            <strong>Payment Status:</strong> {{ order.get_payment_status_display }}
+          </li>
+        </ul>
+      </div>
+
       <div class="row">
         <div class="col col-6">
           <h3>Shipping Information</h3>
@@ -177,6 +237,7 @@
             <strong>Country:</strong> {{ order.shipping_address.country }}
           </p>
         </div>
+
         <div class="col col-6">
           <h3>Billing Information</h3>
           <p>
@@ -196,7 +257,8 @@
           </p>
         </div>
       </div>
-      <div class="footer">Thank you for your business! If you have any questions, please contact us.</div>
+
+      <div class="footer">Thank you for shopping with us! For any questions or concerns, please contact us.</div>
     </div>
   </body>
 </html>
