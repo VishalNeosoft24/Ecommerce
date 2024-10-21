@@ -130,6 +130,15 @@ class UserOrder(BaseModel):
             self.awb_no = self.generate_awb_no()
         self.created_by = self.user
         self.updated_by = self.user
+        # Log status change with human-readable status
+        if (
+            self.id is None
+            or self.status != self.__class__.objects.get(id=self.id).status
+        ):
+            # Use Django's built-in get_status_display() to get human-readable status
+            human_readable_status = self.get_status_display()
+            order_status_log = OrderStatusLogs(order=self, status=human_readable_status)
+            order_status_log.save()
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -213,3 +222,14 @@ class PaymentLogs(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
+
+
+class OrderStatusLogs(models.Model):
+    """Order status logs"""
+
+    order = models.ForeignKey(
+        UserOrder, on_delete=models.DO_NOTHING, verbose_name="User Order"
+    )
+    status = models.CharField(max_length=10)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
