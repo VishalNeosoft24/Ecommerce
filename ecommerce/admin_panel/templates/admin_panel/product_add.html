@@ -593,7 +593,6 @@
   document.addEventListener('DOMContentLoaded', function () {
       $('.delete-existing-image').on('click', function () {
           var imageId = $(this).data('image-id');
-          console.log('imageId: ', imageId);
 
           $.ajax({
               url: '/admin-panel/delete_file/',
@@ -603,15 +602,14 @@
                   csrfmiddlewaretoken: getCsrfToken(),  // Assuming you have a function to get the CSRF token
               },
               success: function (response) {
-                  console.log("response = ", response);
                   if (response.success) {  // Assuming the response contains a 'success' field
                       $(this).closest('.existing-image-preview').remove();  // Remove the image preview from the DOM
                   } else {
-                      console.error('Failed to delete the image.');
+                      console.log('Failed to delete the image.');
                   }
               }.bind(this),  // Use .bind(this) to keep the context of `this`
               error: function (xhr, status, error) {
-                  console.error('Failed to delete the image.', error);
+                  console.log('Failed to delete the image.', error);
               }
           });
       });
@@ -806,14 +804,17 @@
           headers: {
               'X-CSRFToken': getCsrfToken(),
           },
-          success: function (data) {
-              toastr.success(data.msg);
-              console.log("attributes_data===", data)
+          success: function (response) {
+            if (response.status == "success") {
+              toastr.success(response.msg);
               window.location.href = "{% url 'all_products' %}";
+            }else{
+                toastr.error(response.msg);
+            }
           },
-          error: function (error) {
-              console.error('Error:', error);
-              toastr.error('An error occurred while saving attributes.');
+          error: function (xhr) {
+            var errorMsg = xhr.responseJSON ? xhr.responseJSON.msg : 'An error occurred.'
+            toastr.error(errorMsg)
           }
       });
   });
@@ -827,7 +828,6 @@
 
   // Handle adding new values in the modal
   document.getElementById('add_value').addEventListener('click', function () {
-      console.log("====edit_attribute_values_container====")
       const valuesContainer = document.getElementById('edit_attribute_values_container');
       const valueElement = document.createElement('div');
       valueElement.classList.add('input-group', 'mb-2');
@@ -918,13 +918,10 @@
   // Handle saving changes
   $('#saveAttributeChanges').on('click', function(e) {
     e.preventDefault();  // Prevent the default form submission behavior
-
     const attributeId = $('#edit_attribute_id').val();
 
     const form = $('#editAttributeForm')[0];  // Get the form element
     const formData = new FormData(form);  // Create a FormData object from the form
-
-    console.log("formData =", formData);
 
     $.ajax({
         url: `/admin-panel/attributes/${attributeId}/`,  // Adjust URL based on your API endpoint
@@ -933,15 +930,29 @@
         processData: false,  // Prevent jQuery from automatically transforming the data into a query string
         contentType: false,  // Prevent jQuery from overriding the `Content-Type` header with `multipart/form-data`
         success: function(data) {
-            if (data.success) {
+            if (data.status == 'success') {
                 location.reload();  // Reload page or update UI as needed
             } else {
                 // Handle errors
-                console.error('Error:', data.message);
+                toastr.error(data.msg)
+                console.log('Error:', data.msg);
             }
         },
         error: function(jqXHR, textStatus, errorThrown) {
             console.error('AJAX Error:', textStatus, errorThrown);
+            try {
+                // Parse the error response
+                const errorData = JSON.parse(jqXHR.responseText);
+                if (errorData.status == 'error') {
+                    toastr.error(errorData.msg);  // Show error message from server response
+                } else {
+                    toastr.error('An unknown error occurred.');
+                }
+            } catch (err) {
+                toastr.error('An error occurred while processing your request.');
+            }
+            console.error('AJAX Error:', textStatus, errorThrown);
+            console.error('An error occurred:', jqXHR.responseText);
         }
     });
   });

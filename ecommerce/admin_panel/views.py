@@ -548,7 +548,7 @@ def get_all_products(request):
             )
 
             products = Product.objects.filter(search_query, is_active=True).order_by(
-                "id"
+                "-id"
             )
 
             response = paginated_response(request, products)
@@ -683,14 +683,34 @@ def handle_attributes(request):
                         updated_by=user,
                     )
 
+                    if not created:
+                        return JsonResponse(
+                            {
+                                "status": "error",
+                                "msg": f"Attribute '{attribute_name}' already exists for this product",
+                            },
+                            status=400,
+                        )
+
                     # Create ProductAttributeValue objects
                     for value in values:
-                        ProductAttributeValue.objects.get_or_create(
-                            product_attribute=product_attribute,
-                            attribute_value=value,
-                            created_by=user,
-                            updated_by=user,
+                        attribute_value, value_created = (
+                            ProductAttributeValue.objects.get_or_create(
+                                product_attribute=product_attribute,
+                                attribute_value=value,
+                                created_by=user,
+                                updated_by=user,
+                            )
                         )
+
+                        if not value_created:
+                            return JsonResponse(
+                                {
+                                    "status": "error",
+                                    "msg": f"Attribute value '{value}' for attribute '{attribute_name}' already exists",
+                                },
+                                status=400,
+                            )
 
             # Return a JSON response indicating success
             return JsonResponse(
@@ -735,13 +755,29 @@ def update_attribute(request, id):
             }
             return JsonResponse(data)
         except ProductAttribute.DoesNotExist:
-            return JsonResponse({"error": "Attribute not found"}, status=404)
+            return JsonResponse(
+                {"status": "error", "msg": "Attribute not found"}, status=404
+            )
 
     elif request.method == "POST":
         try:
             attribute_id = request.POST.get("attribute_id")
             attribute_name = request.POST.get("attribute_name")
             values = request.POST.getlist("values[]")
+
+            # Check if another attribute with the same name exists
+            if (
+                ProductAttribute.objects.filter(name=attribute_name)
+                .exclude(pk=attribute_id)
+                .exists()
+            ):
+                return JsonResponse(
+                    {
+                        "status": "error",
+                        "msg": f"Attribute name '{attribute_name}' already exists",
+                    },
+                    status=400,
+                )
 
             # Fetch and update the attribute
             attribute = ProductAttribute.objects.get(pk=attribute_id)
@@ -754,6 +790,17 @@ def update_attribute(request, id):
             # Check if values list is not empty before attempting to create new entries
             if values:
                 for value in values:
+                    # Ensure that the value is unique for the attribute
+                    if ProductAttributeValue.objects.filter(
+                        product_attribute=attribute, attribute_value=value
+                    ).exists():
+                        return JsonResponse(
+                            {
+                                "status": "error",
+                                "msg": f"Attribute value '{value}' already exists for this attribute",
+                            },
+                            status=400,
+                        )
                     ProductAttributeValue.objects.create(
                         product_attribute=attribute,
                         attribute_value=value,
@@ -761,15 +808,19 @@ def update_attribute(request, id):
                         updated_by=request.user,
                     )
             else:
-                return JsonResponse({"error": "Values list is empty"}, status=400)
+                return JsonResponse(
+                    {"status": "error", "msg": "Values list is empty"}, status=400
+                )
 
-            return JsonResponse({"success": True})
+            return JsonResponse({"status":"success"})
 
         except ProductAttribute.DoesNotExist:
-            return JsonResponse({"error": "Attribute not found"}, status=404)
+            return JsonResponse(
+                {"status": "error", "msg": "Attribute not found"}, status=404
+            )
         except Exception as e:
             # Return the error message with status 400 for debugging purposes
-            return JsonResponse({"error": str(e)}, status=400)
+            return JsonResponse({"status": "error", "msg": str(e)}, status=400)
 
 
 @check_user_permission(
