@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import PaymentGateway, PaymentLogs, UserOrder, OrderDetail, UserWishList
+from .models import (
+    PaymentGateway,
+    PaymentLogs,
+    UserOrder,
+    OrderDetail,
+    UserWishList,
+    OrderStatusLogs,
+)
 
 
 # Register your models here.
@@ -76,3 +83,14 @@ class UserWishListAdmin(admin.ModelAdmin):
 @admin.register(PaymentLogs)
 class PaymentLogsAdmin(admin.ModelAdmin):
     list_display = ["id", "pay_ord_id", "pay_status", "response_dict"]
+
+
+@admin.register(OrderStatusLogs)
+class OrderStatusLogsAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "order",
+        "status",
+        "created_at",
+        "updated_at",
+    ]
