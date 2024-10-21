@@ -159,16 +159,3 @@ class EmailLogs(models.Model):
     to = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-
-class OrderStatusLogs(models.Model):
-    """Order status logs"""
-
-    from order_management.models import UserOrder
-
-    order = models.ForeignKey(
-        UserOrder, on_delete=models.DO_NOTHING, verbose_name="User Order"
-    )
-    status = models.CharField(max_length=10)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
