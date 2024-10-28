@@ -60,15 +60,11 @@
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         var backButton = document.getElementById('back-button')
-        var referrer = document.referrer
-        console.log(referrer)
       
-        if (referrer) {
-          backButton.href = referrer
-        } else {
-          // If no referrer, fallback to the homepage
-          backButton.href = '/'
-        }
+        backButton.addEventListener('click', function (event) {
+          event.preventDefault() // Prevent the default anchor click behavior
+          window.history.back() // Go back to the previous page in history
+        })
       })
     </script>
   </body>
