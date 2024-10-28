@@ -201,7 +201,6 @@ def send_contact_us_notification_to_admin(contact_us_obj):
     }
 
     template = EmailTemplate.objects.filter(title="New Contact Us Submission").first()
-    print("template: ", template)
 
     render_template_and_send_email(
         to=contact_us_obj.email,
