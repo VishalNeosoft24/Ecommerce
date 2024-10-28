@@ -324,7 +324,9 @@ def remove_coupon(request):
 def wishlist_list(request):
     """Cart Functionality"""
     try:
-        wishlist_products = UserWishList.objects.filter(user=request.user)
+        wishlist_products = UserWishList.objects.filter(user=request.user).order_by(
+            "-created_at"
+        )
         # Pagination
         paginator = Paginator(wishlist_products, 6)  # Show 10 orders per page
         page_number = request.GET.get("page")
@@ -633,7 +635,6 @@ def payment_handler(request):
 def razorpay_webhook(request):
     """Handles webhook notifications from Razorpay."""
     response = json.loads(request.body.decode("utf8"))
-    print("response: ", response)
     try:
         # Extract event and payload
         event = response.get("event", "")
@@ -666,7 +667,6 @@ def order_successful(request, order_id):
     try:
         order = UserOrder.objects.filter(id=order_id, user=request.user).first()
         discount_amount = order.get_sub_total() - float(order.grand_total)
-        print("discount_amount: ", discount_amount)
         if order is None:
             return render(request, "customer_portal/order_not_found.html", {})
         return render(
@@ -688,7 +688,6 @@ def order_pdf_view(request, order_id):
     try:
         order = UserOrder.objects.get(id=order_id)
         discount_amount = float(order.get_sub_total()) - float(order.grand_total)
-        print("discount_amount: ", discount_amount)
 
         # Render the HTML template
         template = get_template("customer_portal/order_pdf.html")
