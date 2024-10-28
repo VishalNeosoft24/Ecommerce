@@ -6,6 +6,7 @@ from .models import (
     Address,
     EmailTemplate,
     NewsLetter,
+    UserEventTracking,
 )
 from django.contrib.auth.models import Permission
 
@@ -102,3 +103,24 @@ class PermissionAdmin(admin.ModelAdmin):
 class NewsLetterAdmin(admin.ModelAdmin):
     list_display = ["id", "email", "created_at"]
     search_fields = ("email",)
+
+
+@admin.register(UserEventTracking)
+class UserEventTrackingAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "user",
+        "requested_url",
+        "object_info",
+        "event_type",
+        "event_time",
+        "event_metadata",
+        "session_id",
+        "ip_address",
+        "device_type",
+        "browser_info",
+        "location",
+    )
+    search_fields = ("user__username", "event_type", "ip_address", "session_id")
+    list_filter = ("event_type", "device_type", "event_time", "user")
+    ordering = ("-event_time",)  # Order by event_time descending
