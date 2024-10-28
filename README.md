@@ -7,9 +7,8 @@ This section provides instructions on how to create, load, and manage fixtures i
 1. [Introduction](#introduction)
 2. [Creating a Fixture](#creating-a-fixture)
 3. [Loading a Fixture](#loading-a-fixture)
-4. [Common Use Cases](#common-use-cases)
-5. [Best Practices](#best-practices)
-6. [Example Fixture File](#example-fixture-file)
+4. [Example Fixture File](#example-fixture-file)
+5. [Setting Up and Running Background Services](#setting-up-and-running-background-services)
 
 ## Introduction
 
@@ -88,3 +87,40 @@ python manage.py loaddata initial_data.json
 }
 }
 ]
+
+## Setting Up and Running Background Services
+
+This project requires three background services to function correctly:
+
+1. Redis server – acts as a message broker for Celery.
+2. Celery Worker – processes background tasks.
+3. Celery Beat – schedules periodic tasks.
+
+To start each of these services, open separate terminal windows and use the following commands.
+
+### 1. Start Redis Server
+
+In the first terminal, run:
+
+```
+redis-server
+```
+
+### 2. Start Celery Worker
+
+In the second terminal, run:
+
+```
+celery -A ecommerce worker --loglevel=info
+```
+
+### 3. Start Celery Beat Scheduler
+
+In the third terminal, run:
+
+```
+celery -A ecommerce beat --loglevel=info
+
+```
+
+This README section provides clear, step-by-step instructions, making it easy for other developers to set up and run these background services.
