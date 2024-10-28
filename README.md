@@ -1,3 +1,107 @@
+# E-Shopper Django Project
+
+Welcome to the **E-Shopper** e-commerce platform repository. This README provides a step-by-step guide to setting up the project, configuring a MySQL database, and running the project locally.
+
+## Prerequisites
+
+Ensure the following software is installed:
+
+- **Python 3.9 or higher**
+- **MySQL**
+- **Django**
+
+## Getting Started
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/VishalNeosoft24/ecommerce.git
+cd ecommerce
+```
+
+### 2. Set Up a Virtual Environment
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+
+```
+
+### 3. Install Project Dependencies
+
+```
+pip install -r requirements.txt
+```
+
+### 4. Create a MySQL Database
+
+```
+mysql -u root -p
+```
+
+In the MySQL shell, run:
+
+```
+CREATE DATABASE Database_name;
+```
+
+### 5. Create a Database User and Grant Privileges
+
+```
+CREATE USER 'myuser'@'localhost' IDENTIFIED BY 'mypassword';
+GRANT ALL PRIVILEGES ON Database_name.* TO 'myuser'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+If the user already exists, grant privileges directly:
+
+```
+GRANT ALL PRIVILEGES ON new_schema.* TO 'myuser'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+### 6. Configure Django Settings
+
+Edit the DATABASES configuration in settings.py to match the database setup:
+
+```
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'Database_name',
+        'USER': 'myuser',
+        'PASSWORD': 'mypassword1',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
+}
+```
+
+### 7. Apply Migrations
+
+Set up the database schema by applying migrations:
+
+```
+python manage.py migrate
+```
+
+### 8. Create a Superuser
+
+Create an admin account to access the Django admin panel:
+
+```
+python manage.py createsuperuser
+```
+
+### 9. Run the Development Server
+
+Start the development server:
+
+```
+python manage.py runserver
+
+```
+
 # Django Project Fixtures Guide
 
 This section provides instructions on how to create, load, and manage fixtures in your Django project. Fixtures are useful for loading initial data into your database, providing data for testing, or migrating data between environments.
