@@ -233,9 +233,13 @@ def create_user(request):
                     request, messages.ERROR, "Passwords do not match. Please try again."
                 )
                 return render(request, "admin_panel/register.html")
-            # elif not len(password) >=8:
-            # 	messages.add_message(request, messages.ERROR, 'Passwords length must be greater than 8 character. Please try again.')
-            # 	return render(request, 'admin_panel/register.html')
+            elif not len(password) >= 8:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "Passwords length must be greater than 8 character. Please try again.",
+                )
+                return render(request, "admin_panel/register.html")
 
             user = User(
                 first_name=first_name,
@@ -325,6 +329,7 @@ def format_role(groups):
     return formatted_groups
 
 
+@check_user_permission("user_management.view_user", "api")
 def get_all_users(request):
     """
     Retrieves and displays a list of users who belong to either the
@@ -812,7 +817,7 @@ def update_attribute(request, id):
                     {"status": "error", "msg": "Values list is empty"}, status=400
                 )
 
-            return JsonResponse({"status":"success"})
+            return JsonResponse({"status": "success"})
 
         except ProductAttribute.DoesNotExist:
             return JsonResponse(
@@ -2341,9 +2346,6 @@ def report(request):
         each_coupon_used_counts = coupon_used_counts.values("code", "count")
         total_coupon_count = coupon_used_counts.count()
 
-        for coupon in each_coupon_used_counts:
-            print(f"Coupon: {coupon['code']}, Used Count: {coupon['count']}")
-
         context = {
             "order_status_summary": order_status_summary,
             "total_orders_count": total_orders_count,
@@ -2389,7 +2391,6 @@ def dynamic_system_reports(request, report_name):
 @check_user_permission("user_management.view_user", "view")
 def export_dynamic_system_reports(request, report_name):
     try:
-        print("report_name: ", report_name)
         report_name_dict = {
             "Sales Report": "sales-report",
             "User Report": "user-report",
