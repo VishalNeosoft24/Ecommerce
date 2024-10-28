@@ -131,14 +131,16 @@ class UserOrder(BaseModel):
         self.created_by = self.user
         self.updated_by = self.user
         # Log status change with human-readable status
-        if (
-            self.id is None
-            or self.status != self.__class__.objects.get(id=self.id).status
-        ):
-            # Use Django's built-in get_status_display() to get human-readable status
-            human_readable_status = self.get_status_display()
-            order_status_log = OrderStatusLogs(order=self, status=human_readable_status)
-            order_status_log.save()
+        if self.id:
+            # Get the current status from the database and compare with new status
+            current_status = self.__class__.objects.get(id=self.id).status
+            if self.status != current_status:
+                # Use Django's get_status_display() to get the human-readable status
+                human_readable_status = self.get_status_display()
+                order_status_log = OrderStatusLogs(
+                    order=self, status=human_readable_status
+                )
+                order_status_log.save()
         super().save(*args, **kwargs)
 
     def __str__(self):
