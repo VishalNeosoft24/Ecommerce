@@ -121,23 +121,10 @@
                   <li>
                     <a href="{% url 'product_list' %}" class="{% if 'products' in request.get_full_path %} active {% endif %}">Shop</a>
                   </li>
-                  <li>
-                    <a href="{% url 'cart' %}" class="{% if request.path == '/cart/' %}active{% endif %}">
-                      <i class="fa fa-shopping-cart"></i>
-                      <span class="badge cart-badge badge-pill badge-primary">{{ cart_item_count }}</span>
-                    </a>
-                  </li>
                   {% if user.is_authenticated %}
-                    <li>
-                      <a href="{% url 'wishlist' %}" title="Wishlist" class="{% if request.path == '/wishlist/' %}active{% endif %}">
-                        <i class="fa fa-heart"></i>
-                        <span class="badge wishlist-badge badge-pill badge-primary">{{ wishlist_item_count }}</span>
-                      </a>
-                    </li>
-
                     <li class="dropdown">
                       <a class="{% if request.get_full_path == '/profile/' or request.get_full_path == '/change-password/' %}active{% endif %}">{{ request.user.first_name|title }}<i class="fa fa-angle-down"></i></a>
-                      <ul role="menu" class="sub-menu" style="left: -100px !important;">
+                      <ul role="menu" class="sub-menu">
                         <li>
                           <a href="{% url 'profile_page' %}"><i class="fa fa-user"></i> Profile</a>
                         </li>
@@ -151,6 +138,20 @@
                           <a href="{% url 'logout_page' %}"><i class="fa fa-sign-out"></i> Logout</a>
                         </li>
                       </ul>
+                    </li>
+                  {% endif %}
+                  <li>
+                    <a href="{% url 'cart' %}" class="{% if request.path == '/cart/' %}active{% endif %}">
+                      <i class="fa fa-shopping-cart"></i>
+                      <span class="badge cart-badge badge-pill badge-primary">{{ cart_item_count }}</span>
+                    </a>
+                  </li>
+                  {% if user.is_authenticated %}
+                    <li>
+                      <a href="{% url 'wishlist' %}" title="Wishlist" class="{% if request.path == '/wishlist/' %}active{% endif %}">
+                        <i class="fa fa-heart"></i>
+                        <span class="badge wishlist-badge badge-pill badge-primary">{{ wishlist_item_count }}</span>
+                      </a>
                     </li>
                   {% endif %}
                   {% if not user.is_authenticated %}
