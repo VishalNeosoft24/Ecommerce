@@ -70,14 +70,16 @@
                   <button type="button" name="add_to_cart_btn" class="btn btn-primary d-flex align-items-center">
                     <i class="fa fa-shopping-cart me-2"></i>Add to cart
                   </button>
-                  <span class="btn d-flex align-items-center" id="wishlist-icon" style="color: red; cursor: pointer;">
-                    <i class="fa 
-                      {% if in_wishlist %}
-                          fa-heart
-                      {% else %}
-                          fa-heart-o
-                      {% endif %} fa-2x"></i>
-                  </span>
+                    {% if user.is_authenticated %}
+                      <span class="btn d-flex align-items-center" id="wishlist-icon" style="color: red; cursor: pointer;">
+                        <i class="fa 
+                          {% if in_wishlist %}
+                              fa-heart
+                          {% else %}
+                              fa-heart-o
+                          {% endif %} fa-2x"></i>
+                      </span>
+                    {% endif %}
                   {% endif %} 
                 </div>
 
