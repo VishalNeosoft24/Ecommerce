@@ -159,3 +159,26 @@ class EmailLogs(models.Model):
     to = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class UserEventTracking(models.Model):
+    """User Event Tracking"""
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="user_event", null=True, blank=True
+    )
+    requested_url = models.CharField(max_length=255)
+    event_type = models.CharField(
+        max_length=255,
+    )
+    object_info = models.CharField(max_length=255, blank=True, null=True)
+    event_time = models.DateTimeField(auto_now_add=True)
+    event_metadata = models.JSONField(blank=True, null=True)
+    session_id = models.CharField(max_length=255, blank=True, null=True)
+    ip_address = models.CharField(max_length=45)
+    device_type = models.CharField(max_length=100)
+    browser_info = models.TextField(blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f"Event {self.id}: {self.event_type} by User {self.user_id} at {self.event_time}"
