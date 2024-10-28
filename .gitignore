@@ -169,4 +169,7 @@ banners
 
 ecommerce/admin_panel/frees.py
 
-fixtures/
+# fixtures/
+ecommerce/order_management/fixtures/
+ecommerce/product_management/fixtures/
+ecommerce/user_management/fixtures/
