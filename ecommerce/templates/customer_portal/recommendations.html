@@ -1,0 +1,87 @@
+{% extends 'customer_portal/customer_base.html' %}
+{% load static %}
+
+{% block title %}
+  Recommnedations
+{% endblock %}
+
+{% block content %}
+  <div class="recommended-products">
+    <h2 class="text-center my-4">Recommended Products for You</h2>
+    <div class="container">
+      <div class="row">
+        {% for product in recommended_products %}
+          <div class="col-sm-3 mb-4">
+            {{ product.images }}
+            <div class="product-image-wrapper shadow-sm">
+              <div class="single-products">
+                <div class="productinfo text-center">
+                  {% if product.first_image %}
+                    <img src="{{ product.first_image.0.image.url }}" alt="{{ product.name }}" height="255.5px" width="237.38px" />
+                  {% else %}
+                    <p>No image available.</p>
+                  {% endif %}
+                  <h2 class="mt-2">{{ product.price }}</h2> <!-- Adjust currency format as needed -->
+                  <p>{{ product.name }}</p>
+                  <a href="{% url 'product_details' product.id %}" class="btn btn-primary add-to-cart">View Product</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12">
+            <p class="text-center">No recommended products available at the moment.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Add some custom CSS to enhance the appearance -->
+  <style>
+    .recommended-products {
+      background-color: #f9f9f9; /* Light background */
+      padding: 40px 0; /* Vertical padding */
+      border-radius: 10px; /* Rounded corners */
+      margin: 20px 0; /* Spacing above and below */
+    }
+    
+    .product-image-wrapper {
+      border: 1px solid #ddd; /* Border around product */
+      border-radius: 10px; /* Rounded corners for products */
+      overflow: hidden; /* Hide overflow for smooth corners */
+      transition: transform 0.2s; /* Smooth scaling */
+    }
+    
+    .product-image-wrapper:hover {
+      transform: scale(1.05); /* Scale up on hover */
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+    }
+    
+    .productinfo img {
+      height: 200px; /* Fixed height for product images */
+      object-fit: cover; /* Ensure images fit well */
+    }
+    
+    .add-to-cart {
+      margin-top: 15px; /* Space above button */
+      background-color: #28a745; /* Green background */
+      color: white; /* White text */
+      transition: background-color 0.3s; /* Smooth color transition */
+    }
+    
+    .add-to-cart:hover {
+      background-color: #218838; /* Darker green on hover */
+    }
+    
+    h2 {
+      font-size: 1.5rem; /* Larger font size for product price */
+      font-weight: bold; /* Bold font for emphasis */
+    }
+    
+    p {
+      font-size: 1rem; /* Font size for product name */
+      color: #555; /* Darker text color for readability */
+    }
+  </style>
+{% endblock %}

@@ -11,4 +11,7 @@ urlpatterns = [
     ),
     path("product-details/<int:id>", views.product_details, name="product_details"),
     path("products/", views.product_list, name="product_list"),
+    path(
+        "recommended-products/", views.recommended_products, name="recommended_products"
+    ),
 ]

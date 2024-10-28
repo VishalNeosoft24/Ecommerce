@@ -1,4 +1,5 @@
 # Django imports
+import json
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Prefetch, Count
@@ -9,8 +10,15 @@ import random
 
 # Local app imports
 from admin_panel.views import fetch_sub_cat
-from product_management.models import Product, ProductImage, Category
-from admin_panel.models import Banner
+from user_management.models import User
+from product_management.models import (
+    Product,
+    ProductAttribute,
+    ProductAttributeValue,
+    ProductImage,
+    Category,
+)
+from admin_panel.models import Banner, UserEventTracking
 from order_management.models import UserWishList
 
 
@@ -260,3 +268,45 @@ def product_list(request):
         return render(request, "customer_portal/product_list.html", context)
     except Exception as e:
         return HttpResponse(str(e))
+
+
+def recommended_products(request):
+    """Product Recommendations"""
+    if request.user.is_authenticated:
+        user = request.user
+        # Get the most recent events related to product views or other relevant events
+        recent_events = UserEventTracking.objects.filter(
+            user=user, event_type="product_view"
+        ).order_by("-event_time")[:50]
+
+        # Extract product_ids from the object_info
+        product_ids = [
+            event.object_info for event in recent_events if event.object_info
+        ]
+
+        # Fetch all products using a single query for the product_ids
+        recommended_products = (
+            Product.objects.filter(id__in=product_ids)
+            .prefetch_related(
+                Prefetch(
+                    "product_images",
+                    queryset=ProductImage.objects.filter(is_active=True)[:1],
+                    to_attr="first_image",
+                )
+            )
+            .distinct()
+        )
+
+        # Remove duplicates and limit the number of recommended products
+        recommended_products = list(set(recommended_products))[:8]
+
+    else:
+        recommended_products = []
+
+    return render(
+        request,
+        "customer_portal/recommendations.html",
+        {"recommended_products": recommended_products},
+    )
+
+
