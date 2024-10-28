@@ -35,6 +35,7 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
 # Application definition
 
 INSTALLED_APPS = [
+    # Default Django apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -43,19 +44,23 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     "django.contrib.flatpages",
+    # Third-party apps
     "background_task",
     "django_weasyprint",
+    "django_celery_beat",
+    "debug_toolbar",
+    # Custom apps
     "admin_panel",
     "product_management",
     "order_management",
     "user_management",
-    # Allauth apps
+    # Allauth apps for social authentication
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
-    "django_celery_beat",
-    "debug_toolbar",
+    # REST framework for building APIs
+    "rest_framework",
 ]
 
 SITE_ID = 1
@@ -71,6 +76,7 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "admin_panel.middleware.UserEventTrackingMiddleware",
 ]
 
 ROOT_URLCONF = "ecommerce.urls"
@@ -245,3 +251,9 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
+
+# Add GeoIP configuration
+GEOIP_PATH = os.path.join(
+    BASE_DIR, "geo_ip"
+)  # Point this to the folder where the .mmdb file is located
+GEOIP_CITY = os.path.join(GEOIP_PATH, "GeoLite2-City.mmdb")  # GeoLite2-City.mmdb file
