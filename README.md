@@ -42,14 +42,14 @@ mysql -u root -p
 In the MySQL shell, run:
 
 ```
-CREATE DATABASE Database_name;
+CREATE DATABASE new_schema;
 ```
 
 ### 5. Create a Database User and Grant Privileges
 
 ```
 CREATE USER 'myuser'@'localhost' IDENTIFIED BY 'mypassword';
-GRANT ALL PRIVILEGES ON Database_name.* TO 'myuser'@'localhost';
+GRANT ALL PRIVILEGES ON new_schema.* TO 'myuser'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
@@ -68,7 +68,7 @@ Edit the DATABASES configuration in settings.py to match the database setup:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Database_name',
+        'NAME': 'new_schema',
         'USER': 'myuser',
         'PASSWORD': 'mypassword1',
         'HOST': 'localhost',
