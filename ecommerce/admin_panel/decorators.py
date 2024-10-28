@@ -1,8 +1,7 @@
 from functools import wraps
 
 from django.contrib.auth.decorators import login_required
-from django.http import Http404, HttpResponse, HttpResponseForbidden, JsonResponse
-from django.contrib.auth.decorators import user_passes_test
+from django.http import JsonResponse
 from django.shortcuts import render
 
 
