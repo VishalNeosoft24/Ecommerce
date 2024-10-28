@@ -1,0 +1,68 @@
+[
+{
+    "model": "admin_panel.address",
+    "pk": 1,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-23T12:32:14.632Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-23T12:32:14.632Z",
+        "deleted_at": null,
+        "user": 1,
+        "type": "HOME",
+        "country": "India",
+        "state": "Gujrat",
+        "city": "Ahmedabad",
+        "pincode": "395001",
+        "street_address": "House, E Block, Westgate, The Address, Sarkhej - Gandhinagar Hwy, near YMCA Club, Makarba",
+        "apartment_number": null,
+        "phone_number": "3333333333",
+        "active": true,
+        "default": false
+    }
+},
+{
+    "model": "admin_panel.address",
+    "pk": 2,
+    "fields": {
+        "created_by": 2,
+        "created_at": "2024-08-29T14:10:09.148Z",
+        "updated_by": 2,
+        "updated_at": "2024-08-29T14:10:22.276Z",
+        "deleted_at": null,
+        "user": 2,
+        "type": "HOME",
+        "country": "india",
+        "state": "gujarat",
+        "city": "A",
+        "pincode": "23324",
+        "street_address": "2323",
+        "apartment_number": "233",
+        "phone_number": "2323",
+        "active": true,
+        "default": true
+    }
+},
+{
+    "model": "admin_panel.address",
+    "pk": 3,
+    "fields": {
+        "created_by": 3,
+        "created_at": "2024-09-09T06:12:52.102Z",
+        "updated_by": 3,
+        "updated_at": "2024-09-09T06:13:04.532Z",
+        "deleted_at": null,
+        "user": 3,
+        "type": "HOME",
+        "country": "india",
+        "state": "gujarat",
+        "city": "Ahmedabad",
+        "pincode": "384301",
+        "street_address": "Gota-ognaj road, high-court bungalows, vasantnagar township",
+        "apartment_number": "64",
+        "phone_number": "8128172012",
+        "active": true,
+        "default": true
+    }
+}
+]

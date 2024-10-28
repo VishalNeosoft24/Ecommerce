@@ -1,0 +1,167 @@
+[
+{
+    "model": "flatpages.flatpage",
+    "pk": 1,
+    "fields": {
+        "url": "/contact_us/",
+        "title": "Contact Us",
+        "content": "<!-- About Section -->\r\n  <section class=\"about-section text-center\">\r\n    <div class=\"container\">\r\n      <div class=\"row\">\r\n        <div class=\"col-lg-8 mx-auto\">\r\n          <h1 class=\"mb-4\">About Us</h1>\r\n          <p class=\"lead\">We are a dedicated team of professionals committed to delivering high-quality products and services. Our mission is to exceed customer expectations by providing innovative solutions and exceptional support.</p>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </section>\r\n\r\n  <!-- Our Mission Section -->\r\n  <section class=\"text-center\">\r\n    <div class=\"container\">\r\n      <div class=\"row\">\r\n        <div class=\"col-lg-8 mx-auto\">\r\n          <h2 class=\"mb-4\">Our Mission</h2>\r\n          <p class=\"lead\">To empower our clients by offering them the tools and expertise they need to thrive in their respective industries.</p>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </section>\r\n\r\n  <!-- Team Section -->\r\n  <section class=\"team-section text-center\">\r\n    <div class=\"container\">\r\n      <h2 class=\"mb-5\">Meet Our Team</h2>\r\n      <div class=\"row\">\r\n        <!-- Team Member 1 -->\r\n        <div class=\"col-lg-4 col-md-6\">\r\n          <div class=\"team-member\">\r\n            <img src=\"https://via.placeholder.com/150\" alt=\"Team Member 1\">\r\n            <h5>John Doe</h5>\r\n            <p>Founder &amp; CEO</p>\r\n          </div>\r\n        </div>\r\n        <!-- Team Member 2 -->\r\n        <div class=\"col-lg-4 col-md-6\">\r\n          <div class=\"team-member\">\r\n            <img src=\"https://via.placeholder.com/150\" alt=\"Team Member 2\">\r\n            <h5>Jane Smith</h5>\r\n            <p>Chief Operating Officer</p>\r\n          </div>\r\n        </div>\r\n        <!-- Team Member 3 -->\r\n        <div class=\"col-lg-4 col-md-6\">\r\n          <div class=\"team-member\">\r\n            <img src=\"https://via.placeholder.com/150\" alt=\"Team Member 3\">\r\n            <h5>Mike Johnson</h5>\r\n            <p>Lead Developer</p>\r\n          </div>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </section>\r\n\r\n  <!-- Footer -->\r\n  <footer class=\"py-4 bg-dark text-white-50 text-center\">\r\n    <div class=\"container\">\r\n      <small>© 2024 Your Company. All rights reserved.</small>\r\n    </div>\r\n  </footer>\r\n\r\n  <!-- Bootstrap JS -->",
+        "enable_comments": false,
+        "template_name": "",
+        "registration_required": false,
+        "sites": [
+            1
+        ]
+    }
+},
+{
+    "model": "flatpages.flatpage",
+    "pk": 2,
+    "fields": {
+        "url": "/privacy-policy/",
+        "title": "Privacy Policy",
+        "content": "<h1>Privacy Policy</h1>\r\n<h1><span style=\"font-size: 1.5rem;\">Welcome to E-Shopper. This Privacy Policy outlines how we collect, use, and protect your personal information when you use our eCommerce platform.</span><br></h1>\r\n\r\n        <h2>1. Information We Collect</h2>\r\n        <p>We collect various types of information to provide and improve our services. This includes:</p>\r\n        <ul>\r\n            <li>Personal Data: Name, email address, shipping address, phone number, etc.</li>\r\n            <li>Payment Data: Credit card information, transaction details, etc.</li>\r\n            <li>Usage Data: IP address, browser type, pages viewed, and other browsing information.</li>\r\n        </ul>\r\n\r\n        <h2>2. How We Use Your Information</h2>\r\n        <p>Your information is used to:</p>\r\n        <ul>\r\n            <li>Process orders and payments</li>\r\n            <li>Provide customer support</li>\r\n            <li>Send promotional emails and newsletters (with your consent)</li>\r\n            <li>Analyze website usage and improve our services</li>\r\n        </ul>\r\n\r\n        <h2>3. Sharing of Your Information</h2>\r\n        <p>We may share your information with:</p>\r\n        <ul>\r\n            <li>Third-party payment processors for handling payments securely</li>\r\n            <li>Shipping companies to deliver your orders</li>\r\n            <li>Legal authorities if required by law</li>\r\n        </ul>\r\n\r\n        <h2>4. Security of Your Information</h2>\r\n        <p>We take the security of your personal information seriously. We implement reasonable security measures to protect against unauthorized access, disclosure, or alteration of your data. However, no method of transmission over the internet is 100% secure.</p>\r\n\r\n        <h2>5. Cookies and Tracking Technologies</h2>\r\n        <p>We use cookies and similar tracking technologies to enhance your experience on our website. Cookies are small data files stored on your device. You can disable cookies through your browser settings, but this may affect your ability to use certain features of our site.</p>\r\n\r\n        <h2>6. Your Rights</h2>\r\n        <p>You have the right to:</p>\r\n        <ul>\r\n            <li>Access the personal information we hold about you</li>\r\n            <li>Request corrections to your data</li>\r\n            <li>Request deletion of your data (subject to legal obligations)</li>\r\n            <li>Opt-out of marketing communications</li>\r\n        </ul>\r\n\r\n        <h2>7. Changes to This Privacy Policy</h2>\r\n        <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page. You are advised to review this Privacy Policy periodically for any changes.</p>\r\n\r\n        <h2>8. Contact Us</h2>\r\n        <p>If you have any questions about this Privacy Policy, please contact us at:</p>\r\n        <a href=\"/contact-us/\" class=\"\">Contact Us</a><br><br>",
+        "enable_comments": false,
+        "template_name": "",
+        "registration_required": false,
+        "sites": [
+            1
+        ]
+    }
+},
+{
+    "model": "flatpages.flatpage",
+    "pk": 3,
+    "fields": {
+        "url": "/about-company/",
+        "title": "About Company",
+        "content": "<!-- About Section -->\r\n    <section class=\"about-section text-center\">\r\n        <div class=\"container\">\r\n             <h1 class=\"about-title\">About Us</h1>\r\n            <p class=\"about-description\">At E-Shoper, we are passionate about delivering the best products and services to our customers. Since our inception in [Year Founded], we have been committed to providing high-quality, affordable, and innovative solutions for all your [industry/product type] needs. Our goal is to not only meet your expectations but exceed them.</p>\r\n            <p class=\"about-description\">We believe in customer satisfaction, and our team is dedicated to ensuring you have a seamless shopping experience with us. Whether you're looking for the latest products or exclusive deals, [Your Company Name] is your go-to destination.</p>\r\n        </div>\r\n    </section>\r\n\r\n    <!-- Mission Section -->\r\n    <section class=\"py-5\">\r\n        <div class=\"container\">\r\n            <h2 class=\"text-center\">Our Mission</h2>\r\n            <p class=\"text-center about-description\">Our mission is to provide exceptional value through quality products and outstanding customer service. We strive to innovate continuously and to offer the most convenient and user-friendly shopping experience possible.</p>\r\n        </div>\r\n    </section>\r\n\r\n    <!-- Team Section -->\r\n    <section class=\"team-section text-center\">\r\n        <div class=\"container\">\r\n            <h2 class=\"text-center\">Meet Our Team</h2>\r\n            <div class=\"row\">\r\n                <div class=\"col-md-4 team-member\">\r\n                    <img src=\"https://via.placeholder.com/150\" alt=\"Team Member 1\">\r\n                    <h5>John Doe</h5>\r\n                    <p>CEO &amp; Founder</p>\r\n                </div>\r\n                <div class=\"col-md-4 team-member\">\r\n                    <img src=\"https://via.placeholder.com/150\" alt=\"Team Member 2\">\r\n                    <h5>Jane Smith</h5>\r\n                    <p>Chief Operating Officer</p>\r\n                </div>\r\n                <div class=\"col-md-4 team-member\">\r\n                    <img src=\"https://via.placeholder.com/150\" alt=\"Team Member 3\">\r\n                    <h5>Bob Johnson</h5>\r\n                    <p>Marketing Director</p>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </section>",
+        "enable_comments": false,
+        "template_name": "",
+        "registration_required": false,
+        "sites": [
+            1
+        ]
+    }
+},
+{
+    "model": "flatpages.flatpage",
+    "pk": 4,
+    "fields": {
+        "url": "/affiliate-program/",
+        "title": "Affiliate Programe",
+        "content": "<!-- Affiliate Program Section -->\r\n    <section class=\"affiliate-section text-center bg-light\">\r\n        <div class=\"container\">\r\n            <h1 class=\"affiliate-title\">Join Our Affiliate Program</h1>\r\n            <p class=\"affiliate-description\">At [Your Company Name], we offer an exciting opportunity for you to earn commissions by promoting our products. It's simple and free to join, and you can start earning from day one! Here's how it works:</p>\r\n\r\n            <!-- Steps to Join -->\r\n            <div class=\"row text-left mt-5\">\r\n                <div class=\"col-md-4\">\r\n                    <h4 class=\"affiliate-step\">1. Sign Up</h4>\r\n                    <p class=\"affiliate-description\">Create an affiliate account by signing up on our website. It's quick and easy, and you can get started right away.</p>\r\n                </div>\r\n                <div class=\"col-md-4\">\r\n                    <h4 class=\"affiliate-step\">2. Promote</h4>\r\n                    <p class=\"affiliate-description\">After signing up, you'll receive a unique affiliate link. Share this link on your website, blog, or social media platforms to promote our products.</p>\r\n                </div>\r\n                <div class=\"col-md-4\">\r\n                    <h4 class=\"affiliate-step\">3. Earn Commissions</h4>\r\n                    <p class=\"affiliate-description\">For every purchase made through your affiliate link, you'll earn a commission. The more sales you refer, the more you earn!</p>\r\n                </div>\r\n            </div>\r\n\r\n            <!-- Benefits Section -->\r\n            <div class=\"mt-5\">\r\n                <h2 class=\"affiliate-title\">Why Join Our Affiliate Program?</h2>\r\n                <ul class=\"list-group list-group-flush text-left affiliate-description\">\r\n                    <li class=\"list-group-item\">Generous commission rates</li>\r\n                    <li class=\"list-group-item\">Real-time tracking and reporting of your referrals</li>\r\n                    <li class=\"list-group-item\">Access to exclusive offers and promotions</li>\r\n                    <li class=\"list-group-item\">No setup costs, completely free to join</li>\r\n                </ul>\r\n            </div>\r\n\r\n           \r\n        </div>\r\n    </section>\r\n\r\n    <!-- FAQ Section -->\r\n    <section class=\"py-5\">\r\n        <div class=\"container\">\r\n            <h2 class=\"text-center\">Frequently Asked Questions</h2>\r\n            <div class=\"mt-4\">\r\n                <h5>How do I track my earnings?</h5>\r\n                <p class=\"affiliate-description\">You will have access to an affiliate dashboard where you can see real-time updates on the traffic and sales generated through your affiliate link.</p>\r\n\r\n                <h5>When will I get paid?</h5>\r\n                <p class=\"affiliate-description\">We process payouts on a monthly basis. You'll receive your commission directly to your preferred payment method once the threshold is met.</p>\r\n\r\n                <h5>Are there any costs involved?</h5>\r\n                <p class=\"affiliate-description\">No, joining our affiliate program is completely free. There are no hidden costs or fees.</p>\r\n\r\n                <h5>Who can join?</h5>\r\n                <p class=\"affiliate-description\">Anyone with a website, blog, or social media presence can join our affiliate program. If you love our products and want to help spread the word, you're welcome to join!</p>\r\n            </div>\r\n        </div>\r\n    </section>",
+        "enable_comments": false,
+        "template_name": "",
+        "registration_required": false,
+        "sites": [
+            1
+        ]
+    }
+},
+{
+    "model": "flatpages.flatpage",
+    "pk": 5,
+    "fields": {
+        "url": "/careers/",
+        "title": "Careers",
+        "content": "<!-- Careers Section -->\r\n    <section class=\"careers-section\">\r\n        <div class=\"container\">\r\n            <h1 class=\"careers-title\">Join Our Team at E-Shopper</h1>\r\n            <p class=\"careers-description\">At E-Shopper, we believe in creating a diverse and inclusive workplace where every team member can thrive. We’re always on the lookout for passionate individuals who want to make an impact in the world of eCommerce.</p>\r\n            <p class=\"careers-description\">Explore our current job openings and take the next step in your career with us!</p>\r\n        </div>\r\n    </section>\r\n\r\n    <!-- Job Openings Section -->\r\n    <section class=\"py-5\">\r\n        <div class=\"container\">\r\n            <h2 class=\"text-center\">Current Job Openings</h2>\r\n\r\n            <!-- Job 1 -->\r\n            <div class=\"job-opening mb-4\">\r\n                <h3 class=\"job-title\">E-Commerce Manager</h3>\r\n                <p class=\"job-description\">Location: Remote</p>\r\n                <p class=\"job-description\">We are seeking an experienced E-Commerce Manager to oversee our online store operations, optimize user experience, and drive sales growth.</p>\r\n                <a href=\"#\" class=\"apply-btn\">Apply Now</a>\r\n            </div>\r\n\r\n            <!-- Job 2 -->\r\n            <div class=\"job-opening mb-4\">\r\n                <h3 class=\"job-title\">Digital Marketing Specialist</h3>\r\n                <p class=\"job-description\">Location: New York, NY</p>\r\n                <p class=\"job-description\">Join our marketing team as a Digital Marketing Specialist. You will be responsible for creating campaigns that attract and retain customers.</p>\r\n                <a href=\"#\" class=\"apply-btn\">Apply Now</a>\r\n            </div>\r\n\r\n            <!-- Job 3 -->\r\n            <div class=\"job-opening mb-4\">\r\n                <h3 class=\"job-title\">Customer Support Representative</h3>\r\n                <p class=\"job-description\">Location: On-site</p>\r\n                <p class=\"job-description\">We are looking for friendly and efficient Customer Support Representatives to assist our customers with their inquiries and provide exceptional service.</p>\r\n                <a href=\"#\" class=\"apply-btn\">Apply Now</a>\r\n            </div>\r\n        </div>\r\n    </section>\r\n\r\n    <!-- Contact Section -->\r\n    <section class=\"careers-section\">\r\n        <div class=\"container\">\r\n            <h2 class=\"text-center\">Have Questions?</h2>\r\n            <p class=\"careers-description\">If you have any questions about our job openings or the application process, feel free to reach out:</p>\r\n            <a href=\"/contact-us/\" class=\"\">Contact Us</a><br><br>\r\n        </div>\r\n    </section>",
+        "enable_comments": false,
+        "template_name": "",
+        "registration_required": false,
+        "sites": [
+            1
+        ]
+    }
+},
+{
+    "model": "flatpages.flatpage",
+    "pk": 6,
+    "fields": {
+        "url": "/copyrights/",
+        "title": "Copyright",
+        "content": "<h1 class=\"copyright-title\">Copyright Information</h1>\r\n            <p class=\"copyright-content\">© 2024 E-Shopper. All rights reserved.</p>\r\n            <p class=\"copyright-content\">All content on this website, including text, graphics, logos, images, and software, is the property of E-Shopper and is protected by international copyright laws. Unauthorized use of any materials may violate copyright, trademark, and other laws.</p>\r\n            \r\n            <h3 class=\"copyright-title\">Usage Rights</h3>\r\n            <p class=\"copyright-content\">You may not reproduce, distribute, or modify any part of this website without prior written permission from E-Shopper. For inquiries regarding the use of our materials, please contact us.</p>\r\n\r\n            <h3 class=\"copyright-title\">Trademarks</h3>\r\n            <p class=\"copyright-content\">All trademarks, logos, and service marks displayed on this website are the property of E-Shopper or other third parties. Nothing on this site should be construed as granting, by implication or otherwise, any license or right to use any trademark without the prior written permission of E-Shopper or the respective third-party owner.</p>",
+        "enable_comments": false,
+        "template_name": "",
+        "registration_required": false,
+        "sites": [
+            1
+        ]
+    }
+},
+{
+    "model": "flatpages.flatpage",
+    "pk": 7,
+    "fields": {
+        "url": "/refund-policy/",
+        "title": "Refund Policy",
+        "content": "<!-- Refund Policy Section -->\r\n    <section class=\"refund-section\">\r\n        <div class=\"container\">\r\n            <h1 class=\"refund-title\">Refund Policy</h1>\r\n            <p class=\"refund-content\">Thank you for shopping at E-Shopper. We appreciate your business and aim to ensure your satisfaction. If you are not completely satisfied with your purchase, we're here to help.</p>\r\n\r\n            <h3 class=\"refund-subtitle\">Returns</h3>\r\n            <p class=\"refund-content\">You have [insert number] days to return an item from the date you received it. To be eligible for a return, your item must be unused and in the same condition that you received it. It must also be in the original packaging.</p>\r\n\r\n            <h3 class=\"refund-subtitle\">Refunds</h3>\r\n            <p class=\"refund-content\">Once we receive your return, we will inspect it and notify you that we have received your returned item. We will immediately notify you of the status of your refund after inspecting the item. If your return is approved, we will initiate a refund to your original payment method.</p>\r\n\r\n            <h3 class=\"refund-subtitle\">Exchanges</h3>\r\n            <p class=\"refund-content\">If you need to exchange an item for the same item, send us an email at <a href=\"mailto:info@eshopper.com\" style=\"color: #007bff;\">info@eshopper.com</a> and send your item to: [insert address].</p></div></section>",
+        "enable_comments": false,
+        "template_name": "",
+        "registration_required": false,
+        "sites": [
+            1
+        ]
+    }
+},
+{
+    "model": "flatpages.flatpage",
+    "pk": 8,
+    "fields": {
+        "url": "/terms-of-use/",
+        "title": "Terms of Use",
+        "content": "<!-- Terms of Use Section -->\r\n    <section class=\"terms-section\">\r\n        <div class=\"container\">\r\n            <h1 class=\"terms-title\">Terms of Use</h1>\r\n            <p class=\"terms-content\">Welcome to E-Shopper! These Terms of Use govern your use of our website and services. By accessing or using our site, you agree to comply with and be bound by these terms.</p>\r\n\r\n            <h3 class=\"terms-subtitle\">1. Acceptance of Terms</h3>\r\n            <p class=\"terms-content\">By accessing this website, you confirm that you accept these Terms of Use and that you agree to comply with them. If you do not agree to these terms, please do not use our site.</p>\r\n\r\n            <h3 class=\"terms-subtitle\">2. Changes to Terms</h3>\r\n            <p class=\"terms-content\">We reserve the right to modify these Terms of Use at any time. Changes will be posted on this page, and your continued use of the site will constitute your acceptance of those changes.</p>\r\n\r\n            <h3 class=\"terms-subtitle\">3. User Responsibilities</h3>\r\n            <p class=\"terms-content\">You are responsible for ensuring that any information you provide is accurate and complete. You must be at least 18 years old to use our services.</p>\r\n\r\n            <h3 class=\"terms-subtitle\">4. Account Security</h3>\r\n            <p class=\"terms-content\">You are responsible for maintaining the confidentiality of your account and password. You agree to notify us immediately of any unauthorized use of your account or any other breach of security.</p>\r\n\r\n            <h3 class=\"terms-subtitle\">5. Product Information</h3>\r\n            <p class=\"terms-content\">We strive to provide accurate product descriptions and pricing. However, we do not guarantee that the information is always error-free. We reserve the right to correct any errors and update information at any time.</p>\r\n\r\n            <h3 class=\"terms-subtitle\">6. Intellectual Property</h3>\r\n            <p class=\"terms-content\">All content on this site, including text, graphics, logos, images, and software, is the property of E-Shopper or our licensors and is protected by copyright and other intellectual property laws.</p>\r\n\r\n            <h3 class=\"terms-subtitle\">7. Limitation of Liability</h3>\r\n            <p class=\"terms-content\">E-Shopper shall not be liable for any damages arising from your use or inability to use the site, including but not limited to direct, indirect, incidental, punitive, and consequential damages.</p></div></section>",
+        "enable_comments": false,
+        "template_name": "",
+        "registration_required": false,
+        "sites": [
+            1
+        ]
+    }
+},
+{
+    "model": "flatpages.flatpage",
+    "pk": 9,
+    "fields": {
+        "url": "/terms/",
+        "title": "Terms and Conditions",
+        "content": "<section class=\"terms-section\">\r\n        <div class=\"container\">\r\n            <h1 class=\"terms-title\">Terms and Conditions</h1>\r\n            <p class=\"terms-content\">Welcome to E-Shopper! These terms and conditions outline the rules and regulations for the use of our website.</p>\r\n\r\n            <h3 class=\"terms-subtitle\">1. Introduction</h3>\r\n            <p class=\"terms-content\">By accessing this website, we assume you accept these terms and conditions. Do not continue to use E-Shopper if you do not agree to take all of the terms and conditions stated on this page.</p>\r\n\r\n            <h3 class=\"terms-subtitle\">2. User Responsibilities</h3>\r\n            <p class=\"terms-content\">You are responsible for ensuring that any information you provide is accurate and complete. You must be at least 18 years old to use our services.</p>\r\n\r\n            <h3 class=\"terms-subtitle\">3. Intellectual Property</h3>\r\n            <p class=\"terms-content\">All content, trademarks, and other intellectual property on the site are owned by E-Shopper or our licensors. You may not reproduce, distribute, or create derivative works from any content on the site without our express written consent.</p>\r\n\r\n            <h3 class=\"terms-subtitle\">4. Product Information</h3>\r\n            <p class=\"terms-content\">We strive to be as accurate as possible in our product descriptions. However, we do not warrant that product descriptions or other content on the site are accurate, complete, reliable, current, or error-free.</p>\r\n\r\n            <h3 class=\"terms-subtitle\">5. Limitation of Liability</h3>\r\n            <p class=\"terms-content\">E-Shopper will not be liable for any damages of any kind arising from the use of our site, including but not limited to direct, indirect, incidental, punitive, and consequential damages.</p>\r\n\r\n            <h3 class=\"terms-subtitle\">6. Indemnification</h3>\r\n            <p class=\"terms-content\">You agree to indemnify and hold E-Shopper harmless from any claims, losses, liabilities, damages, costs, or expenses (including reasonable attorneys' fees) arising out of or related to your use of the site or violation of these terms.</p>\r\n\r\n            <h3 class=\"terms-subtitle\">7. Governing Law</h3>\r\n            <p class=\"terms-content\">These terms shall be governed by and construed in accordance with the laws of [insert jurisdiction]. Any disputes arising from these terms will be resolved in the courts of [insert jurisdiction].</p>\r\n\r\n            <h3 class=\"terms-subtitle\">8. Changes to Terms</h3>\r\n            <p class=\"terms-content\">We may update these terms from time to time. We will notify you of any changes by posting the new terms on this page.</p></div></section>",
+        "enable_comments": false,
+        "template_name": "",
+        "registration_required": false,
+        "sites": [
+            1
+        ]
+    }
+},
+{
+    "model": "flatpages.flatpage",
+    "pk": 10,
+    "fields": {
+        "url": "/billing-system/",
+        "title": "Billing System",
+        "content": "<!-- Billing System Section -->\r\n    <section class=\"billing-section\">\r\n        <div class=\"container\">\r\n            <h1 class=\"billing-title\">Billing System</h1>\r\n            <p class=\"billing-content\">Welcome to the E-Shopper billing system. Here, you can find important information about your billing process and payment options.</p>\r\n\r\n            <h3 class=\"billing-title\">Billing Information</h3>\r\n            <p class=\"billing-content\">To complete your purchase, you will need to provide your billing details, including your full name, email address, billing address, city, zip code, and country. This information is crucial for processing your order and ensuring that you receive your products promptly.</p>\r\n\r\n            <h3 class=\"billing-title\">Order Summary</h3>\r\n            <div class=\"order-summary\">\r\n                <p class=\"billing-content\"><strong>Product Name:</strong> Example Product</p>\r\n                <p class=\"billing-content\"><strong>Quantity:</strong> 1</p>\r\n                <p class=\"billing-content\"><strong>Total Price:</strong> $100.00</p>\r\n            </div>\r\n\r\n            <h3 class=\"billing-title\">Payment Options</h3>\r\n            <p class=\"billing-content\">We offer various payment options for your convenience. You can choose to pay via credit card or PayPal. Please select the option that works best for you when finalizing your order.</p>\r\n\r\n            <h3 class=\"billing-title\">Security</h3>\r\n            <p class=\"billing-content\">Your security is our top priority. All transactions are encrypted using the latest technology to protect your sensitive information. We comply with all legal regulations to ensure your data is handled safely.</p>\r\n\r\n            <h3 class=\"billing-title\">Customer Support</h3>\r\n            <p class=\"billing-content\">If you have any questions regarding the billing process or need assistance with your payment, please contact our customer support team at <a href=\"mailto:support@eshopper.com\">support@eshopper.com</a>.</p>\r\n        </div>\r\n    </section>",
+        "enable_comments": false,
+        "template_name": "",
+        "registration_required": false,
+        "sites": [
+            1
+        ]
+    }
+},
+{
+    "model": "flatpages.flatpage",
+    "pk": 11,
+    "fields": {
+        "url": "/ticket-system/",
+        "title": "Ticket System",
+        "content": "<section class=\"ticket-section\">\r\n        <div class=\"container\">\r\n            <h1 class=\"ticket-title\">Ticket System</h1>\r\n            <p class=\"ticket-content\">Welcome to the E-Shopper ticket system. This system is designed to help you manage your orders, inquiries, and support requests effectively.</p>\r\n\r\n            <h3 class=\"ticket-title\">Overview</h3>\r\n            <p class=\"ticket-content\">The ticketing system allows you to submit requests for support or assistance regarding your orders or our services. Each ticket will be tracked, and our support team will respond promptly to ensure your concerns are addressed.</p>\r\n\r\n            <h3 class=\"ticket-title\">Types of Tickets</h3>\r\n            <div class=\"ticket-types\">\r\n                <p class=\"ticket-content\"><strong>Order Inquiry:</strong> Use this type of ticket for questions about your existing orders, such as tracking, status updates, or changes.</p>\r\n                <p class=\"ticket-content\"><strong>Technical Support:</strong> If you encounter any technical issues on our website or with our services, please submit a technical support ticket.</p>\r\n                <p class=\"ticket-content\"><strong>Feedback/Suggestions:</strong> We value your input! Use this ticket type to provide feedback or suggestions for improving our services.</p>\r\n            </div>\r\n\r\n            <h3 class=\"ticket-title\">How to Submit a Ticket</h3>\r\n            <p class=\"ticket-content\">To submit a ticket, please visit our support page and fill out the ticket form with your details and a description of your issue. Make sure to provide as much information as possible to help us assist you efficiently.</p>\r\n\r\n            <h3 class=\"ticket-title\">Customer Support</h3>\r\n            <p class=\"ticket-content\">For any urgent matters, feel free to contact our customer support team directly at <a href=\"mailto:support@eshopper.com\">support@eshopper.com</a>. We’re here to help you!</p>\r\n        </div>\r\n    </section>",
+        "enable_comments": false,
+        "template_name": "",
+        "registration_required": false,
+        "sites": [
+            1
+        ]
+    }
+}
+]

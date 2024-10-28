@@ -1,0 +1,352 @@
+[
+{
+    "model": "product_management.category",
+    "pk": 1,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.397Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-27T06:21:25.800Z",
+        "deleted_at": null,
+        "name": "Electronics",
+        "parent": null,
+        "description": "All kinds of electronics"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 2,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.411Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-27T06:21:25.810Z",
+        "deleted_at": null,
+        "name": "Mobile Phones",
+        "parent": 1,
+        "description": "Smartphones and accessories"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 3,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.428Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-27T06:21:14.906Z",
+        "deleted_at": null,
+        "name": "Android Phones",
+        "parent": 2,
+        "description": "Phones running Android OS"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 4,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.446Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-27T06:20:54.871Z",
+        "deleted_at": null,
+        "name": "Android Accessories",
+        "parent": 3,
+        "description": "Accessories for Android Phones"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 5,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.457Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.457Z",
+        "deleted_at": null,
+        "name": "Laptop Accessories",
+        "parent": null,
+        "description": "Accessories for laptops"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 6,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.466Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.466Z",
+        "deleted_at": null,
+        "name": "Home Appliances",
+        "parent": null,
+        "description": "Appliances for home"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 7,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.475Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.475Z",
+        "deleted_at": null,
+        "name": "Kitchen Appliances",
+        "parent": 6,
+        "description": "Appliances for kitchen"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 8,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.488Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.488Z",
+        "deleted_at": null,
+        "name": "Microwaves",
+        "parent": 7,
+        "description": "Microwave ovens"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 9,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.502Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.502Z",
+        "deleted_at": null,
+        "name": "Convection Microwaves",
+        "parent": 8,
+        "description": "Convection microwave ovens"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 10,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.512Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.512Z",
+        "deleted_at": null,
+        "name": "Clothing",
+        "parent": null,
+        "description": "All types of clothing"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 11,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.523Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.523Z",
+        "deleted_at": null,
+        "name": "Men's Clothing",
+        "parent": 10,
+        "description": "Men's wear"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 12,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.534Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.534Z",
+        "deleted_at": null,
+        "name": "Men's Suits",
+        "parent": 11,
+        "description": "Suits for men"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 13,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.550Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.550Z",
+        "deleted_at": null,
+        "name": "Formal Suits",
+        "parent": 12,
+        "description": "Formal suits for men"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 14,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.566Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.566Z",
+        "deleted_at": null,
+        "name": "Women's Clothing",
+        "parent": 10,
+        "description": "Women's wear"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 15,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.580Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.580Z",
+        "deleted_at": null,
+        "name": "Women's Dresses",
+        "parent": 14,
+        "description": "Dresses for women"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 16,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.590Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.590Z",
+        "deleted_at": null,
+        "name": "Evening Gowns",
+        "parent": 15,
+        "description": "Evening gowns and party wear"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 17,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.598Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.598Z",
+        "deleted_at": null,
+        "name": "Books",
+        "parent": null,
+        "description": "Books of all genres"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 18,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.610Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.610Z",
+        "deleted_at": null,
+        "name": "Science Fiction",
+        "parent": 17,
+        "description": "Sci-Fi books"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 19,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.623Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.623Z",
+        "deleted_at": null,
+        "name": "Cyberpunk",
+        "parent": 18,
+        "description": "Cyberpunk novels"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 20,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.636Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.636Z",
+        "deleted_at": null,
+        "name": "Classic Cyberpunk",
+        "parent": 19,
+        "description": "Classic cyberpunk books"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 21,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.646Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.646Z",
+        "deleted_at": null,
+        "name": "Sports Equipment",
+        "parent": null,
+        "description": "Sports gear and equipment"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 22,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.656Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.656Z",
+        "deleted_at": null,
+        "name": "Football Gear",
+        "parent": 21,
+        "description": "Football equipment and gear"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 23,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.668Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.668Z",
+        "deleted_at": null,
+        "name": "Outdoor Equipment",
+        "parent": 21,
+        "description": "Equipment for outdoor sports"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 24,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.681Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.681Z",
+        "deleted_at": null,
+        "name": "Camping Gear",
+        "parent": 23,
+        "description": "Camping essentials"
+    }
+},
+{
+    "model": "product_management.category",
+    "pk": 25,
+    "fields": {
+        "created_by": 1,
+        "created_at": "2024-08-26T07:58:11.700Z",
+        "updated_by": 1,
+        "updated_at": "2024-08-26T07:58:11.700Z",
+        "deleted_at": null,
+        "name": "Advanced Camping Gear",
+        "parent": 24,
+        "description": "High-end camping gear"
+    }
+}
+]

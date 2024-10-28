@@ -1,0 +1,69 @@
+[
+{
+    "model": "user_management.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$600000$Db3AW6A5uIGGjimfVSL9nl$cMC6xci/mlgKzfUprOxy7hYvRZ5OP5VV/GzGyiFJUFs=",
+        "last_login": "2024-10-28T10:35:21.484Z",
+        "is_superuser": true,
+        "username": "admin",
+        "first_name": "Admin",
+        "last_name": "Admin",
+        "email": "admin@gmail.com",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2024-09-02T04:37:40Z",
+        "phone_number": "1234567891",
+        "gender": null,
+        "groups": [
+            1,
+            2
+        ],
+        "user_permissions": []
+    }
+},
+{
+    "model": "user_management.user",
+    "pk": 2,
+    "fields": {
+        "password": "pbkdf2_sha256$600000$yz2xhqoe2PXkDyEtuvE59y$LaN5FhoqioDUYC2o+SE5bpKlPScGx6JGeB1TFYtgQag=",
+        "last_login": "2024-10-27T18:08:33.668Z",
+        "is_superuser": false,
+        "username": "kevin",
+        "first_name": "Kevin",
+        "last_name": "Prajapati",
+        "email": "dhaval@gmail.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2024-09-04T10:33:09Z",
+        "phone_number": "1234567890",
+        "gender": null,
+        "groups": [
+            2
+        ],
+        "user_permissions": []
+    }
+},
+{
+    "model": "user_management.user",
+    "pk": 3,
+    "fields": {
+        "password": "pbkdf2_sha256$600000$nhFCFj0P33NHCn2YbxeZk8$D/4J+vw/XPaPts7E8yTiJIn7L35E49+HcyJpeiuSkrs=",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "mit",
+        "first_name": "mit",
+        "last_name": "prajapati",
+        "email": "mit@gmail.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2024-09-04T12:12:13Z",
+        "phone_number": null,
+        "gender": null,
+        "groups": [
+            1
+        ],
+        "user_permissions": []
+    }
+}
+]
