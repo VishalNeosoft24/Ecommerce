@@ -114,7 +114,6 @@ class AddressForm(forms.ModelForm):
     def clean_state(self):
         """Validate state format."""
         state = self.cleaned_data.get("state")
-        print("state: ", state)
         if not state.isalpha():
             raise ValidationError(
                 _("State must contain only letters. Please enter a valid state name.")
