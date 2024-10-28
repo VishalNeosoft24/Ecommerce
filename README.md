@@ -82,7 +82,7 @@ DATABASES = {
 Set up the database schema by applying migrations:
 
 ```
-python manage.py migrate
+python3 manage.py migrate
 ```
 
 ### 8. Create a Superuser
@@ -90,15 +90,23 @@ python manage.py migrate
 Create an admin account to access the Django admin panel:
 
 ```
-python manage.py createsuperuser
+python3 manage.py createsuperuser
 ```
 
-### 9. Run the Development Server
+### 9. Load initial data using fixtures
+
+use command to load fixture data
+
+```
+python3 manage.py load_fixtures
+```
+
+### 10. Run the Development Server
 
 Start the development server:
 
 ```
-python manage.py runserver
+python3 manage.py runserver
 
 ```
 
@@ -123,46 +131,46 @@ Fixtures in Django are serialized data representations that can be used to popul
 To create a fixture from existing data in the database, use the `dumpdata` management command:
 
 ```
-python manage.py dumpdata <app_name>.<ModelName> --indent 4 > <fixture_name>.json
+python3 manage.py dumpdata <app_name>.<ModelName> --indent 4 > <fixture_name>.json
 
-python manage.py dumpdata ecommerce.Product --indent 4 > initial_data.json
+python3 manage.py dumpdata ecommerce.Product --indent 4 > initial_data.json
 ```
 
 ## Example to create a fixture for a individual model of product_management app
 
 ```
-python manage.py dumpdata product_management.Category --indent 4 > product_management/fixtures/category_data.json
-python manage.py dumpdata product_management.Product --indent 4 > product_management/fixtures/product_data.json
-python manage.py dumpdata product_management.ProductImage --indent 4 > product_management/fixtures/product_image_data.json
-python manage.py dumpdata product_management.ProductAttribute --indent 4 > product_management/fixtures/product_attribute_data.json
-python manage.py dumpdata product_management.ProductAttributeValue --indent 4 > product_management/fixtures/product_attribute_value_data.json
+python3 manage.py dumpdata product_management.Category --indent 4 > product_management/fixtures/category_data.json
+python3 manage.py dumpdata product_management.Product --indent 4 > product_management/fixtures/product_data.json
+python3 manage.py dumpdata product_management.ProductImage --indent 4 > product_management/fixtures/product_image_data.json
+python3 manage.py dumpdata product_management.ProductAttribute --indent 4 > product_management/fixtures/product_attribute_data.json
+python3 manage.py dumpdata product_management.ProductAttributeValue --indent 4 > product_management/fixtures/product_attribute_value_data.json
 
 ```
 
 ## Example to create a fixture for a individual model of order_management app
 
 ```
-python manage.py dumpdata order_management.PaymentGateway --indent 4 > order_management/fixtures/payment_gateway_data.json
-python manage.py dumpdata order_management.UserOrder --indent 4 > order_management/fixtures/user_order_data.json
-python manage.py dumpdata order_management.OrderDetail --indent 4 > order_management/fixtures/order_detail_data.json
-python manage.py dumpdata order_management.UserWishList --indent 4 > order_management/fixtures/user_wishlist_data.json
-python manage.py dumpdata order_management.PaymentLogs --indent 4 > order_management/fixtures/payment_logs_data.json
+python3 manage.py dumpdata order_management.PaymentGateway --indent 4 > order_management/fixtures/payment_gateway_data.json
+python3 manage.py dumpdata order_management.UserOrder --indent 4 > order_management/fixtures/user_order_data.json
+python3 manage.py dumpdata order_management.OrderDetail --indent 4 > order_management/fixtures/order_detail_data.json
+python3 manage.py dumpdata order_management.UserWishList --indent 4 > order_management/fixtures/user_wishlist_data.json
+python3 manage.py dumpdata order_management.PaymentLogs --indent 4 > order_management/fixtures/payment_logs_data.json
 
 ```
 
 ## Example to create a fixture for a individual model of user_management app
 
 ```
-python manage.py dumpdata user_management.Category --indent 4 > user_management/fixtures/user_data.json
+python3 manage.py dumpdata user_management.Category --indent 4 > user_management/fixtures/user_data.json
 
 ```
 
 ## Loading a Fixture
 
 ```
-python manage.py loaddata <fixture_name>.json
+python3 manage.py loaddata <fixture_name>.json
 
-python manage.py loaddata initial_data.json
+python3 manage.py loaddata initial_data.json
 ```
 
 ## Example Fixture File
