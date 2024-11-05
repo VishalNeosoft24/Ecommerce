@@ -15,7 +15,8 @@
           <div class="login-form">
             <!-- login form -->
             <h2>Login to your account</h2>
-            <form method="post" action="{% url 'login_page' %}">
+            <!-- <form method="post" action="{% url 'login_page' %}"> change this line for DRF API -->
+            <form method="post" id="user_login_form">
               {% csrf_token %}
               <input type="text" name="username" placeholder="Username" required />
               <input type="password" name="password" placeholder="Password" required />
@@ -23,7 +24,8 @@
                 <a href="{% url 'password_reset' %}">I forgot my password</a>
               </p>
               <div style="display: flex; justify-content: space-between;">
-                <button type="submit" class="btn btn-primary">Login</button>
+                <!-- <button type="submit" class="btn btn-primary">Login</button> change this line for DRF API -->
+                <button type="button" onclick="userLogin()" class="btn btn-primary">Login</button>
                 <div class="g_id_signin" data-type="standard" style="margin-top: 23px;"></div>
               </div>
               <!-- Display error message if any -->
@@ -95,6 +97,28 @@
         error: function (xhr, status, error) {
           console.error('Error:', error)
           toastr.error('An error occurred during login. Please try again.')
+        }
+      })
+    }
+    
+    function userLogin() {
+      var serializedData = $('#user_login_form').serializeArray() // Serialize the form data
+      console.log('serializedData: ', serializedData)
+    
+      $.ajax({
+        url: '{% url "login_api" %}', // Django URL template tag for the endpoint
+        type: 'POST',
+        data: serializedData, // Send serialized form data
+        success: function (data) {
+          if (data.success) {
+            window.location.href = '/' // Redirect on success
+          } else {
+            toastr.error(data.message || 'Login failed') // Show error message
+          }
+        },
+        error: function (xhr, status, error) {
+          console.log('Error', error)
+          toastr.error('An error occurred during login. Please try again.') // General error message
         }
       })
     }
