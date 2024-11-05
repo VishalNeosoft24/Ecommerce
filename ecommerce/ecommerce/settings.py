@@ -257,3 +257,13 @@ GEOIP_PATH = os.path.join(
     BASE_DIR, "geo_ip"
 )  # Point this to the folder where the .mmdb file is located
 GEOIP_CITY = os.path.join(GEOIP_PATH, "GeoLite2-City.mmdb")  # GeoLite2-City.mmdb file
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
