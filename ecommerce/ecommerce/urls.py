@@ -30,6 +30,7 @@ urlpatterns = [
     path("", include("product_management.urls")),
     path("", include("order_management.urls")),
     path("accounts/", include("allauth.urls")),
+    path("api/", include("apis.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += debug_toolbar_urls()
