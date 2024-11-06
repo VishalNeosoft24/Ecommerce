@@ -476,6 +476,14 @@ def place_order(request):
             shipping_address_id = request.POST.get("shipping_address_id")
             selected_payment = request.POST.get("selected_payment")
 
+            if not billing_address_id or not shipping_address_id:
+                return JsonResponse(
+                    {"status": "error", "msg": "Address is required"}, status=400
+                )
+
+            if not selected_payment:
+                return JsonResponse({"status": "error", "msg": "Select Payment Method"})
+
             cart = request.session.get("cart", {})
             sub_total_amount = 0
             sub_total_amount, _ = calculate_sub_total_amount(cart, sub_total_amount)
