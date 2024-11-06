@@ -420,6 +420,7 @@
 
       if(selectedBillingAddressId == '' && selectedBillingAddressId == ''){
         toastr.error("Add Address First")
+        return 
       }
 
       else if (selectedBillingAddressId==''){
@@ -440,6 +441,11 @@
           selectedPayment = radio.value;
         }
       });
+
+      if (selectedPayment==''){
+        toastr.error("Select Patment Method")
+        return
+      }
 
       if (selectedPayment === "payment_razorpay") {
           // Trigger Razorpay payment if Razorpay is selected
@@ -490,8 +496,6 @@
               }
           });
       } else {
-        console.log("selectedBillingAddressId = ",selectedBillingAddressId)
-        console.log("selectedShippingAddressId = ",selectedShippingAddressId)
           // Handle other payment methods (COD, etc.)
           $.ajax({
               url: "{% url 'place_order' %}",
@@ -517,8 +521,12 @@
                       toastr.error(response.msg);
                   }
               },
-              error: function () {
+              error: function (response) {
+                if (response.responseJSON.status=='error'){
+                  toastr.error(response.responseJSON.msg);
+                }else{
                   toastr.error('An error occurred.');
+                }
               }
           });
       }
