@@ -169,7 +169,7 @@ def login_page(request):
                 login(
                     request, user, backend="django.contrib.auth.backends.ModelBackend"
                 )
-                # Redirect to a success page, e.g., home page
+                # Redirect to a success page
                 return redirect("home_page")
             else:
                 # Invalid credentials
