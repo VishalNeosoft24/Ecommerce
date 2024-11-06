@@ -15,17 +15,17 @@
           <div class="login-form">
             <!-- login form -->
             <h2>Login to your account</h2>
-            <!-- <form method="post" action="{% url 'login_page' %}"> change this line for DRF API -->
-            <form method="post" id="user_login_form">
+            <form method="post" action="{% url 'login_page' %}"> 
+            {% comment %} <form method="post" id="user_login_form" onsubmit="event.preventDefault(); userLogin();"> change this line for DRF API {% endcomment %}
               {% csrf_token %}
-              <input type="text" name="username" placeholder="Username" required />
-              <input type="password" name="password" placeholder="Password" required />
+              <input type="text" id="username" name="username" placeholder="Username" />
+              <input type="password" id="password" name="password" placeholder="Password" />
               <p class="mb-1">
                 <a href="{% url 'password_reset' %}">I forgot my password</a>
               </p>
               <div style="display: flex; justify-content: space-between;">
-                <!-- <button type="submit" class="btn btn-primary">Login</button> change this line for DRF API -->
-                <button type="button" onclick="userLogin()" class="btn btn-primary">Login</button>
+                <button type="submit" class="btn btn-primary">Login</button>
+                {% comment %} <button type="submit" class="btn btn-primary">Login</button> change this line for DRF API {% endcomment %}
                 <div class="g_id_signin" data-type="standard" style="margin-top: 23px;"></div>
               </div>
               <!-- Display error message if any -->
@@ -101,27 +101,47 @@
       })
     }
     
-    function userLogin() {
-      var serializedData = $('#user_login_form').serializeArray() // Serialize the form data
-      console.log('serializedData: ', serializedData)
+    {% comment %} function userLogin() {
+      var username = $('#username').val()
+      var password = $('#password').val()
+    
+      if (!username) {
+        toastr.error('Username cannot be empty.')
+        return
+      }
+      if (!password) {
+        toastr.error('Password cannot be empty.')
+        return
+      }
+    
+      var serializedData = $('#user_login_form').serializeArray()
     
       $.ajax({
-        url: '{% url "login_api" %}', // Django URL template tag for the endpoint
+        url: '{% url "login_api" %}',
         type: 'POST',
-        data: serializedData, // Send serialized form data
+        data: serializedData,
         success: function (data) {
           if (data.success) {
-            window.location.href = '/' // Redirect on success
+            window.location.href = '/'
           } else {
-            toastr.error(data.message || 'Login failed') // Show error message
+            if (data.message) {
+              Object.keys(data.message).forEach(function (field) {
+                toastr.error(data.message[field].join(' '))
+              })
+            } else {
+              toastr.error('Login failed')
+            }
           }
         },
         error: function (xhr, status, error) {
           console.log('Error', error)
-          toastr.error('An error occurred during login. Please try again.') // General error message
+          toastr.error('An error occurred during login. Please try again.')
+        },
+        complete: function () {
+          // Hide loading indicator
         }
       })
-    }
+    } {% endcomment %}
   </script>
 
   <script>
