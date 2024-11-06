@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     # REST framework for building APIs
     "rest_framework",
+    "apis",
 ]
 
 SITE_ID = 1
