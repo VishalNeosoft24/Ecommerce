@@ -14,5 +14,10 @@ class User(AbstractUser):
         max_length=6, choices=GENDER_CHOICES, blank=True, null=True
     )
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["username"]),
+        ]
+
     def __str__(self):
         return self.username
