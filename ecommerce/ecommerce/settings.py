@@ -62,6 +62,8 @@ INSTALLED_APPS = [
     # REST framework for building APIs
     "rest_framework",
     "apis",
+    "drf_spectacular",  # swagger API documentation
+    "django_filters",
 ]
 
 SITE_ID = 1
@@ -267,4 +269,19 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Ecommerce ",
+    "DESCRIPTION": "API documentation",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
