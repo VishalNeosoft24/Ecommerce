@@ -1,6 +1,6 @@
+import re
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-
 from user_management.models import User
 
 
@@ -12,6 +12,26 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["first_name", "last_name", "username", "password", "email"]
+
+    def validate_password(self, value):
+        """Validate password strength."""
+        if len(value) < 8:
+            raise serializers.ValidationError(
+                "Password must be at least 8 characters long."
+            )
+        if not re.search(r"[A-Z]", value):
+            raise serializers.ValidationError(
+                "Password must contain at least one uppercase letter."
+            )
+        if not re.search(r"\d", value):
+            raise serializers.ValidationError(
+                "Password must contain at least one digit."
+            )
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", value):
+            raise serializers.ValidationError(
+                "Password must contain at least one special character."
+            )
+        return value
 
     def create(self, validated_data):
         # Remove password from validated_data before creating the user instance
@@ -49,7 +69,26 @@ class LoginSerializer(serializers.Serializer):
 
         user = authenticate(username=username, password=password)
         if user is None:
-            raise serializers.ValidationError("Invalid username or password.")
+            raise serializers.ValidationError(
+                "Invalid username or password, please try again."
+            )
 
         attrs["user"] = user
         return attrs
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    """user profile serializer"""
+
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "username", "email"]
+        read_only_fields = ["username"]
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
+
