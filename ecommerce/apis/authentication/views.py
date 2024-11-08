@@ -1,11 +1,13 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
-from .serializers import LoginSerializer, UserRegistrationSerializer
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from .serializers import (
+    LoginSerializer,
+    UserProfileSerializer,
+    UserRegistrationSerializer,
+)
 from django.contrib.auth import login, logout
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 
 
 class RegisterAPIView(APIView):
@@ -62,6 +64,34 @@ class LogoutAPIView(APIView):
             return JsonResponse({"success": True, "message": "Logout Successfully"})
         except Exception as e:
             return JsonResponse({"success": False, "message": str(e)})
+
+
+class ProfileAPIView(APIView):
+    """User Profile"""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        serializer = UserProfileSerializer(user)
+        return JsonResponse(serializer.data)
+
+    def put(self, request):
+        user = request.user
+        serializer = UserProfileSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": "User Updated Successfully",
+                    "data": serializer.data,
+                }
+            )
+        else:
+            return JsonResponse(
+                {"success": False, "message": serializer.errors},
+            )
 
 
 @ensure_csrf_cookie
