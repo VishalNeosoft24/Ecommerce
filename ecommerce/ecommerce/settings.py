@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from celery.schedules import crontab
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -229,23 +231,24 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
 
 # Celery settings
-CELERY_BROKER_URL = "redis://localhost:6379/0"
+# CELERY_BROKER_URL = "redis://localhost:6380/0"
+CELERY_BROKER_URL = "redis://redis:6379/0"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 
-from celery.schedules import crontab
 
 CELERY_BEAT_SCHEDULE = {
     "send-daily-order-summary": {
         "task": "order_management.tasks.send_daily_order_summary",
-        "schedule": 10.00,  # Runs every 10 seconds
+        "schedule": crontab(hour=0, minute=0),  # Every day at midnight
+        # "schedule": 10.00,  # Runs every 10 seconds
     },
     "send-weekly-wishlist-summary": {
         "task": "order_management.tasks.send_weekly_wishlist_summary",
-        # "schedule": crontab(
-        #     day_of_week=0, hour=8, minute=0
-        # ),  # Runs every Sunday at 8:00 AM
-        "schedule": 10.00,
+        "schedule": crontab(
+            day_of_week=0, hour=8, minute=0
+        ),  # Runs every Sunday at 8:00 AM
+        # "schedule": 10.00,
     },
 }
 
