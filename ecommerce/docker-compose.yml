@@ -1,0 +1,88 @@
+# Ecommerce 
+
+services:
+  web:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    
+    stdin_open: true  # Enable interaction
+    tty: true         # Keep the container open
+
+
+    env_file: 
+      - .env
+    
+    depends_on:
+      - db
+    networks:
+      - ecommerce_network
+    
+    volumes:
+      - ./static:/app/static
+      - ./media:/app/media
+
+
+  db:
+    image: mysql:8.0
+    container_name: ecommerce_mysql_container
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+      MYSQL_ROOT_PASSWORD: password
+    
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u myuser -pmypassword || exit 1"]
+      interval: 10s
+      retries: 5
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - ecommerce_network
+  
+  redis:
+    image: redis:6.0
+    container_name: ecommerce_redis_container
+    ports:
+      - "6380:6379"  # Expose Redis default port
+    networks:
+      - ecommerce_network
+
+  celery_worker:
+    build:
+      context: .
+    command: celery -A ecommerce worker --loglevel=info
+    depends_on:
+      - redis
+      - db
+    env_file: 
+      - .env
+    networks:
+      - ecommerce_network
+    volumes:
+      - .:/code
+  
+  celery_beat:  # Optional for periodic tasks
+    build:
+      context: .
+    command: celery -A ecommerce beat --loglevel=info
+    depends_on:
+      - redis
+      - db
+    env_file: 
+      - .env
+    networks:
+      - ecommerce_network
+    volumes:
+      - .:/code
+
+networks:
+  ecommerce_network:
+    driver: bridge
+
+volumes:
+  db_data:
