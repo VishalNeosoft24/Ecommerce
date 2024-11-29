@@ -1,0 +1,57 @@
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore virtual environment directories
+venv/
+env/
+.venv/
+ENV/
+*.env
+
+# Ignore database files
+*.db
+*.sqlite3
+
+# Ignore Django migration files (they will be recreated during Docker setup)
+*/migrations/*
+
+# Ignore log files and directories
+*.log
+logs/
+
+# Ignore settings files with sensitive data (you might want to exclude them for security reasons)
+settings.py
+*.env
+
+# Ignore the Django admin generated static files
+static/
+
+# Ignore the Django user-uploaded files (media)
+media/
+
+# Ignore coverage reports (if using tools like coverage.py)
+.coverage
+*.coveragerc
+
+# Ignore the node_modules directory (if you're using npm for frontend in your Django app)
+node_modules/
+
+# Ignore IDE/editor-specific files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Ignore temporary system files
+.DS_Store
+Thumbs.db
+
+# Ignore Docker-related files (if you don't want them to be included in the image)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+
