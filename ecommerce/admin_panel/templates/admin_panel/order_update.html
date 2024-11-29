@@ -89,11 +89,23 @@
                             </tr>
                             <tr>
                               <th scope="row">Payment ID:</th>
-                              <td>{{ order.payment_id }}</td>
+                              <td>
+                                {% if order.payment_id %}
+                                  {{ order.payment_id }}
+                                {% else %}
+                                  -
+                                {% endif %}
+                              </td>
                             </tr>
                             <tr>
                               <th scope="row" style="word-break: break-all;">Transaction ID:</th>
-                              <td>{{ order.transaction_id }}</td>
+                              <td>
+                                {% if order.transaction_id %}
+                                  {{ order.transaction_id }}
+                                {% else %}
+                                  -
+                                {% endif %}
+                              </td>
                             </tr>
                             <tr>
                               <th scope="row">Payment Status:</th>
