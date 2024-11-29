@@ -20,7 +20,7 @@ def send_daily_order_summary():
     orders = UserOrder.objects.filter(created_at__date=today)
 
     subject = f"Daily Order Summary for {today}"
-    template = EmailTemplate.objects.filter(title="Order Status Update").first()
+    template = EmailTemplate.objects.filter(title="Daily Order Summary").first()
     context = {"orders": orders, "today_date": today}
     rendered_content = Template(template.content).render(Context(context))
     plain_message = strip_tags(rendered_content)
